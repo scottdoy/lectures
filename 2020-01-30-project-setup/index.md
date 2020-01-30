@@ -99,11 +99,10 @@ The pathologist lists **cell nuclei** features of importance:
 
 **Look at** the data that is currently collected for your problem!
 
-<span class="fragment">
-*"A picture might be worth a thousand words; a formula is worth a thousand
-pictures."*
-<span style="align: right"><sub>Dr. Edsger Dijkstra</sub></span>
-</span>
+<p class="fragment">
+Even if the features have been extracted, you should view the data that
+generated them. 
+</p>
 
 ## Fine Needle Aspirates
 
