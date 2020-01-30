@@ -404,7 +404,7 @@ attributes = ["radius_mean", "texture_mean", "compactness_mean", "fractal_dimens
 train_set_display = train_set[attributes].copy()
 train_set_display['diagnosis'] = train_set['diagnosis']
 
-g = sns.pairplot(train_setdisplay, hue='diagnosis', plot_kws={'alpha': 0.5, 'edgecolor': None}, height=3, aspect=1)
+g = sns.pairplot(train_set_display, hue='diagnosis', plot_kws={'alpha': 0.5, 'edgecolor': None}, height=3, aspect=1)
 
 # Alter the plot
 g.fig.suptitle('Pair Plot of '+str(len(attributes)-1)+' Features', y=1.02)

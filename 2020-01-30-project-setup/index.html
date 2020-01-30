@@ -495,7 +495,7 @@
       train_set_display = train_set[attributes].copy()
       train_set_display[&#39;diagnosis&#39;] = train_set[&#39;diagnosis&#39;]
       
-      g = sns.pairplot(train_setdisplay, hue=&#39;diagnosis&#39;, plot_kws={&#39;alpha&#39;: 0.5, &#39;edgecolor&#39;: None}, height=3, aspect=1)
+      g = sns.pairplot(train_set_display, hue=&#39;diagnosis&#39;, plot_kws={&#39;alpha&#39;: 0.5, &#39;edgecolor&#39;: None}, height=3, aspect=1)
       
       # Alter the plot
       g.fig.suptitle(&#39;Pair Plot of &#39;+str(len(attributes)-1)+&#39; Features&#39;, y=1.02)
