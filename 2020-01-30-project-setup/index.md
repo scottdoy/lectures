@@ -128,11 +128,13 @@ What is the goal of your system?
 
 ## Questions to Ask
 
-1. How much data do we have?
-2. Does the data have labels associated with it? (Supervised vs. Unsupervised)
-3. How expensive is it to acquire more data (time, effort, cost)?
-4. What type of ML are you performing?
-4. *Assuming you succeed*, what is the benefit?
+<ol>
+<li class="fragment">How much data do we have?</li>
+<li class="fragment">Does the data have labels associated with it? (Supervised vs. Unsupervised)</li>
+<li class="fragment">How expensive is it to acquire more data (time, effort, cost)?</li>
+<li class="fragment">What type of ML are you performing?</li>
+<li class="fragment">**Assuming you succeed**, what is the benefit?</li>
+</ol>
 
 ## Assessing the Problem
 
