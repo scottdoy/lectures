@@ -329,7 +329,7 @@
       The transpose of column vector $\mathbf{x}$ is a <strong>row vector</strong>, written as $\mathbf{x}^{T}$:
       </p>
       <p class="fragment">
-      <br /><span class="math display"><strong>x</strong><sup><em>T</em></sup> = (<em>x</em><sub>1</sub>, <em>x</em><sub>2</sub>, ⋯, <em>x</em><sub><em>d</em></sub>)</span><br />
+      $\mathbf{x}^{T} = (x_{1}, x_{2}, \cdots, x_{d})$
       </p>
       </section>
       <section id="matrix-transpose" class="level2">
@@ -459,7 +459,7 @@
       <section id="matrix-negativity-shape-diagonality" class="level2">
       <h2>Matrix Negativity, Shape, Diagonality</h2>
       <p>A <strong>non-negative</strong> matrix has all elements greater than 0:</p>
-      <p><br /><span class="math display"><em>m</em><sub><em>i</em><em>j</em></sub> ≥ 0 ∀​<em>i</em>, <em>j</em></span><br /></p>
+      <p>$m_{ij}\geq0\quad\forall i,j$</p>
       <p class="fragment">
       A matrix is <strong>square</strong> if it has the same number of rows and columns: $n=d$.
       </p>
@@ -467,7 +467,7 @@
       A square matrix is <strong>diagonal</strong> if all off-diagonal elements are $0$, and is written:
       </p>
       <p class="fragment">
-      <br /><span class="math display">diag(<em>m</em><sub>11</sub>, <em>m</em><sub>22</sub>, …, <em>m</em><sub><em>d</em><em>d</em></sub>)</span><br />
+      $\textrm{diag}(m_{11},m_{22},\ldots,m_{dd})$
       </p>
       </section>
       <section id="identity-matrix" class="level2">
@@ -784,7 +784,7 @@
       <section id="commutive-properties" class="level2">
       <h2>Commutive Properties</h2>
       <p>For inner products, the order of the vectors doesn’t matter:</p>
-      <p><span class="math inline"><strong>x</strong><sup><em>T</em></sup><strong>y</strong> = <strong>y</strong><sup><em>T</em></sup><strong>x</strong></span></p>
+      <p>$\mathbf{x}^{T} \mathbf{y}=\mathbf{y}^{T} \mathbf{x}$</p>
       <p class="fragment">
       For pretty much everything else, multiplication is <strong>NOT commutive!</strong>
       </p>
@@ -1024,9 +1024,9 @@
       <section id="finding-eigenvectors" class="level2">
       <h2>Finding Eigenvectors</h2>
       <p>Given a $d\times d$ <strong>square</strong> matrix $\mathbf{M}$, we can write a linear equation of the form:</p>
-      <p><br /><span class="math display"><strong>M</strong><strong>x</strong> = <em>λ</em><strong>x</strong></span><br /></p>
+      <p>$\mathbf{Mx}=\lambda\mathbf{x}$</p>
       <p>which can be rewritten as:</p>
-      <p><br /><span class="math display">(<strong>M</strong>−<em>λ</em><strong>I</strong>)<strong>x</strong> = <strong>0</strong>,</span><br /></p>
+      <p>$ \left(\mathbf{M} - \lambda\mathbf{I}\right)\mathbf{x} = \mathbf{0},$</p>
       <p>where $\mathbf{0}$ is the $d$-dimensional zero vector. Then solve for two unknowns, $\mathbf{x}$ and $\lambda$.</p>
       </section>
       <section id="finding-eigenvectors-1" class="level2">
@@ -1037,7 +1037,7 @@
       <section id="finding-eigenvalues" class="level2">
       <h2>Finding Eigenvalues</h2>
       <p>Eigenvalues can be found by solving the <strong>characteristic equation</strong>:</p>
-      <p><br /><span class="math display">|<strong>M</strong> − <em>λ</em><strong>I</strong>| = <em>λ</em><sup><em>d</em></sup> + <em>a</em><sub>1</sub><em>λ</em><sup><em>d</em> − 1</sup> + ⋯ + <em>a</em><sub><em>d</em> − 1</sub><em>λ</em> + <em>a</em><sub><em>d</em></sub> = 0</span><br /></p>
+      <p>$|-\lambda\mathbf{I}| = \lambda^{d} + a_1\lambda^{d-1} + \cdots + a_{d-1}\lambda + a_{d} = 0 $</p>
       <p>for each of its $d$ roots. For the $i$-th root, we solve a set of equations to find the associated eigenvector $\mathbf{e}_{i}$.</p>
       <p class="fragment">
       <strong>Explanation</strong>: If you think of $\mathbf{M}$ as a transformation operation in $d$-dimensional space, then the eigenvector represents the <strong>direction</strong> of the transformation while the associated eigenvalue represents the <strong>magnitude</strong> of the transformation.
@@ -1109,7 +1109,7 @@
       <p>Let’s call $x$ a discrete random variable, which can take on any of the finite number $m$ of different values in the set $\mathcal{X}=\{v_{1}, v_{2}, \dots, v_{m}\}$.</p>
       <div class="fragment">
       <p>The probability that we observe value $v_{i}$ is given as:</p>
-      <p><br /><span class="math display"><em>p</em><sub><em>i</em></sub> = Pr(<em>x</em> = <em>v</em><sub><em>i</em></sub>), for <em>i</em> = 1, …, <em>m</em></span><br /></p>
+      <p>$ p_{i} = \textrm{Pr}(x=v_{i}), \textrm{for } i = 1, \dots, m $</p>
       </div>
       </section>
       <section id="properties-of-probabilities" class="level2">
@@ -1130,16 +1130,16 @@
       <section id="expected-values" class="level2">
       <h2>Expected Values</h2>
       <p>The expected (mean or average) value of a random variable $x$ is defined by:</p>
-      <p><br /><span class="math display">E[<em>x</em>] = <em>μ</em> = ∑<sub><em>x</em> ∈ 𝒳</sub><em>x</em><em>P</em>(<em>x</em>)</span><br /></p>
+      <p>$ \textrm{E}[x] = \mu = \sum_{x\in\mathcal{X}} xP(x) $</p>
       <p>Similarly, for a function $f (x)$:</p>
-      <p><br /><span class="math display">E[<em>f</em>(<em>x</em>)] = ∑<sub><em>x</em> ∈ 𝒳</sub><em>f</em>(<em>x</em>)<em>P</em>(<em>x</em>)</span><br /></p>
+      <p>$ \textrm{E}[f(x)] = \sum_{x\in\mathcal{X}}f(x)P(x) $</p>
       </section>
       <section id="second-moment-and-variance" class="level2">
       <h2>Second Moment and Variance</h2>
       <p>We can also define the <strong>second moment</strong>:</p>
-      <p><br /><span class="math display">E[<em>x</em><sup>2</sup>] = ∑<sub><em>x</em> ∈ 𝒳</sub><em>x</em><sup>2</sup><em>P</em>(<em>x</em>)</span><br /></p>
+      <p>$ \textrm{E}[x^2] = \sum_{x\in\mathcal{X}} x^2 P(x) $</p>
       <p>And the <strong>variance</strong>:</p>
-      <p><br /><span class="math display">Var[<em>x</em>] = <em>σ</em><sup>2</sup> = E[(<em>x</em> − <em>μ</em>)<sup>2</sup>] = ∑<sub><em>x</em> ∈ 𝒳</sub>(<em>x</em> − <em>μ</em>)<sup>2</sup><em>P</em>(<em>x</em>)</span><br /></p>
+      <p>$ \textrm{Var}[x] = \sigma^{2} = \textrm{E}[(x-\mu)^{2}] = \sum_{x\in\mathcal{X}}(x-\mu)^{2}P(x) $</p>
       <p>where $\sigma$ is the standard deviation.</p>
       </section>
       <section id="standard-deviation-and-variance" class="level2">
@@ -1154,19 +1154,20 @@
       <section id="joint-probability-for-2-random-variables-1" class="level2">
       <h2>Joint Probability for 2 Random Variables</h2>
       <p>For each pair of possible values of $x$ and $y$, we can define the <strong>joint probability mass function</strong>, $P(x,y)$, representing the joint probability of observing <strong>specific</strong> $x$ and $y$ values. Since these are probabilities:</p>
-      <p><br /><span class="math display"><em>P</em>(<em>x</em>, <em>y</em>) ≥ 0   and   ∑<sub><em>x</em> ∈ 𝒳</sub>∑<sub><em>y</em> ∈ 𝒴</sub><em>P</em>(<em>x</em>, <em>y</em>) = 1</span><br /></p>
+      <p>$ P(x,y)\geq 0 \qquad\textrm{ and }\qquad \sum_{x\in\mathcal{X}}\sum_{y\in\mathcal{Y}}{P(x,y)} = 1 $</p>
       <p>This represents the connection between values of $x$ and $y$. In other words, we can say that $P(x=\textrm{brown}, y=70)$ is the probability of observing an individual who has brown hair, <strong>and</strong> is 5’10" tall.</p>
       </section>
       <section id="marginal-distributions" class="level2">
       <h2>Marginal Distributions</h2>
       <p>If we want to isolate the probability of observing a specific value for one of these, we have to sum over all the values of the other:</p>
-      <p><br /><span class="math display"><em>P</em><sub><em>x</em></sub>(<em>x</em>) = ∑<sub><em>y</em> ∈ 𝒴</sub><em>P</em>(<em>x</em>, <em>y</em>)</span><br /> <br /><span class="math display"><em>P</em><sub><em>y</em></sub>(<em>y</em>) = ∑<sub><em>x</em> ∈ 𝒳</sub><em>P</em>(<em>x</em>, <em>y</em>)</span><br /></p>
+      <p>$ P_{x}(x) = \sum_{y\in\mathcal{Y}}{P(x,y)} $</p>
+      <p>$ P_{y}(y) = \sum_{x\in\mathcal{X}}{P(x,y)} $</p>
       <p>These are the <strong>marginal distributions</strong> and represent the probability of observing a specific value of $x$ or $y$ no matter what the other variable is.</p>
       </section>
       <section id="statistical-independence" class="level2">
       <h2>Statistical Independence</h2>
       <p><strong>Statistical independence</strong> means that the value of one variable does not depend on another. Variables $x$ and $y$ are statistically independent if and only if:</p>
-      <p><br /><span class="math display"><em>P</em>(<em>x</em>, <em>y</em>) = <em>P</em><sub><em>x</em></sub>(<em>x</em>)<em>P</em><sub><em>y</em></sub>(<em>y</em>)</span><br /></p>
+      <p>$ P(x,y) = P_{x}(x)P_{y}(y) $</p>
       <p>In other words, the joint probability mass function is the product of the marginal distributions for $x$ and $y$.</p>
       <p>Since $P_{x}(x)$ does not depend on $y$, and $P_{y}(y)$ does not depend on $x$, then each is contributing to the joint probability separately.</p>
       </section>
@@ -1177,7 +1178,7 @@
       <section id="statistical-independence-example-1" class="level2">
       <h2>Statistical Independence Example</h2>
       <p>If these two variables are <strong>independent</strong> (which they probably are), then the probability of BOTH of these things occurring is simply the product of the probabilities of each:</p>
-      <p><br /><span class="math display"><em>P</em>(brown, 70) = <em>P</em><sub><em>x</em></sub>(<em>x</em> = brown)<em>P</em><sub><em>y</em></sub>(<em>y</em> = 70)</span><br /></p>
+      <p>$ P(\textrm{brown}, 70) = P_{x}(x=\textrm{brown})P_{y}(y=70) $</p>
       <p><strong>Key idea:</strong> If two random variables are statistically independent, then the two variables have no impact on one another. The chance of observing a specific set of two values is the chance of ONE of them multiplied by the chance of the other.</p>
       </section>
       <section id="what-are-the-chances" class="level2">
@@ -1193,23 +1194,26 @@
       <section id="expected-value-of-joint-random-variables" class="level2">
       <h2>Expected Value of Joint Random Variables</h2>
       <p>The expected value of a function with two variables is defined as:</p>
-      <p><br /><span class="math display">E[<em>f</em>(<em>x</em>, <em>y</em>)] = ∑<sub><em>x</em> ∈ 𝒳</sub>∑<sub><em>y</em> ∈ 𝒴</sub><em>f</em>(<em>x</em>, <em>y</em>)<em>P</em>(<em>x</em>, <em>y</em>)</span><br /></p>
+      <p>$ \textrm{E}[f(x,y)] = \sum_{x\in\mathcal{X}}\sum_{y\in\mathcal{Y}}f(x,y)P(x,y) $</p>
       </section>
       <section id="mean-and-variance-for-joint-random-variables" class="level2">
       <h2>Mean and Variance for Joint Random Variables</h2>
       <p>Similarly, the means and variances for each variable are:</p>
-      <p><br /><span class="math display"><em>μ</em><sub><em>x</em></sub> = E[<em>x</em>] = ∑<sub><em>x</em> ∈ 𝒳</sub>∑<sub><em>y</em> ∈ 𝒴</sub><em>x</em><em>P</em>(<em>x</em>, <em>y</em>)</span><br /> <br /><span class="math display"><em>μ</em><sub><em>y</em></sub> = E[<em>y</em>] = ∑<sub><em>x</em> ∈ 𝒳</sub>∑<sub><em>y</em> ∈ 𝒴</sub><em>y</em><em>P</em>(<em>x</em>, <em>y</em>)</span><br /> <br /><span class="math display"><em>σ</em><sub><em>x</em></sub><sup>2</sup> = Var[<em>x</em>] = E[(<em>x</em> − <em>μ</em><sub><em>x</em></sub>)<sup>2</sup>] = ∑<sub><em>x</em> ∈ 𝒳</sub>∑<sub><em>y</em> ∈ 𝒴</sub>(<em>x</em> − <em>μ</em><sub><em>x</em></sub>)<sup>2</sup><em>P</em>(<em>x</em>, <em>y</em>)</span><br /> <br /><span class="math display"><em>σ</em><sub><em>y</em></sub><sup>2</sup> = Var[<em>y</em>] = E[(<em>y</em> − <em>μ</em><sub><em>y</em></sub>)<sup>2</sup>] = ∑<sub><em>x</em> ∈ 𝒳</sub>∑<sub><em>y</em> ∈ 𝒴</sub>(<em>y</em> − <em>μ</em><sub><em>y</em></sub>)<sup>2</sup><em>P</em>(<em>x</em>, <em>y</em>)</span><br /></p>
+      <p>$ \mu_{x} = \textrm{E}[x] = \sum_{x\in\mathcal{X}}\sum_{y\in\mathcal{Y}}xP(x,y) $</p>
+      <p>$ \mu_{y} = \textrm{E}[y] = \sum_{x\in\mathcal{X}}\sum_{y\in\mathcal{Y}}yP(x,y) $</p>
+      <p>$ \sigma_{x}^{2} = \textrm{Var}[x] = \textrm{E}[(x-\mu_{x})^{2}] = \sum_{x\in\mathcal{X}}\sum_{y\in\mathcal{Y}}(x-\mu_{x})^{2}P(x,y) $</p>
+      <p>$ \sigma_{y}^{2} = \textrm{Var}[y] = \textrm{E}[(y-\mu_{y})^{2}]= \sum_{x\in\mathcal{X}}\sum_{y\in\mathcal{Y}}(y-\mu_{y})^{2}P(x,y) $</p>
       </section>
       <section id="measures-of-dependence-covariance" class="level2">
       <h2>Measures of Dependence: Covariance</h2>
       <p>The <strong>covariance</strong> or <strong>cross-moment</strong> can be used to get another measure of statistical independence. The covariance is defined as:</p>
-      <p><br /><span class="math display"><em>σ</em><sub><em>x</em><em>y</em></sub> = E[(<em>x</em> − <em>μ</em><sub><em>x</em></sub>)(<em>y</em> − <em>μ</em><sub><em>y</em></sub>)] = ∑<sub><em>x</em> ∈ 𝒳</sub>∑<sub><em>y</em> ∈ 𝒴</sub>(<em>x</em> − <em>μ</em><sub><em>x</em></sub>)(<em>y</em> − <em>μ</em><sub><em>y</em></sub>)<em>P</em>(<em>x</em>, <em>y</em>)</span><br /></p>
+      <p>$ \sigma_{xy} = \textrm{E}[(x-\mu_{x})(y-\mu_{y})] = \sum_{x\in\mathcal{X}}\sum_{y\in\mathcal{Y}}(x-\mu_{x})(y-\mu_{y})P(x,y) $</p>
       </section>
       <section id="measures-of-dependence-covariance-1" class="level2">
       <h2>Measures of Dependence: Covariance</h2>
-      <p>The expected values and the covariance can be expressed in vector notation with $\mathbf{x}=(x,y)^{T}$:</p>
-      <p><br /><span class="math display"><strong>μ</strong> = E[<strong>x</strong>] = ∑<sub><strong>x</strong> ∈ 𝒳𝒴</sub><strong>x</strong><em>P</em>(<strong>x</strong>)</span><br /></p>
-      <p><br /><span class="math display"><strong>Σ</strong> = E[(<strong>x</strong> − <strong>σ</strong>)(<strong>x</strong> − <strong>σ</strong>)<sup><em>T</em></sup>]</span><br /></p>
+      <p>The expected values and the covariance can be expressed in vector notation with $\mathbf{x}$:</p>
+      <p>$ \boldsymbol{\mu} = \textrm{E}[\mathbf{x}] = \sum_{\mathbf{x}\in{\mathcal{X}\mathcal{Y}}}\mathbf{x}P(\mathbf{x})$</p>
+      <p>$\boldsymbol{\Sigma} = \textrm{E}[(\mathbf{x}-\boldsymbol{\sigma})(\mathbf{x}-\boldsymbol{\sigma})^{T}]$</p>
       </section>
       <section id="covariance-correlation-and-independence" class="level2">
       <h2>Covariance, Correlation, and Independence</h2>
@@ -1244,7 +1248,7 @@
       <h2>Conditional Probability: Joint Probability Redefined</h2>
       <p>If $x$ and $y$ are dependent, then we cannot simplify – the likelihood of one variable must include some information about the other.</p>
       <p>If we rearrange the definition of conditional probability, we get:</p>
-      <p><br /><span class="math display"><em>P</em>(<em>x</em>, <em>y</em>) = <em>P</em>(<em>x</em>|<em>y</em>)<em>P</em>(<em>y</em>) = <em>P</em>(<em>y</em>|<em>x</em>)<em>P</em>(<em>x</em>)</span><br /></p>
+      <p>$ P(x,y) = P(x|y)P(y) = P(y|x)P(x) $</p>
       <p>We will use this in a moment to define <strong>Bayes Rule</strong>. But first…</p>
       </section>
       <section id="the-law-of-total-probability" class="level2">
@@ -1270,18 +1274,18 @@
       <h2>Bayes Rule</h2>
       <p>Consider the case where the $y$ has a particular value. This can occur $m$ different ways: when $x=v_{1}$, $x=v_{2},\ldots, x=v_{m}$.</p>
       <p>We’ve already seen that $P(y)$ can be calculated by summing the joint probability $P(x,y)$ over all values of $x$:</p>
-      <p><br /><span class="math display"><em>P</em>(<em>y</em>) = ∑<sub><em>x</em> ∈ 𝒳</sub><em>P</em>(<em>x</em>, <em>y</em>)</span><br /></p>
+      <p>$ P(y) = \sum_{x\in\mathcal{X}}P(x,y) $</p>
       <p>From the definition of conditional probability, we have:</p>
-      <p><br /><span class="math display"><em>P</em>(<em>x</em>, <em>y</em>) = <em>P</em>(<em>y</em>|<em>x</em>)<em>P</em>(<em>x</em>) = <em>P</em>(<em>x</em>|<em>y</em>)<em>P</em>(<em>y</em>)</span><br /></p>
+      <p>$ P(x,y) = P(y|x)P(x) = P(x|y)P(y) $</p>
       </section>
       <section id="bayes-rule-1" class="level2">
       <h2>Bayes Rule</h2>
       <div class="l-double">
       <div>
-      <p><br /><span class="math display"><em>P</em>(<em>y</em>) = ∑<sub><em>x</em> ∈ 𝒳</sub><em>P</em>(<em>x</em>, <em>y</em>)</span><br /></p>
+      <p>$ P(y) = \sum_{x\in\mathcal{X}}P(x,y) $</p>
       </div>
       <div>
-      <p><br /><span class="math display"><em>P</em>(<em>x</em>, <em>y</em>) = <em>P</em>(<em>y</em>|<em>x</em>)<em>P</em>(<em>x</em>) = <em>P</em>(<em>x</em>|<em>y</em>)<em>P</em>(<em>y</em>)</span><br /></p>
+      <p>$ P(x,y) = P(y|x)P(x) = P(x|y)P(y) $</p>
       </div>
       </div>
       <p>We can rewrite these equations to get Bayes Rule:</p>
@@ -1291,10 +1295,12 @@
       <h2>Bayes Rule: In English</h2>
       <p><br /><span class="math display">$$ P(x|y) = \frac{P(y|x)P(x)}{\sum_{x\in\mathcal{X}}P(y|x)P(x)} $$</span><br /></p>
       <p>We will cover Bayes Rule all on its own, because it’s very important. But quickly, here is another way of looking at it:</p>
+      <div class="txt-left">
       <p>Posterior: $P(x|y)$, the probability of $x$ given $y$</p>
       <p>Likelihood: $P(y|x)$, the probability of $y$ given $x$</p>
       <p>Prior: $P(x)$, the probability of observing $x$, regardless of $y$</p>
       <p>Evidence: $_{x}P(y|x)P(x)$, a normalizing factor</p>
+      </div>
       </section>
       <section id="bayes-rule-in-example" class="level2">
       <h2>Bayes Rule: In Example</h2>

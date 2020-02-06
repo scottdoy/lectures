@@ -215,7 +215,7 @@ The transpose of column vector \$\\mathbf{x}\$ is a **row vector**, written as
 </p>
 
 <p class="fragment">
-$$\mathbf{x}^{T} = (x_{1}, x_{2}, \cdots, x_{d})$$
+\$\\mathbf{x}^{T} = (x_{1}, x_{2}, \\cdots, x_{d})\$
 </p>
 
 ## Matrix Transpose
@@ -360,13 +360,13 @@ We will discuss these later when we talk about signed distance functions.
 
 A **non-negative** matrix has all elements greater than 0:
 
-$$m_{ij}\geq0\quad\forall\!i,j$$
+\$m_{ij}\\geq0\\quad\\forall i,j\$
 
 <p class="fragment">A matrix is **square** if it has the same number of rows and columns: \$n=d\$.</p>
 
 <p class="fragment">A square matrix is **diagonal** if all off-diagonal elements are \$0\$, and is written:</p> 
 
-<p class="fragment">$$\textrm{diag}(m_{11},m_{22},\ldots,m_{dd})$$</p>
+<p class="fragment">\$\\textrm{diag}(m_{11},m_{22},\\ldots,m_{dd})\$</p>
 
 ## Identity Matrix
 
@@ -714,7 +714,7 @@ $$ y_{i} = \sum_{j=1}^{d}m_{ij}x_{j} $$
 
 For inner products, the order of the vectors doesn't matter: 
 
-$\mathbf{x}^{T} \mathbf{y}=\mathbf{y}^{T} \mathbf{x}$
+\$\\mathbf{x}^{T} \\mathbf{y}=\\mathbf{y}^{T} \\mathbf{x}\$
 
 <p class="fragment">For pretty much everything else, multiplication is **NOT commutive!**</p>
 
@@ -966,11 +966,11 @@ demonstration here:
 Given a \$d\\times d\$ **square** matrix \$\\mathbf{M}\$, we can write a linear
 equation of the form:
 
-$$\mathbf{Mx}=\lambda\mathbf{x}$$
+\$\\mathbf{Mx}=\\lambda\\mathbf{x}\$
 
 which can be rewritten as:
 
-$$ \left(\mathbf{M} - \lambda\mathbf{I}\right)\mathbf{x} = \mathbf{0},$$
+\$ \\left(\\mathbf{M} - \\lambda\\mathbf{I}\\right)\\mathbf{x} = \\mathbf{0},\$
 
 where \$\\mathbf{0}\$ is the \$d\$-dimensional zero vector. Then solve for two
 unknowns, \$\\mathbf{x}\$ and \$\\lambda\$. 
@@ -989,8 +989,8 @@ eigenvalues \$\\{\\lambda\_1, \\lambda\_2, \\cdots, \\lambda\_d\\}\$.
 
 Eigenvalues can be found by solving the **characteristic equation**:
 
-$$|\mathbf{M}-\lambda\mathbf{I}| = \lambda^{d} + a_1\lambda^{d-1} + \cdots +
-a_{d-1}\lambda + a_{d} = 0 $$
+\$|\mathbf{M}-\\lambda\\mathbf{I}| = \\lambda^{d} + a_1\\lambda^{d-1} + \\cdots +
+a_{d-1}\\lambda + a_{d} = 0 \$
 
 for each of its \$d\$ roots. For the \$i\$-th root, we solve a set of equations to
 find the associated eigenvector \$\\mathbf{e}_{i}\$.
@@ -1087,7 +1087,7 @@ v_{m}\\}$.
 <div class="fragment">
 The probability that we observe value \$v_{i}\$ is given as:
 
-$$ p_{i} = \textrm{Pr}(x=v_{i}), \text{for } i = 1, \dots, m $$
+\$ p_{i} = \\textrm{Pr}(x=v_{i}), \\textrm{for } i = 1, \\dots, m \$
 </div>
 
 ## Properties of Probabilities
@@ -1108,22 +1108,22 @@ All probabilities **must** satisfy two conditions:
 
 The expected (mean or average) value of a random variable \$x\$ is defined by:
 
-$$ \textrm{E}[x] = \mu = \sum_{x\in\mathcal{X}} xP(x) $$
+\$ \\textrm{E}[x] = \\mu = \\sum_{x\\in\\mathcal{X}} xP(x) \$
 
 Similarly, for a function \$f (x)\$:
 
-$$ \textrm{E}[f(x)] = \sum_{x\in\mathcal{X}}f(x)P(x) $$
+\$ \\textrm{E}[f(x)] = \\sum_{x\\in\\mathcal{X}}f(x)P(x) \$
 
 ## Second Moment and Variance
 
 We can also define the **second moment**:
 
-$$ \textrm{E}[x^2] = \sum_{x\in\mathcal{X}} x^2 P(x) $$
+\$ \\textrm{E}[x^2] = \\sum_{x\\in\\mathcal{X}} x^2 P(x) \$
 
 And the **variance**:
 
-$$ \textrm{Var}[x] = \sigma^{2} = \textrm{E}[(x-\mu)^{2}] =
-\sum_{x\in\mathcal{X}}(x-\mu)^{2}P(x) $$
+\$ \\textrm{Var}[x] = \\sigma^{2} = \\textrm{E}[(x-\\mu)^{2}] =
+\\sum_{x\\in\\mathcal{X}}(x-\\mu)^{2}P(x) \$
 
 where \$\\sigma\$ is the standard deviation.
 
@@ -1146,8 +1146,8 @@ For each pair of possible values of \$x\$ and \$y\$, we can define the **joint
 probability mass function**, \$P(x,y)\$, representing the joint probability of
 observing **specific** \$x\$ and \$y\$ values. Since these are probabilities:
 
-$$ P(x,y)\geq 0 \qquad\text{ and }\qquad
-\sum_{x\in\mathcal{X}}\sum_{y\in\mathcal{Y}}{P(x,y)} = 1 $$
+\$ P(x,y)\\geq 0 \\qquad\\textrm{ and }\\qquad
+\\sum_{x\\in\\mathcal{X}}\\sum_{y\\in\\mathcal{Y}}{P(x,y)} = 1 \$
 
 This represents the connection between values of \$x\$ and \$y\$. In other words, we
 can say that \$P(x=\\textrm{brown}, y=70)\$ is the probability of observing an
@@ -1158,8 +1158,9 @@ individual who has brown hair, **and** is 5'10" tall.
 If we want to isolate the probability of observing a specific value for one of
 these, we have to sum over all the values of the other:
 
-$$ P_{x}(x) = \sum_{y\in\mathcal{Y}}{P(x,y)} $$
-$$ P_{y}(y) = \sum_{x\in\mathcal{X}}{P(x,y)} $$
+\$ P_{x}(x) = \\sum_{y\\in\\mathcal{Y}}{P(x,y)} \$
+
+\$ P_{y}(y) = \\sum_{x\\in\\mathcal{X}}{P(x,y)} \$
 
 These are the **marginal distributions** and represent the probability of
 observing a specific value of \$x\$ or \$y\$ no matter what the other variable is.
@@ -1170,7 +1171,7 @@ observing a specific value of \$x\$ or \$y\$ no matter what the other variable i
 depend on another. Variables \$x\$ and \$y\$ are statistically independent if and
 only if:
 
-$$ P(x,y) = P_{x}(x)P_{y}(y) $$
+\$ P(x,y) = P_{x}(x)P_{y}(y) \$
 
 In other words, the joint probability mass function is the product of the
 marginal distributions for \$x\$ and \$y\$.
@@ -1190,7 +1191,7 @@ If these two variables are **independent** (which they probably are), then the
 probability of BOTH of these things occurring is simply the product of the
 probabilities of each:
 
-$$ P(\textrm{brown}, 70) = P_{x}(x=\textrm{brown})P_{y}(y=70) $$
+\$ P(\\textrm{brown}, 70) = P_{x}(x=\\textrm{brown})P_{y}(y=70) \$
 
 **Key idea:** If two random variables are statistically independent, then the
 two variables have no impact on one another. The chance of observing a specific
@@ -1216,37 +1217,40 @@ How can we check to see if two variables are independent?
 
 The expected value of a function with two variables is defined as:
 
-$$ \textrm{E}[f(x,y)] = \sum_{x\in\mathcal{X}}\sum_{y\in\mathcal{Y}}f(x,y)P(x,y) $$
+\$ \\textrm{E}[f(x,y)] = \\sum_{x\\in\\mathcal{X}}\\sum_{y\\in\\mathcal{Y}}f(x,y)P(x,y) \$
 
 ## Mean and Variance for Joint Random Variables
 
 Similarly, the means and variances for each variable are:
 
-$$ \mu_{x} = \textrm{E}[x] = \sum_{x\in\mathcal{X}}\sum_{y\in\mathcal{Y}}xP(x,y) $$
-$$ \mu_{y} = \textrm{E}[y] = \sum_{x\in\mathcal{X}}\sum_{y\in\mathcal{Y}}yP(x,y) $$
-$$ \sigma_{x}^{2} = \textrm{Var}[x] = \textrm{E}[(x-\mu_{x})^{2}] =
-\sum_{x\in\mathcal{X}}\sum_{y\in\mathcal{Y}}(x-\mu_{x})^{2}P(x,y) $$ $$
-\sigma_{y}^{2} = \textrm{Var}[y] = \textrm{E}[(y-\mu_{y})^{2}]=
-\sum_{x\in\mathcal{X}}\sum_{y\in\mathcal{Y}}(y-\mu_{y})^{2}P(x,y) $$
+\$ \\mu_{x} = \\textrm{E}[x] = \\sum_{x\\in\\mathcal{X}}\\sum_{y\\in\\mathcal{Y}}xP(x,y) \$
+
+\$ \\mu_{y} = \\textrm{E}[y] = \\sum_{x\\in\\mathcal{X}}\\sum_{y\\in\\mathcal{Y}}yP(x,y) \$
+
+\$ \\sigma_{x}^{2} = \\textrm{Var}[x] = \\textrm{E}[(x-\\mu_{x})^{2}] =
+\\sum_{x\\in\\mathcal{X}}\\sum_{y\\in\\mathcal{Y}}(x-\\mu_{x})^{2}P(x,y) \$ 
+
+\$ \\sigma_{y}^{2} = \\textrm{Var}[y] = \\textrm{E}[(y-\\mu_{y})^{2}]=
+\\sum_{x\\in\\mathcal{X}}\\sum_{y\\in\\mathcal{Y}}(y-\\mu_{y})^{2}P(x,y) \$
 
 ## Measures of Dependence: Covariance
 
 The **covariance** or **cross-moment** can be used to get another measure of
 statistical independence. The covariance is defined as:
 
-$$ \sigma_{xy} = \textrm{E}[(x-\mu_{x})(y-\mu_{y})] =
-\sum_{x\in\mathcal{X}}\sum_{y\in\mathcal{Y}}(x-\mu_{x})(y-\mu_{y})P(x,y) $$
+\$ \\sigma_{xy} = \\textrm{E}[(x-\\mu_{x})(y-\\mu_{y})] =
+\\sum_{x\\in\\mathcal{X}}\\sum_{y\\in\\mathcal{Y}}(x-\\mu_{x})(y-\\mu_{y})P(x,y) \$
 
 ## Measures of Dependence: Covariance
 
 The expected values and the covariance can be expressed in vector notation with
-\$\\mathbf{x}=(x,y)^{T}\$:
+\$\\mathbf{x}\$:
 
-$$ \boldsymbol{\mu} = \textrm{E}[\mathbf{x}] =
-\sum_{\mathbf{x}\in{\mathcal{X}\mathcal{Y}}}\mathbf{x}P(\mathbf{x})$$
+\$ \\boldsymbol{\\mu} = \\textrm{E}[\\mathbf{x}] =
+\\sum_{\\mathbf{x}\\in{\\mathcal{X}\\mathcal{Y}}}\\mathbf{x}P(\\mathbf{x})\$
 
-$$\boldsymbol{\Sigma} =
-\textrm{E}[(\mathbf{x}-\boldsymbol{\sigma})(\mathbf{x}-\boldsymbol{\sigma})^{T}]$$
+\$\\boldsymbol{\\Sigma} =
+\\textrm{E}[(\\mathbf{x}-\\boldsymbol{\\sigma})(\\mathbf{x}-\\boldsymbol{\\sigma})^{T}]\$
 
 ## Covariance, Correlation, and Independence
 
@@ -1301,7 +1305,7 @@ variable must include some information about the other.
 
 If we rearrange the definition of conditional probability, we get:
 
-$$ P(x,y) = P(x|y)P(y) = P(y|x)P(x) $$
+\$ P(x,y) = P(x|y)P(y) = P(y|x)P(x) \$
 
 We will use this in a moment to define **Bayes Rule**. But first...
 
@@ -1342,21 +1346,21 @@ different ways: when \$x=v_{1}\$, \$x=v_{2},\\ldots, x=v_{m}\$.
 We've already seen that \$P(y)\$ can be calculated by summing the joint
 probability \$P(x,y)\$ over all values of \$x\$:
 
-$$ P(y) = \sum_{x\in\mathcal{X}}P(x,y) $$
+\$ P(y) = \\sum_{x\\in\\mathcal{X}}P(x,y) \$
 
 From the definition of conditional probability, we have:
 
-$$ P(x,y) = P(y|x)P(x) = P(x|y)P(y) $$
+\$ P(x,y) = P(y|x)P(x) = P(x|y)P(y) \$
 
 ## Bayes Rule
 
 <div class="l-double">
 <div>
-$$ P(y) = \sum_{x\in\mathcal{X}}P(x,y) $$
+\$ P(y) = \\sum_{x\\in\\mathcal{X}}P(x,y) \$
 
 </div>
 <div>
-$$ P(x,y) = P(y|x)P(x) = P(x|y)P(y) $$
+\$ P(x,y) = P(y|x)P(x) = P(x|y)P(y) \$
 
 </div>
 </div>
@@ -1372,6 +1376,7 @@ $$ P(x|y) = \frac{P(y|x)P(x)}{\sum_{x\in\mathcal{X}}P(y|x)P(x)} $$
 We will cover Bayes Rule all on its own, because it's very important. But
 quickly, here is another way of looking at it:
 
+<div class="txt-left">
 Posterior: \$P(x|y)\$, the probability of \$x\$ given \$y\$
 
 Likelihood: \$P(y|x)\$, the probability of \$y\$ given \$x\$
@@ -1379,6 +1384,7 @@ Likelihood: \$P(y|x)\$, the probability of \$y\$ given \$x\$
 Prior: \$P(x)\$, the probability of observing \$x\$, regardless of \$y\$
 
 Evidence: \$\sum_{x\in\mathcal{X}}P(y|x)P(x)\$, a normalizing factor
+</div>
 
 ## Bayes Rule: In Example
 
