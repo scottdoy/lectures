@@ -1,0 +1,1423 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mathematical Foundations</title>
+
+    <meta name="description" content="Mathematical Foundations">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">Mathematical Foundations</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="presentation-formats-and-advice" class="level2">
+      <h2>Presentation Formats and Advice</h2>
+      </section>
+      <section id="presentations-overview" class="level2">
+      <h2>Presentations: Overview</h2>
+      <ul>
+      <li class="fragment">
+      Online sign-up sheet for scheduling presentations
+      </li>
+      <li class="fragment">
+      Up to <strong>three</strong> slots per class
+      </li>
+      <li class="fragment">
+      Each presentation should be <strong>10 minutes</strong>, plus questions
+      </li>
+      </ul>
+      </section>
+      <section id="presentation-goals" class="level2">
+      <h2>Presentation: Goals</h2>
+      <p>Presentations have two goals:</p>
+      <ol>
+      <li class="fragment">
+      <strong>Learn</strong> about how the tools discussed in class are implemented in the real world;
+      </li>
+      <li class="fragment">
+      <strong>Share</strong> that knowledge with the class; and
+      </li>
+      <li class="fragment">
+      <strong>Think critically</strong> about published work.
+      </li>
+      </ol>
+      </section>
+      <section id="presentation-format-introduction" class="level2">
+      <h2>Presentation Format: Introduction</h2>
+      <ul>
+      <li class="fragment">
+      What is the domain, purpose, and central problem of the research?
+      </li>
+      <li class="fragment">
+      How is the current research improving upon state of the art?
+      </li>
+      <li class="fragment">
+      What is the proposed answer to the problem?
+      </li>
+      <li class="fragment">
+      <strong>Why is the suggested approach valid or not valid?</strong>
+      </li>
+      </ul>
+      </section>
+      <section id="presentation-format-methodology" class="level2">
+      <h2>Presentation Format: Methodology</h2>
+      <ul>
+      <li class="fragment">
+      What is the data, and how is it organized, labeled, and processed?
+      </li>
+      <li class="fragment">
+      What features are extracted from the data prior to classification?
+      </li>
+      <li class="fragment">
+      <strong>Can you think of other features that would work better?</strong>
+      </li>
+      <li class="fragment">
+      <strong>What would an “ideal” feature be, and how could you extract it?</strong>
+      </li>
+      </ul>
+      </section>
+      <section id="presentation-format-experimental-design" class="level2">
+      <h2>Presentation Format: Experimental Design</h2>
+      <ul>
+      <li class="fragment">
+      What is the experimental setup? Constraints? Variables? Controls?
+      </li>
+      <li class="fragment">
+      Is their design appropriate? What are its flaws and limitations?
+      </li>
+      <li class="fragment">
+      <strong>Given this setup, will the hypothesis be conclusively answered?</strong>
+      </li>
+      </ul>
+      </section>
+      <section id="presentation-format-results" class="level2">
+      <h2>Presentation Format: Results</h2>
+      <ul>
+      <li class="fragment">
+      What was the outcome of the experiments?
+      </li>
+      <li class="fragment">
+      Were they reported properly (standard deviations, significance, etc.)?
+      </li>
+      <li class="fragment">
+      <strong>Would you confirm or reject the hypothesis at this point?</strong>
+      </li>
+      </ul>
+      </section>
+      <section id="presentation-format-discussion" class="level2">
+      <h2>Presentation Format: Discussion</h2>
+      <ul>
+      <li class="fragment">
+      Do the authors address your concerns?
+      </li>
+      <li class="fragment">
+      Does the paper clearly set up the next set of experiments?
+      </li>
+      <li class="fragment">
+      <strong>Are there any “incriminating” facts tucked away in the discussion section?</strong>
+      </li>
+      <li class="fragment">
+      Do the authors come to the same set of conclusions that you did?
+      </li>
+      </ul>
+      </section>
+      <section id="presentation-format-general" class="level2">
+      <h2>Presentation Format: General</h2>
+      <ul>
+      <li class="fragment">
+      Did you like the paper?
+      </li>
+      <li class="fragment">
+      Was it confusing, too simple, etc.?
+      </li>
+      </ul>
+      <p class="fragment">
+      These are <strong>guidelines</strong>, feel free to tinker with the format to include things you want to discuss.
+      </p>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="foundations-and-background" class="level2">
+      <h2>Foundations and Background</h2>
+      </section>
+      <section id="goals-of-this-lecture" class="level2">
+      <h2>Goals of this Lecture</h2>
+      <p>What you <strong>should</strong> be able to do at the end of this lecture:</p>
+      <ul>
+      <li class="fragment">
+      Understand / decipher basic mathematical notation
+      </li>
+      <li class="fragment">
+      Recall linear algebra up to and including eigenvalues / eigenvectors
+      </li>
+      <li class="fragment">
+      Understand random variables, dependence, conditional probability, normal (Gaussian) distributions, and the Central Limit Theorem
+      </li>
+      </ul>
+      </section>
+      <section id="goals-of-this-lecture-1" class="level2">
+      <h2>Goals of this Lecture</h2>
+      <p>What you <strong>are not</strong> expected to do:</p>
+      <ul>
+      <li class="fragment">
+      Be fluent in reading mathematical symbols and notations
+      </li>
+      <li class="fragment">
+      Derive functions and equations from first principles
+      </li>
+      <li class="fragment">
+      Understand every slide right away
+      </li>
+      </ul>
+      <p class="fragment">
+      For now we are focused on <strong>application</strong>.
+      </p>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="mathematical-notation" class="level2">
+      <h2>Mathematical Notation</h2>
+      </section>
+      <section id="vectors" class="level2">
+      <h2>Vectors</h2>
+      <p>A single object is characterized by the features in each column.</p>
+      <p class="fragment">
+      Each feature / column is a <strong>dimension</strong> of that patient.
+      </p>
+      <p class="fragment">
+      We can write this out as a $d$-dimensional <strong>column vector</strong> $\mathbf{x}$, which can be written as:
+      </p>
+      <p><br /><span class="math display">$$\mathbf{x} =
+          \begin{pmatrix}
+          x_{1} \\
+          x_{2} \\
+          \vdots \\
+          x_{d}
+          \end{pmatrix}$$</span><br /></p>
+      </section>
+      <section id="theres-a-reason-its-called-a-vector" class="level2">
+      <h2>There’s a Reason It’s Called a Vector</h2>
+      <p>In our dataset, $x_{1}$ is the mean nuclei radius for this patient, $x_{2}$ is the mean texture, and so on.</p>
+      <p class="fragment">
+      There are 30 features, so $d=30$.
+      </p>
+      <p class="fragment">
+      You can imagine the vector as <strong>a point in $d$-dimensional space</strong>.
+      </p>
+      </section>
+      <section id="theres-a-reason-its-called-a-vector-1" class="level2">
+      <h2>There’s a Reason It’s Called a Vector</h2>
+      <p>For simplicity, let’s pretend we have two features to describe the patient, so $d=2$:</p>
+      <p><br /><span class="math display">$$\mathbf{x} =
+          \begin{pmatrix}
+          6 \\
+          8
+          \end{pmatrix}$$</span><br /></p>
+      </section>
+      <section id="representation-of-vectors-in-space" class="level2">
+      <h2>Representation of Vectors in Space</h2>
+      <figure>
+      <img src="img/vector_loc_in_space.svg" alt="Vector Location in Space" style="width:70.0%" /><figcaption>Vector Location in Space</figcaption>
+      </figure>
+      </section>
+      <section id="matrices" class="level2">
+      <h2>Matrices</h2>
+      <p>We can group several vectors together as a <strong>matrix</strong>.</p>
+      <p class="fragment">
+      We have $n$ patients’ worth of feature vectors in our dataset. We can represent the whole dataset as a matrix $\mathbf{M}$:
+      </p>
+      <p class="fragment">
+      <br /><span class="math display">$$\mathbf{M} =
+      \begin{pmatrix}
+      m_{11} &amp; \cdots &amp; m_{1d} \\
+      \vdots &amp; \ddots &amp; \vdots \\
+      m_{n1} &amp; \cdots &amp; m_{nd}
+      \end{pmatrix}$$</span><br />
+      </p>
+      </section>
+      <section id="matrices-1" class="level2">
+      <h2>Matrices</h2>
+      <p><br /><span class="math display">$$\mathbf{M} =
+          \begin{pmatrix}
+          m_{11} &amp; \cdots &amp; m_{1d} \\
+          \vdots &amp; \ddots &amp; \vdots \\
+          m_{n1} &amp; \cdots &amp; m_{nd}
+          \end{pmatrix}$$</span><br /></p>
+      <p>This matrix is:</p>
+      <ul>
+      <li class="fragment">
+      $n\times d$ dimension
+      </li>
+      <li class="fragment">
+      Rectangular ($n$ doesn’t necessarily equal $d$)
+      </li>
+      </ul>
+      </section>
+      <section id="uses-of-matrices" class="level2">
+      <h2>Uses of Matrices</h2>
+      <p>Matrices can be used to represent all kinds of things, like transforms, rotations, gradient fields, etc.</p>
+      <p class="fragment">
+      For our FNA features, $n=569$ and $d=30$, so $\mathbf{M}$ has dimensionality $569\times 30$.
+      </p>
+      <p class="fragment">
+      When writing the dimensionality of a matrix, it is conventional to write “rows” x “columns”:
+      </p>
+      <ul>
+      <li class="fragment">
+      A 3x2 matrix has three rows and two columns
+      </li>
+      <li class="fragment">
+      A 2x3 matrix has two rows and three columns.
+      </li>
+      </ul>
+      </section>
+      <section id="vector-and-matrix-transpose" class="level2">
+      <h2>Vector and Matrix Transpose</h2>
+      <p>The <strong>transpose</strong> of a vector or matrix basically “flips” the rows and columns.</p>
+      <p class="fragment">
+      The transpose of column vector $\mathbf{x}$ is a <strong>row vector</strong>, written as $\mathbf{x}^{T}$:
+      </p>
+      <p class="fragment">
+      <br /><span class="math display"><strong>x</strong><sup><em>T</em></sup> = (<em>x</em><sub>1</sub>, <em>x</em><sub>2</sub>, ⋯, <em>x</em><sub><em>d</em></sub>)</span><br />
+      </p>
+      </section>
+      <section id="matrix-transpose" class="level2">
+      <h2>Matrix Transpose</h2>
+      <p>Similarly the transpose of $\mathbf{M}$ is $\mathbf{M}^{T}$:</p>
+      <div class="l-double">
+      <div>
+      <p><br /><span class="math display">$$ \mathbf{M} =
+          \begin{pmatrix}
+          m_{11} &amp; \cdots &amp; m_{d1} \\
+          \vdots &amp; \ddots &amp; \vdots \\
+          m_{1n} &amp; \cdots &amp; m_{nd}
+          \end{pmatrix}$$</span><br /></p>
+      </div>
+      <div>
+      <p><br /><span class="math display">$$ \mathbf{M}^{T} =
+          \begin{pmatrix}
+          m_{11} &amp; \cdots &amp; m_{n1} \\
+          \vdots &amp; \ddots &amp; \vdots \\
+          m_{1d} &amp; \cdots &amp; m_{dn}
+          \end{pmatrix}$$</span><br /></p>
+      </div>
+      </div>
+      </section>
+      <section id="vector-and-matrix-transpose-1" class="level2">
+      <h2>Vector and Matrix Transpose</h2>
+      <p>Mathematically, the $ji$-th entry of $\mathbf{M}^{T}$ is the $ij$-th entry of $\mathbf{M}$.</p>
+      <p>Our FNA dataset $\mathbf{M}$ goes from a $569 \times 30$ matrix to a $30 \times 569$ matrix $\mathbf{M}^{T}$.</p>
+      <div class="l-double">
+      <div>
+      <p><br /><span class="math display">$$ \mathbf{M} =
+          \begin{pmatrix}
+          m_{11} &amp; \cdots &amp; m_{d1} \\
+          \vdots &amp; \ddots &amp; \vdots \\
+          m_{1n} &amp; \cdots &amp; m_{nd}
+          \end{pmatrix}$$</span><br /></p>
+      </div>
+      <div>
+      <p><br /><span class="math display">$$ \mathbf{M}^{T} =
+          \begin{pmatrix}
+          m_{11} &amp; \cdots &amp; m_{n1} \\
+          \vdots &amp; \ddots &amp; \vdots \\
+          m_{1d} &amp; \cdots &amp; m_{dn}
+          \end{pmatrix}$$</span><br /></p>
+      </div>
+      </div>
+      </section>
+      <section id="dimensionality-terminology" class="level2">
+      <h2>Dimensionality Terminology</h2>
+      <p><strong>Dimensionality</strong> refers to the number of rows and columns in a vector or matrix:</p>
+      <ul>
+      <li class="fragment">
+      A vector $\mathbf{x}$ with $d$ elements is a <strong>$d$-dimensional vector</strong>
+      </li>
+      <li class="fragment">
+      A matrix $\mathbf{M}$ with $n$ rows and $d$ columns <strong>has dimensions $n\times d$</strong>
+      </li>
+      </ul>
+      <p class="fragment">
+      Informally the first axis is “rows”, the second is “columns.”
+      </p>
+      <p class="fragment">
+      Third axis: “planes” or “pages”.
+      </p>
+      <p class="fragment">
+      Beyond that: dimension number.
+      </p>
+      </section>
+      <section id="matrix-symmetry-and-anti-symmetry" class="level2">
+      <h2>Matrix Symmetry and Anti-Symmetry</h2>
+      <p>A square ($d\times d$) matrix is <strong>symmetric</strong> if $m_{ij} = m_{ji}$.</p>
+      <p class="fragment">
+      An example of a symmetric matrix is a <strong>similarity matrix</strong>, where $m_{ij}$ is the “distance” between $i$ and $j$ in your dataset.
+      </p>
+      <p class="fragment">
+      How would you calculate this?
+      </p>
+      </section>
+      <section id="python-implementation-of-similarity-matrix" class="level2">
+      <h2>Python Implementation of Similarity Matrix</h2>
+      <pre class="{python}"><code>
+      # Initialize
+      import numpy as np
+      import pandas as pd
+      from sklearn import preprocessing
+      
+      # Load up the breast cancer dataset to use
+      DATAPATH = &#39;/path/to/the/data.csv&#39;
+      df = pd.read_csv(DATAPATH)
+      
+      # Pull the data from the dataframe and scale it
+      simdata = df.iloc[:, 2:32:2].as_matrix()
+      simdata_scaled = preprocessing.scale(simdata)
+      
+      # Set up the distance calculation
+      result = np.zeros((simdata_scaled.shape[0], simdata_scaled.shape[0]))
+      for i in range(simdata_scaled.shape[0]):
+          for j in range(simdata_scaled.shape[0]):
+              result[i,j] = np.abs(np.sum(simdata_scaled[i,:] - simdata_scaled[j,:]))
+      </code></pre>
+      </section>
+      <section id="matrix-symmetry-heatmap" class="level2">
+      <h2>Matrix Symmetry Heatmap</h2>
+      <figure>
+      <img src="img/symmetric_matrix.svg" alt="Symmetric Matrix" style="width:60.0%" /><figcaption>Symmetric Matrix</figcaption>
+      </figure>
+      </section>
+      <section id="matrix-anti-symmetry" class="level2">
+      <h2>Matrix Anti-Symmetry</h2>
+      <p>A matrix is <strong>anti-symmetric</strong> if $m_{ij} = -m_{ji}$.</p>
+      <p class="fragment">
+      Similarity is typically positive.
+      </p>
+      <p class="fragment">
+      A “signed” direction can be negative if the distance from $i\rightarrow j$ is the <strong>negative</strong> distance from $j\rightarrow i$.
+      </p>
+      <p class="fragment">
+      We will discuss these later when we talk about signed distance functions.
+      </p>
+      </section>
+      <section id="matrix-anti-symmetry-1" class="level2">
+      <h2>Matrix Anti-Symmetry</h2>
+      <figure>
+      <img src="img/antisymmetric_matrix.svg" alt="Anti-Symmetric Matrix" style="width:60.0%" /><figcaption>Anti-Symmetric Matrix</figcaption>
+      </figure>
+      </section>
+      <section id="matrix-negativity-shape-diagonality" class="level2">
+      <h2>Matrix Negativity, Shape, Diagonality</h2>
+      <p>A <strong>non-negative</strong> matrix has all elements greater than 0:</p>
+      <p><br /><span class="math display"><em>m</em><sub><em>i</em><em>j</em></sub> ≥ 0 ∀​<em>i</em>, <em>j</em></span><br /></p>
+      <p class="fragment">
+      A matrix is <strong>square</strong> if it has the same number of rows and columns: $n=d$.
+      </p>
+      <p class="fragment">
+      A square matrix is <strong>diagonal</strong> if all off-diagonal elements are $0$, and is written:
+      </p>
+      <p class="fragment">
+      <br /><span class="math display">diag(<em>m</em><sub>11</sub>, <em>m</em><sub>22</sub>, …, <em>m</em><sub><em>d</em><em>d</em></sub>)</span><br />
+      </p>
+      </section>
+      <section id="identity-matrix" class="level2">
+      <h2>Identity Matrix</h2>
+      <p>An important matrix is the <strong><em>identity matrix</em></strong>:</p>
+      <p><br /><span class="math display">$$\mathbf{I} =
+          \begin{pmatrix}
+          1 &amp; 0 &amp; 0 \\
+          0 &amp; 1 &amp; 0 \\
+          0 &amp; 0 &amp; 1
+          \end{pmatrix}$$</span><br /></p>
+      <p class="fragment">
+      $\mathbf{I}$ can be any size, but it MUST be square.
+      </p>
+      <p class="fragment">
+      We can use this to enable operations between incompatible types (more on this later, in the eigenvector section).
+      </p>
+      </section>
+      </section>
+      <section id="section-3" class="level1">
+      <h1></h1>
+      <section id="matrix-operations" class="level2">
+      <h2>Matrix Operations</h2>
+      </section>
+      <section id="vector-addition-and-subtraction" class="level2">
+      <h2>Vector Addition and Subtraction</h2>
+      <p>You can add and subtract vectors only if they both have the same dimensionality. This results in <strong>another vector</strong>:</p>
+      <p><br /><span class="math display">$$\mathbf{x} + \mathbf{y} =
+          \begin{pmatrix}
+          x_{1} + y_{1} \\
+          x_{2} + y_{2} \\
+          \vdots \\
+          x_{d} + y_{d}
+          \end{pmatrix}
+      =
+          \begin{pmatrix}
+          w_{1} \\
+          w_{2} \\
+          \vdots \\
+          w_{d}
+          \end{pmatrix}
+      = \mathbf{w}$$</span><br /></p>
+      </section>
+      <section id="vector-addition-and-subtraction-1" class="level2">
+      <h2>Vector Addition and Subtraction</h2>
+      <p>You can add and subtract vectors only if they both have the same dimensionality. This results in <strong>another vector</strong>:</p>
+      <p><br /><span class="math display">$$\mathbf{x} - \mathbf{y} =
+          \begin{pmatrix}
+          x_{1} - y_{1} \\
+          x_{2} - y_{2} \\
+          \vdots \\
+          x_{d} - y_{d}
+          \end{pmatrix}
+      =
+          \begin{pmatrix}
+          z_{1} \\
+          z_{2} \\
+          \vdots \\
+          z_{d}
+          \end{pmatrix}
+      = \mathbf{z}$$</span><br /></p>
+      </section>
+      <section id="matrix-addition-and-subtraction" class="level2">
+      <h2>Matrix Addition and Subtraction</h2>
+      <p>This is similar to matrix addition and subtraction: $\mathbf{A}$ and $\mathbf{B}$ must be the same size, and this results in a <strong>matrix</strong>:</p>
+      <p><br /><span class="math display">$$\mathbf{A} + \mathbf{B} =
+          \begin{pmatrix}
+          a_{11}+b_{11} &amp; \cdots &amp; a_{1d}+b_{1d} \\
+          \vdots &amp; \ddots &amp; \vdots \\
+          a_{n1}+b_{n1} &amp; \cdots &amp; a_{nd}+b_{nd}
+          \end{pmatrix} =
+          \begin{pmatrix}
+          c_{11} &amp; \cdots &amp; c_{1d} \\
+          \vdots &amp; \ddots &amp; \vdots \\
+          c_{n1} &amp; \cdots &amp; c_{nd}
+          \end{pmatrix} = 
+          \mathbf{C}$$</span><br /></p>
+      </section>
+      <section id="matrix-addition-and-subtraction-1" class="level2">
+      <h2>Matrix Addition and Subtraction</h2>
+      <p>This is similar to matrix addition and subtraction: $\mathbf{A}$ and $\mathbf{B}$ must be the same size, and this results in a <strong>matrix</strong>:</p>
+      <p><br /><span class="math display">$$\mathbf{A} - \mathbf{B} =
+          \begin{pmatrix}
+          a_{11}-b_{11} &amp; \cdots &amp; a_{1d} - b_{1d} \\
+          \vdots &amp; \ddots &amp; \vdots \\
+          a_{n1}-b_{n1} &amp; \cdots &amp; a_{nd} - b_{nd}
+          \end{pmatrix} =
+          \begin{pmatrix}
+          e_{11} &amp; \cdots &amp; e_{1d} \\
+          \vdots &amp; \ddots &amp; \vdots \\
+          e_{n1} &amp; \cdots &amp; e_{nd}
+          \end{pmatrix} = 
+          \mathbf{E}$$</span><br /></p>
+      </section>
+      <section id="vector-multiplication-inner-product" class="level2">
+      <h2>Vector Multiplication: Inner Product</h2>
+      <p>For <strong>vectors</strong>, there are two types of multiplication: <strong>inner</strong> and <strong>outer</strong> products.</p>
+      <p class="fragment">
+      For inner products, the two vectors $\mathbf{x}$ and $\mathbf{y}$ must be the same dimensionality, and result in a <strong>scalar</strong>.
+      </p>
+      <div class="fragment">
+      <p><br /><span class="math display">$$\mathbf{x}^{T}\mathbf{y} =
+          \begin{pmatrix}
+          x_{1} &amp;
+          x_{2} &amp;
+          \cdots &amp;
+          x_{d}
+          \end{pmatrix}
+          \begin{pmatrix}
+          y_{1} \\
+          y_{2} \\
+          \vdots \\
+          y_{d}
+          \end{pmatrix}
+      =
+          \sum_{i=1}^{d}x_{i}y_{i}
+      =
+      z$$</span><br /></p>
+      </div>
+      </section>
+      <section id="vector-multiplication-inner-product-1" class="level2">
+      <h2>Vector Multiplication: Inner Product</h2>
+      <p><br /><span class="math display">$$\mathbf{x}^{T}\mathbf{y} =
+          \begin{pmatrix}
+          x_{1} &amp;
+          x_{2} &amp;
+          \cdots &amp;
+          x_{d}
+          \end{pmatrix}
+          \begin{pmatrix}
+          y_{1} \\
+          y_{2} \\
+          \vdots \\
+          y_{d}
+          \end{pmatrix}
+      =
+          \sum_{i=1}^{d}x_{i}y_{i}
+      =
+      z$$</span><br /></p>
+      <strong>Remember</strong>:
+      <p class="fragment">
+      For INNER products, the transpose sign is on the INSIDE of the two vectors.
+      </p>
+      <p class="fragment">
+      The left-hand vector is a ROW vector, the other is a COLUMN vector.
+      </p>
+      </section>
+      <section id="vector-multiplication-outer-product" class="level2">
+      <h2>Vector Multiplication: Outer Product</h2>
+      <p>For outer products, the result of multiplication is a <strong>matrix</strong>.</p>
+      <p class="fragment">
+      For $d$-dimensional $\mathbf{x}$ and $n$-dimensional $\mathbf{y}$:
+      </p>
+      <div class="fragment">
+      <p><br /><span class="math display">$$\mathbf{x}\mathbf{y}^{T} =
+          \begin{pmatrix}
+          x_{1} \\
+          x_{2} \\
+          \vdots \\
+          x_{d}
+          \end{pmatrix}
+          \begin{pmatrix}
+          y_{1} &amp;
+          y_{2} &amp;
+          \cdots &amp;
+          y_{n}
+          \end{pmatrix}
+      =
+          \begin{pmatrix}
+          x_{1}y_{1} &amp;
+          \cdots &amp;
+          x_{1}y_{n} \\
+          \vdots &amp;
+          \ddots &amp;
+          \vdots \\
+          x_{d}y_{1} &amp;
+          \cdots &amp;
+          x_{d}y_{n}
+          \end{pmatrix}
+      =
+      \mathbf{M}$$</span><br /></p>
+      </div>
+      </section>
+      <section id="vector-multiplication-outer-product-1" class="level2">
+      <h2>Vector Multiplication: Outer Product</h2>
+      <p><br /><span class="math display">$$\mathbf{x}\mathbf{y}^{T} =
+          \begin{pmatrix}
+          x_{1} \\
+          x_{2} \\
+          \vdots \\
+          x_{d}
+          \end{pmatrix}
+          \begin{pmatrix}
+          y_{1} &amp;
+          y_{2} &amp;
+          \cdots &amp;
+          y_{n}
+          \end{pmatrix}
+      =
+          \begin{pmatrix}
+          x_{1}y_{1} &amp;
+          \cdots &amp;
+          x_{1}y_{n} \\
+          \vdots &amp;
+          \ddots &amp;
+          \vdots \\
+          x_{d}y_{1} &amp;
+          \cdots &amp;
+          x_{d}y_{n}
+          \end{pmatrix}
+      =
+      \mathbf{M}$$</span><br /></p>
+      <p>$\mathbf{M}$ is a $d\times n$ dimensional matrix. It does NOT have to be square, so $\mathbf{x}$ and $\mathbf{y}$ can be unequal lengths.</p>
+      <p class="fragment">
+      <strong>Remember</strong>: For OUTER products, the transpose sign is on the OUTSIDE of the two vectors.
+      </p>
+      <p class="fragment">
+      So the left vector is column, the right one is row.
+      </p>
+      </section>
+      <section id="matrix-multiplication" class="level2">
+      <h2>Matrix Multiplication</h2>
+      Two matrices can be multiplied if they have the same <strong>inner dimension</strong>.
+      <p class="fragment">
+      If $\mathbf{A}$ is an $n\times d$ matrix and $\mathbf{B}$ is a $d\times m$ matrix, then the “inner dimension” is $d$.
+      </p>
+      <p class="fragment">
+      The resulting matrix has the same dimensions as the <strong>outer dimension</strong>, or $n\times m$. This depends on $\mathbf{A}$ and $\mathbf{B}$, and does NOT have to be square.
+      </p>
+      </section>
+      <section id="matrix-multiplication-1" class="level2">
+      <h2>Matrix Multiplication</h2>
+      <p><br /><span class="math display">$$
+      \begin{align*}
+      \mathbf{AB} &amp; =
+          \underbrace{
+              \begin{pmatrix}
+              a_{11} &amp; a_{12} &amp; a_{13} \\
+              a_{21} &amp; a_{22} &amp; a_{23} \\
+              a_{31} &amp; a_{32} &amp; a_{33} \\
+              a_{41} &amp; a_{42} &amp; a_{43} 
+              \end{pmatrix}
+          }_{\text{Dim: }4\times 3}
+          \overbrace{
+              \begin{pmatrix}
+              b_{11} &amp; b_{12} \\
+              b_{21} &amp; b_{22} \\
+              b_{31} &amp; b_{32} 
+              \end{pmatrix}
+          }^{\text{Dim: }3\times 2} \\
+          &amp; =
+          \underbrace{
+              \begin{pmatrix}
+              a_{11}b_{11} + a_{12}b_{21} + a_{13}b_{31} &amp;
+              a_{11}b_{12} + a_{12}b_{22} + a_{13}b_{32} \\
+              a_{21}b_{11} + a_{22}b_{21} + a_{23}b_{31} &amp;
+              a_{21}b_{12} + a_{22}b_{22} + a_{23}b_{32} \\
+              a_{31}b_{11} + a_{32}b_{21} + a_{33}b_{31} &amp;
+              a_{31}b_{12} + a_{32}b_{22} + a_{33}b_{32} \\
+              a_{41}b_{11} + a_{42}b_{21} + a_{43}b_{31} &amp;
+              a_{41}b_{12} + a_{42}b_{22} + a_{43}b_{32}
+              \end{pmatrix}
+          }_{\text{Dim: }4\times 2}
+      \end{align*}
+      $$</span><br /></p>
+      </section>
+      <section id="matrix-times-vector-multiplication" class="level2">
+      <h2>Matrix $\times$ Vector Multiplication</h2>
+      <p>If $\mathbf{M}$ is a $n\times d$ matrix, it can be multiplied by a vector $\mathbf{x}$ of dimension $d$ to yield a <strong>vector</strong>:</p>
+      <p><br /><span class="math display">$$\mathbf{Mx} =
+          \begin{pmatrix}
+          m_{11} &amp; \cdots &amp; \cdots &amp; m_{1d} \\
+          \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+          m_{n1} &amp; \cdots &amp; \cdots &amp; m_{nd}
+          \end{pmatrix}
+          \begin{pmatrix}
+          x_{1} \\
+          \vdots \\
+          \vdots \\
+          x_{d}
+          \end{pmatrix}
+      =
+          \begin{pmatrix}
+          m_{11}x_{1} + \cdots + m_{1d}x_{d} \\
+          \vdots \\
+          m_{n1}x_{1} + \cdots + m_{nd}x_{d}
+          \end{pmatrix}
+      =\mathbf{y}$$</span><br /></p>
+      </section>
+      <section id="matrix-times-vector-multiplication-1" class="level2">
+      <h2>Matrix $\times$ Vector Multiplication</h2>
+      <p><br /><span class="math display">$$\mathbf{Mx} =
+          \begin{pmatrix}
+          m_{11} &amp; \cdots &amp; \cdots &amp; m_{1d} \\
+          \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+          m_{n1} &amp; \cdots &amp; \cdots &amp; m_{nd}
+          \end{pmatrix}
+          \begin{pmatrix}
+          x_{1} \\
+          \vdots \\
+          \vdots \\
+          x_{d}
+          \end{pmatrix}
+      =
+          \begin{pmatrix}
+          m_{11}x_{1} + \cdots + m_{1d}x_{d} \\
+          \vdots \\
+          m_{n1}x_{1} + \cdots + m_{nd}x_{d}
+          \end{pmatrix}
+      =\mathbf{y}$$</span><br /></p>
+      <p>$\mathbf{y}$ has a dimensionality equal to the <strong>rows</strong> of $\mathbf{M}$, where the $i$-th element is:</p>
+      <p><br /><span class="math display">$$ y_{i} = \sum_{j=1}^{d}m_{ij}x_{j} $$</span><br /></p>
+      </section>
+      <section id="commutive-properties" class="level2">
+      <h2>Commutive Properties</h2>
+      <p>For inner products, the order of the vectors doesn’t matter:</p>
+      <p><span class="math inline"><strong>x</strong><sup><em>T</em></sup><strong>y</strong> = <strong>y</strong><sup><em>T</em></sup><strong>x</strong></span></p>
+      <p class="fragment">
+      For pretty much everything else, multiplication is <strong>NOT commutive!</strong>
+      </p>
+      <p class="fragment">
+      For example, $\mathbf{Mx}\neq\mathbf{xM}$<span class="fragment"> (In fact, $\mathbf{xM}$ is undefined!)</span>
+      </p>
+      <p class="fragment">
+      In general, you should evaluate equations left-to-right.
+      </p>
+      </section>
+      <section id="linear-algebra-sanity-check" class="level2">
+      <h2>Linear Algebra Sanity Check</h2>
+      <p>This can be intimidating if you haven’t worked with it for awhile.</p>
+      <p class="fragment">
+      At the very least, you should know what <strong>kind of object</strong> you get from an equation? (Scalar, Vector, or Matrix)
+      </p>
+      <p class="fragment">
+      When attempting to figure out a paper or an equation, ask yourself:
+      </p>
+      <ul>
+      <li class="fragment">
+      What does each term represent in the equation?
+      </li>
+      <li class="fragment">
+      What is the dimensionality of each term?
+      </li>
+      <li class="fragment">
+      Can I group operations to work through one piece at a time?
+      </li>
+      <li class="fragment">
+      If I work through each operation, what do I get?
+      </li>
+      </ul>
+      </section>
+      <section id="linear-algebra-sanity-check-1" class="level2">
+      <h2>Linear Algebra Sanity Check</h2>
+      <p>For example, what does the following equation yield?</p>
+      <p>$\mathbf{x}^{T}\mathbf{yM}\mathbf{z}=\textrm{??}$</p>
+      <p>(Assume all the dimensions are correct, given the ordering.)</p>
+      </section>
+      <section id="linear-algebra-sanity-check-2" class="level2">
+      <h2>Linear Algebra Sanity Check</h2>
+      <p>$\mathbf{x}^T\mathbf{yMz}=\textrm{??}$</p>
+      <ul>
+      <li>$\mathbf{x, y, z}$ are vectors, and $\mathbf{M}$ is a matrix.</li>
+      <li>Assume the dimensions are all correct
+      <ul>
+      <li>$\mathbf{x}$ and $\mathbf{y}$ must be the same size</li>
+      <li>If $\mathbf{M}$ is $n\times m$, then $\mathbf{z}$ must be $m$-dimensional</li>
+      </ul></li>
+      <li>$\mathbf{x}^{T}\mathbf{y}$ is an inner product, so that yields a <strong>scalar</strong></li>
+      <li>A scalar times a matrix yields another matrix of the <strong>same dimensions</strong></li>
+      <li>A matrix times a vector yields a <strong>vector</strong> with the <strong>outer dimension</strong> of the matrix ($n$, in this example)</li>
+      </ul>
+      </section>
+      <section id="linear-algebra-sanity-check-matlab" class="level2">
+      <h2>Linear Algebra Sanity Check (Matlab)</h2>
+      <pre class="{matlab}"><code>
+      % First set up our vectors (must be equal size)
+      x = rand(3,1);
+      y = rand(3,1);
+      
+      % Then the matrix (can be any dimension)
+      M = rand(4,5);
+      
+      % Last vector size must match the matrix&#39;s second dimension (5)
+      z = rand(5,1);
+      
+      % Now solve and output to console:
+      result = x&#39; * y * M * z</code></pre>
+      <pre class="{pre}"><code>
+      result =
+          0.4332
+          0.2973
+          0.6395
+          0.4119</code></pre>
+      </section>
+      <section id="vector-norms-and-orthogonality" class="level2">
+      <h2>Vector Norms and Orthogonality</h2>
+      <p>The <strong>Euclidean Norm</strong> of a vector is its <strong>length</strong>, calculated as:</p>
+      <p><br /><span class="math display">$$ \|\mathbf{x}\| = \sqrt{\mathbf{x}^{T}\mathbf{x}} $$</span><br /></p>
+      <div class="fragment">
+      <p>The angle between two vectors $\mathbf{x}$ and $\mathbf{y}$, called $\theta$, can be calculated as:</p>
+      <p><br /><span class="math display">$$ \cos{\theta} = \frac{\mathbf{x}^{T}\mathbf{y}}{\|\mathbf{x}\|\|\mathbf{y}\|} $$</span><br /></p>
+      </div>
+      </section>
+      <section id="orthogonality-and-colinearity" class="level2">
+      <h2>Orthogonality and Colinearity</h2>
+      <div class="l-double">
+      <div>
+      <p><strong>Vector Norm</strong></p>
+      <p><br /><span class="math display">$$ \|\mathbf{x}\| = \sqrt{\mathbf{x}^{T}\mathbf{x}} $$</span><br /></p>
+      </div>
+      <div>
+      <p><strong>Vector Angle</strong></p>
+      <p><br /><span class="math display">$$ \cos{\theta} = \frac{\mathbf{x}^{T}\mathbf{y}}{\|\mathbf{x}\|\|\mathbf{y}\|} $$</span><br /></p>
+      </div>
+      </div>
+      <p>Special Cases:</p>
+      <ul>
+      <li class="fragment">
+      $\mathbf{x}^{T}\mathbf{y} = 0$: thus, $\cos{\theta}=0$ and $\theta=90^\circ$, and $\mathbf{x}$ and $\mathbf{y}$ are <strong>orthogonal</strong> (at right angles).
+      </li>
+      <li class="fragment">
+      $\|\mathbf{x}^{T}\mathbf{y}\|=\|\mathbf{x}\|\|\mathbf{y}\|$: thus $\cos{\theta} = 1$ and $\theta = 0^\circ$, and $\mathbf{x}$ and $\mathbf{y}$ are <strong>colinear</strong> (same line).
+      </li>
+      </ul>
+      </section>
+      <section id="linear-independence" class="level2">
+      <h2>Linear Independence</h2>
+      <p>Vectors are <strong>linearly independent</strong> if none can be written as a combination of any two others.</p>
+      <p class="fragment">
+      They are all orthogonal to one another.
+      </p>
+      <p class="fragment">
+      A set of $d$ linearly independent vectors <strong>spans</strong> a $d$-dimensional space.
+      </p>
+      <p class="fragment">
+      In other words, any vector in the space can be written as a combination of the spanning vectors.
+      </p>
+      <p class="fragment">
+      Think of the Cartesian coordinate system: Each vector is drawn as a <strong>combination</strong> of the $x$ and $y$ axes.
+      </p>
+      </section>
+      <section id="cartesian-coordinates" class="level2">
+      <h2>Cartesian Coordinates</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/vector_loc_in_space.svg" alt="Cartesian Coordinate System" style="width:80.0%" /><figcaption>Cartesian Coordinate System</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p><br /><span class="math display">$$\mathbf{x} = \begin{pmatrix}1\\0\end{pmatrix}\times 6 + \begin{pmatrix}0\\1\end{pmatrix}\times 8 =  \begin{pmatrix}6\\8\end{pmatrix}$$</span><br /></p>
+      </div>
+      </div>
+      </section>
+      <section id="vector-and-matrix-derivatives" class="level2">
+      <h2>Vector and Matrix Derivatives</h2>
+      <p>The derivative of a function $f(\mathbf{x})$, which operates on a $d$-dimensional vector $\mathbf{x}$, is calculated component-by-component:</p>
+      <div class="l-double">
+      <div>
+      <div class="fragment">
+      <p><br /><span class="math display">$$ \nabla f(\mathbf{x}) = \frac{\partial f(\mathbf{x})}{\partial \mathbf{x}} =
+      \begin{pmatrix}
+      \frac{\partial f(\mathbf{x})}{\partial x_{1}} \\
+      \frac{\partial f(\mathbf{x})}{\partial x_{2}} \\
+      \vdots \\
+      \frac{\partial f(\mathbf{x})}{\partial x_{d}}
+      \end{pmatrix}$$</span><br /></p>
+      </div>
+      </div>
+      <div>
+      <p class="fragment">
+      What we’re getting here is the derivative of a function of $\mathbf{x}$ with respect to each dimension of $\mathbf{x}$.
+      </p>
+      <p class="fragment">
+      We can define matrix functions and their derivatives similarly.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="matrix-determinant" class="level2">
+      <h2>Matrix Determinant</h2>
+      <p>The determinant of $\mathbf{M}$, denoted $|\mathbf{M}|$, can be calculated for any square matrix. Determinants are used for a lot of things:</p>
+      <ul>
+      <li class="fragment">
+      Finding eigenvalues and eigenvectors,
+      </li>
+      <li class="fragment">
+      To tell if the columns of the matrix are linearly independent,
+      </li>
+      <li class="fragment">
+      To tell if the inverse of a matrix exists,
+      </li>
+      <li class="fragment">
+      For a whole bunch of other things (solving systems of equations…)
+      </li>
+      </ul>
+      </section>
+      <section id="matrix-determinant-1" class="level2">
+      <h2>Matrix Determinant</h2>
+      <p>For a $2\times 2$ matrix, the determinant is calculated as $|\mathbf{M}| = m_{11}m_{22} - m_{21}m_{12}$. For a $3\times 3$ matrix, the determinant is calculated by “sweeping”:</p>
+      <div class="fragment">
+      <p><br /><span class="math display">$$
+      \begin{align*}
+      |\mathbf{M}|
+      &amp; =
+      \begin{vmatrix}
+      m_{11} &amp; m_{12} &amp; m_{13} \\
+      m_{21} &amp; m_{22} &amp; m_{23} \\
+      m_{31} &amp; m_{32} &amp; m_{33}
+      \end{vmatrix}\\
+      &amp; =
+      m_{11}m_{22}m_{33} + m_{13}m_{21}m_{32} + m_{12}m_{23}m_{31}\\
+      &amp; - m_{13}m_{22}m_{31} - m_{11}m_{23}m_{32} - m_{12}m_{21}m_{33}
+      \end{align*}
+      $$</span><br /></p>
+      </div>
+      <p class="fragment">
+      There are methods for finding larger matrices, including <strong>expansion by minors</strong>, which we won’t go over.
+      </p>
+      </section>
+      <section id="matrix-trace" class="level2">
+      <h2>Matrix Trace</h2>
+      <p>The <strong>trace</strong> of a square matrix, $\textrm{Tr}[\mathbf{M}]$, is the sum of its diagonal elements:</p>
+      <p><br /><span class="math display">$$ \textrm{Tr}[\mathbf{M}] = \sum_{i=1}^{d}m_{ii} $$</span><br /></p>
+      </section>
+      <section id="determinant-and-trace-properties" class="level2">
+      <h2>Determinant and Trace Properties</h2>
+      <p>Properties of determinants and traces:</p>
+      <ul>
+      <li class="fragment">
+      $|\mathbf{M}| = |\mathbf{M}^{T}|$
+      </li>
+      <li class="fragment">
+      $|\mathbf{MN}| = |\mathbf{M}||\mathbf{N}|$
+      </li>
+      <li class="fragment">
+      Trace and determinants are independent to rotations of the coordinate system
+      </li>
+      <li class="fragment">
+      If $|\mathbf{M}|=0$, this means that the columns of the matrix are <strong>NOT</strong> linearly independent
+      </li>
+      <li class="fragment">
+      The determinant of a matrix must be nonzero for the <strong>inverse</strong> of the matrix to exist (more on this in a moment)
+      </li>
+      </ul>
+      </section>
+      <section id="eigenvectors-eigenvalues" class="level2">
+      <h2>Eigenvectors &amp; Eigenvalues</h2>
+      <p>Given a $d\times d$ square matrix $\mathbf{M}$ as a transformation operation in $d$-dimensional space, then the eigenvector represents the <strong>direction</strong> of the transformation while the associated eigenvalue represents the <strong>magnitude</strong> of the transformation.</p>
+      <p class="fragment">
+      Check out a demonstration here: <strong><em><a href="http://setosa.io/ev/eigenvectors-and-eigenvalues/">http://setosa.io/ev/eigenvectors-and-eigenvalues/</a></em></strong>
+      </p>
+      </section>
+      <section id="finding-eigenvectors" class="level2">
+      <h2>Finding Eigenvectors</h2>
+      <p>Given a $d\times d$ <strong>square</strong> matrix $\mathbf{M}$, we can write a linear equation of the form:</p>
+      <p><br /><span class="math display"><strong>M</strong><strong>x</strong> = <em>λ</em><strong>x</strong></span><br /></p>
+      <p>which can be rewritten as:</p>
+      <p><br /><span class="math display">(<strong>M</strong>−<em>λ</em><strong>I</strong>)<strong>x</strong> = <strong>0</strong>,</span><br /></p>
+      <p>where $\mathbf{0}$ is the $d$-dimensional zero vector. Then solve for two unknowns, $\mathbf{x}$ and $\lambda$.</p>
+      </section>
+      <section id="finding-eigenvectors-1" class="level2">
+      <h2>Finding Eigenvectors</h2>
+      <p>The solutions are denoted $\mathbf{e}_i$ and $\lambda_{i}$, respectively, where the subscript $i$ indicates that there may be multiple solutions.</p>
+      <p>If $\mathbf{M}$ is real and symmetric, then there are $d$ solution vectors, $\{\mathbf{e}_1, \mathbf{e}_2, \cdots, \mathbf{e}_d\}$ with associated eigenvalues $\{\lambda_1, \lambda_2, \cdots, \lambda_d\}$.</p>
+      </section>
+      <section id="finding-eigenvalues" class="level2">
+      <h2>Finding Eigenvalues</h2>
+      <p>Eigenvalues can be found by solving the <strong>characteristic equation</strong>:</p>
+      <p><br /><span class="math display">|<strong>M</strong> − <em>λ</em><strong>I</strong>| = <em>λ</em><sup><em>d</em></sup> + <em>a</em><sub>1</sub><em>λ</em><sup><em>d</em> − 1</sup> + ⋯ + <em>a</em><sub><em>d</em> − 1</sub><em>λ</em> + <em>a</em><sub><em>d</em></sub> = 0</span><br /></p>
+      <p>for each of its $d$ roots. For the $i$-th root, we solve a set of equations to find the associated eigenvector $\mathbf{e}_{i}$.</p>
+      <p class="fragment">
+      <strong>Explanation</strong>: If you think of $\mathbf{M}$ as a transformation operation in $d$-dimensional space, then the eigenvector represents the <strong>direction</strong> of the transformation while the associated eigenvalue represents the <strong>magnitude</strong> of the transformation.
+      </p>
+      </section>
+      <section id="determinant-trace-and-eigenvalue-eigenvector" class="level2">
+      <h2>Determinant / Trace and Eigenvalue / Eigenvector</h2>
+      <p>The trace of a matrix is the sum of the eigenvalues, and the determinant is their product:</p>
+      <p><br /><span class="math display">$$ \textrm{Tr}[\mathbf{M}] = \sum_{i=1}^{d}\lambda_{i} \quad\text{and}\quad |\mathbf{M}|
+      = \prod_{i=1}^{d}\lambda_{i} $$</span><br /></p>
+      <p>When we go over Principal Component Analysis and other clustering techniques, we will revisit eigenvalues / eigenvectors.</p>
+      </section>
+      </section>
+      <section id="section-4" class="level1">
+      <h1></h1>
+      <section id="probability-theory" class="level2">
+      <h2>Probability Theory</h2>
+      </section>
+      <section id="random-variables" class="level2">
+      <h2>Random Variables</h2>
+      <p>A <strong>variable</strong>, denoted $x$, can be thought of as a placeholder.</p>
+      <p class="fragment">
+      It is <strong>not</strong> an unknown value, but a concept (such as “average radius of a malignant nucleus”).
+      </p>
+      <p class="fragment">
+      We can obtain a value for $x$ by making an <strong>observation</strong> of the variable (by measuring the radius of <strong>one</strong> nucleus).
+      </p>
+      </section>
+      <section id="random-variables-1" class="level2">
+      <h2>Random Variables</h2>
+      <p>The variable is considered <strong>random</strong> if the possible values are drawn from a probability distribution (more on this later).</p>
+      <p class="fragment">
+      The random variable is <strong>discrete</strong> if it can take on any of a finite number of possible countable values; if it can take on any real value in an interval (or a set of intervals), then it is considered <strong>continuous</strong>.
+      </p>
+      </section>
+      <section id="random-variables-examples" class="level2">
+      <h2>Random Variables (Examples)</h2>
+      <p>A person’s height and weight are <strong>continuous random variables</strong>.</p>
+      <p class="fragment">
+      A dice roll and a coin flip are <strong>discrete random variables</strong>.
+      </p>
+      <div class="fragment">
+      <p>Some entities are either continuous or discrete, depending on how they are defined. For example, hair color:</p>
+      <ul>
+      <li>
+      "Discrete (‘black’, ‘brown’, ‘red’,…)
+      </li>
+      <li>
+      Continuous (measured by light wavelengths)
+      </li>
+      </ul>
+      </div>
+      <p class="fragment">
+      What about the color of someone’s hair in an image?
+      </p>
+      </section>
+      <section id="random-variables-vs.-features" class="level2">
+      <h2>Random Variables vs. Features</h2>
+      <p>Random variables are how we model feature values: as observations of a random process, drawn from some kind of distribution.</p>
+      <p class="fragment">
+      The nuclear radii in the same class follow the <strong>same distribution</strong>, even if a single nucleus may be big or small.
+      </p>
+      <p class="fragment">
+      Keep this in mind as we discuss the following sections.
+      </p>
+      </section>
+      <section id="introduction-to-probability" class="level2">
+      <h2>Introduction to Probability</h2>
+      <p>Let’s call $x$ a discrete random variable, which can take on any of the finite number $m$ of different values in the set $\mathcal{X}=\{v_{1}, v_{2}, \dots, v_{m}\}$.</p>
+      <div class="fragment">
+      <p>The probability that we observe value $v_{i}$ is given as:</p>
+      <p><br /><span class="math display"><em>p</em><sub><em>i</em></sub> = Pr(<em>x</em> = <em>v</em><sub><em>i</em></sub>), for <em>i</em> = 1, …, <em>m</em></span><br /></p>
+      </div>
+      </section>
+      <section id="properties-of-probabilities" class="level2">
+      <h2>Properties of Probabilities</h2>
+      <p>All probabilities <strong>must</strong> satisfy two conditions:</p>
+      <ul>
+      <li class="fragment">
+      $0 \leq p_{i} \leq 1$ (i.e. there is no such thing as a “negative” probability, and no probability can be above 1, which is certainty)
+      </li>
+      <li class="fragment">
+      $\sum_{i=1}^{m}p_{i}=1$ (i.e. the probability that we will observe SOME value is 1)
+      </li>
+      </ul>
+      <p class="fragment">
+      We express the set of probabilities for all values of $x$ as $P(x)$.
+      </p>
+      </section>
+      <section id="expected-values" class="level2">
+      <h2>Expected Values</h2>
+      <p>The expected (mean or average) value of a random variable $x$ is defined by:</p>
+      <p><br /><span class="math display">E[<em>x</em>] = <em>μ</em> = ∑<sub><em>x</em> ∈ 𝒳</sub><em>x</em><em>P</em>(<em>x</em>)</span><br /></p>
+      <p>Similarly, for a function $f (x)$:</p>
+      <p><br /><span class="math display">E[<em>f</em>(<em>x</em>)] = ∑<sub><em>x</em> ∈ 𝒳</sub><em>f</em>(<em>x</em>)<em>P</em>(<em>x</em>)</span><br /></p>
+      </section>
+      <section id="second-moment-and-variance" class="level2">
+      <h2>Second Moment and Variance</h2>
+      <p>We can also define the <strong>second moment</strong>:</p>
+      <p><br /><span class="math display">E[<em>x</em><sup>2</sup>] = ∑<sub><em>x</em> ∈ 𝒳</sub><em>x</em><sup>2</sup><em>P</em>(<em>x</em>)</span><br /></p>
+      <p>And the <strong>variance</strong>:</p>
+      <p><br /><span class="math display">Var[<em>x</em>] = <em>σ</em><sup>2</sup> = E[(<em>x</em> − <em>μ</em>)<sup>2</sup>] = ∑<sub><em>x</em> ∈ 𝒳</sub>(<em>x</em> − <em>μ</em>)<sup>2</sup><em>P</em>(<em>x</em>)</span><br /></p>
+      <p>where $\sigma$ is the standard deviation.</p>
+      </section>
+      <section id="standard-deviation-and-variance" class="level2">
+      <h2>Standard Deviation and Variance</h2>
+      <p><img src="img/normal_std.svg" style="width:80.0%" /></p>
+      </section>
+      <section id="joint-probability-for-2-random-variables" class="level2">
+      <h2>Joint Probability for 2 Random Variables</h2>
+      <p>Say we have two discrete random variables $x$ and $y$ which can take on values in $\mathcal{X}=\{v_{1}, v_{2}, \cdots, v_{m}\}$ and $\mathcal{Y}=\{w_{1}, w_{2}, \cdots, w_{n}\}$, respectively.</p>
+      <p>As a simple example: $\mathcal{X}$ is a person’s hair color (black, brown, blonde…) and $\mathcal{Y}$ is a person’s height (rounded to the nearest inch).</p>
+      </section>
+      <section id="joint-probability-for-2-random-variables-1" class="level2">
+      <h2>Joint Probability for 2 Random Variables</h2>
+      <p>For each pair of possible values of $x$ and $y$, we can define the <strong>joint probability mass function</strong>, $P(x,y)$, representing the joint probability of observing <strong>specific</strong> $x$ and $y$ values. Since these are probabilities:</p>
+      <p><br /><span class="math display"><em>P</em>(<em>x</em>, <em>y</em>) ≥ 0   and   ∑<sub><em>x</em> ∈ 𝒳</sub>∑<sub><em>y</em> ∈ 𝒴</sub><em>P</em>(<em>x</em>, <em>y</em>) = 1</span><br /></p>
+      <p>This represents the connection between values of $x$ and $y$. In other words, we can say that $P(x=\textrm{brown}, y=70)$ is the probability of observing an individual who has brown hair, <strong>and</strong> is 5’10" tall.</p>
+      </section>
+      <section id="marginal-distributions" class="level2">
+      <h2>Marginal Distributions</h2>
+      <p>If we want to isolate the probability of observing a specific value for one of these, we have to sum over all the values of the other:</p>
+      <p><br /><span class="math display"><em>P</em><sub><em>x</em></sub>(<em>x</em>) = ∑<sub><em>y</em> ∈ 𝒴</sub><em>P</em>(<em>x</em>, <em>y</em>)</span><br /> <br /><span class="math display"><em>P</em><sub><em>y</em></sub>(<em>y</em>) = ∑<sub><em>x</em> ∈ 𝒳</sub><em>P</em>(<em>x</em>, <em>y</em>)</span><br /></p>
+      <p>These are the <strong>marginal distributions</strong> and represent the probability of observing a specific value of $x$ or $y$ no matter what the other variable is.</p>
+      </section>
+      <section id="statistical-independence" class="level2">
+      <h2>Statistical Independence</h2>
+      <p><strong>Statistical independence</strong> means that the value of one variable does not depend on another. Variables $x$ and $y$ are statistically independent if and only if:</p>
+      <p><br /><span class="math display"><em>P</em>(<em>x</em>, <em>y</em>) = <em>P</em><sub><em>x</em></sub>(<em>x</em>)<em>P</em><sub><em>y</em></sub>(<em>y</em>)</span><br /></p>
+      <p>In other words, the joint probability mass function is the product of the marginal distributions for $x$ and $y$.</p>
+      <p>Since $P_{x}(x)$ does not depend on $y$, and $P_{y}(y)$ does not depend on $x$, then each is contributing to the joint probability separately.</p>
+      </section>
+      <section id="statistical-independence-example" class="level2">
+      <h2>Statistical Independence Example</h2>
+      <p>In our example, the probability of observing someone with brown hair, regardless of height, is $P_{x}(x=\textrm{brown})$. The probability of someone being 5’10", regardless of hair color, is $P_{y}(y=70)$.</p>
+      </section>
+      <section id="statistical-independence-example-1" class="level2">
+      <h2>Statistical Independence Example</h2>
+      <p>If these two variables are <strong>independent</strong> (which they probably are), then the probability of BOTH of these things occurring is simply the product of the probabilities of each:</p>
+      <p><br /><span class="math display"><em>P</em>(brown, 70) = <em>P</em><sub><em>x</em></sub>(<em>x</em> = brown)<em>P</em><sub><em>y</em></sub>(<em>y</em> = 70)</span><br /></p>
+      <p><strong>Key idea:</strong> If two random variables are statistically independent, then the two variables have no impact on one another. The chance of observing a specific set of two values is the chance of ONE of them multiplied by the chance of the other.</p>
+      </section>
+      <section id="what-are-the-chances" class="level2">
+      <h2>What Are The Chances?</h2>
+      <p><img src="img/advantage.jpg" style="width:30.0%" /></p>
+      </section>
+      <section id="statistical-independence-example-2" class="level2">
+      <h2>Statistical Independence Example</h2>
+      <p>If they were <strong>dependent</strong>, it would mean that hair color and height are somehow related (e.g., if someone with brown hair were <strong>more</strong> likely to be 5’10" tall than someone with blonde hair).</p>
+      <p>What about the variables in our dataset? Are “nuclear radius” and “nuclear area” statistically independent? What about perimeter?</p>
+      <p>How can we check to see if two variables are independent?</p>
+      </section>
+      <section id="expected-value-of-joint-random-variables" class="level2">
+      <h2>Expected Value of Joint Random Variables</h2>
+      <p>The expected value of a function with two variables is defined as:</p>
+      <p><br /><span class="math display">E[<em>f</em>(<em>x</em>, <em>y</em>)] = ∑<sub><em>x</em> ∈ 𝒳</sub>∑<sub><em>y</em> ∈ 𝒴</sub><em>f</em>(<em>x</em>, <em>y</em>)<em>P</em>(<em>x</em>, <em>y</em>)</span><br /></p>
+      </section>
+      <section id="mean-and-variance-for-joint-random-variables" class="level2">
+      <h2>Mean and Variance for Joint Random Variables</h2>
+      <p>Similarly, the means and variances for each variable are:</p>
+      <p><br /><span class="math display"><em>μ</em><sub><em>x</em></sub> = E[<em>x</em>] = ∑<sub><em>x</em> ∈ 𝒳</sub>∑<sub><em>y</em> ∈ 𝒴</sub><em>x</em><em>P</em>(<em>x</em>, <em>y</em>)</span><br /> <br /><span class="math display"><em>μ</em><sub><em>y</em></sub> = E[<em>y</em>] = ∑<sub><em>x</em> ∈ 𝒳</sub>∑<sub><em>y</em> ∈ 𝒴</sub><em>y</em><em>P</em>(<em>x</em>, <em>y</em>)</span><br /> <br /><span class="math display"><em>σ</em><sub><em>x</em></sub><sup>2</sup> = Var[<em>x</em>] = E[(<em>x</em> − <em>μ</em><sub><em>x</em></sub>)<sup>2</sup>] = ∑<sub><em>x</em> ∈ 𝒳</sub>∑<sub><em>y</em> ∈ 𝒴</sub>(<em>x</em> − <em>μ</em><sub><em>x</em></sub>)<sup>2</sup><em>P</em>(<em>x</em>, <em>y</em>)</span><br /> <br /><span class="math display"><em>σ</em><sub><em>y</em></sub><sup>2</sup> = Var[<em>y</em>] = E[(<em>y</em> − <em>μ</em><sub><em>y</em></sub>)<sup>2</sup>] = ∑<sub><em>x</em> ∈ 𝒳</sub>∑<sub><em>y</em> ∈ 𝒴</sub>(<em>y</em> − <em>μ</em><sub><em>y</em></sub>)<sup>2</sup><em>P</em>(<em>x</em>, <em>y</em>)</span><br /></p>
+      </section>
+      <section id="measures-of-dependence-covariance" class="level2">
+      <h2>Measures of Dependence: Covariance</h2>
+      <p>The <strong>covariance</strong> or <strong>cross-moment</strong> can be used to get another measure of statistical independence. The covariance is defined as:</p>
+      <p><br /><span class="math display"><em>σ</em><sub><em>x</em><em>y</em></sub> = E[(<em>x</em> − <em>μ</em><sub><em>x</em></sub>)(<em>y</em> − <em>μ</em><sub><em>y</em></sub>)] = ∑<sub><em>x</em> ∈ 𝒳</sub>∑<sub><em>y</em> ∈ 𝒴</sub>(<em>x</em> − <em>μ</em><sub><em>x</em></sub>)(<em>y</em> − <em>μ</em><sub><em>y</em></sub>)<em>P</em>(<em>x</em>, <em>y</em>)</span><br /></p>
+      </section>
+      <section id="measures-of-dependence-covariance-1" class="level2">
+      <h2>Measures of Dependence: Covariance</h2>
+      <p>The expected values and the covariance can be expressed in vector notation with $\mathbf{x}=(x,y)^{T}$:</p>
+      <p><br /><span class="math display"><strong>μ</strong> = E[<strong>x</strong>] = ∑<sub><strong>x</strong> ∈ 𝒳𝒴</sub><strong>x</strong><em>P</em>(<strong>x</strong>)</span><br /></p>
+      <p><br /><span class="math display"><strong>Σ</strong> = E[(<strong>x</strong> − <strong>σ</strong>)(<strong>x</strong> − <strong>σ</strong>)<sup><em>T</em></sup>]</span><br /></p>
+      </section>
+      <section id="covariance-correlation-and-independence" class="level2">
+      <h2>Covariance, Correlation, and Independence</h2>
+      <p>Covariance is a measure of how much two random variables change together.</p>
+      <ul>
+      <li>If $\sigma_{xy}=0$, then the two variables do not change together. They are <strong>uncorrelated</strong>.</li>
+      <li>If $\sigma_{xy}&gt;0$, then when one variable changes, the other changes in the <strong>same</strong> direction (if $x$ goes up, $y$ goes up).</li>
+      <li>If $\sigma_{xy}&lt;0$, then when one variable changes, the other changes in the <strong>opposite</strong> direction (if $x$ goes up, $y$ goes down).</li>
+      </ul>
+      <p>If $|\sigma_{xy}|\approx 1$, the variables are said to be <strong>strongly correlated</strong>.</p>
+      <p><strong>Note</strong>: Independent variables are always uncorrelated. Uncorrelated variables are NOT always independent.</p>
+      </section>
+      <section id="measures-of-dependence-correlation-coefficient" class="level2">
+      <h2>Measures of Dependence: Correlation Coefficient</h2>
+      <p>We define the <strong>correlation coefficient</strong> as a normalized covariance:</p>
+      <p><br /><span class="math display">$$ \rho = \frac{\sigma_{xy}}{\sigma_{x}\sigma_{y}} $$</span><br /></p>
+      <p>This value varies from -1 (maximal negative correlation) to +1 (maximal positive correlation). A value of 0 indicates no correlation.</p>
+      </section>
+      <section id="conditional-probability-dependent-variables" class="level2">
+      <h2>Conditional Probability: Dependent Variables</h2>
+      <p>If variables are dependent, then knowing the value of one random variable gives us a better estimate of the other. We calculate the <strong>conditional probability of $x$ given $y$</strong>:</p>
+      <p><br /><span class="math display">$$ \textrm{Pr}[x=v_{i}|y=w_{j}]= \frac{\textrm{Pr}(x=v_{i}, y=w_{j})}{\textrm{Pr}(y=w_{j})} $$</span><br /></p>
+      <p><br /><span class="math display">$$ P(x|y) = \frac{P(x,y)}{P(y)} $$</span><br /></p>
+      </section>
+      <section id="conditional-probability-independent-variables" class="level2">
+      <h2>Conditional Probability: Independent Variables</h2>
+      <p>If $x$ and $y$ are independent, then $P(x,y)=P(x)P(y)$, and we can write:</p>
+      <p><br /><span class="math display">$$P(x|y) = \frac{P(x)P(y)}{P(y)} = P(x)$$</span><br /></p>
+      <p>In other words, $y$ contains no information about the state of $x$, and the probability of $x$ given $y$ is the same as just the probability of $x$.</p>
+      </section>
+      <section id="conditional-probability-joint-probability-redefined" class="level2">
+      <h2>Conditional Probability: Joint Probability Redefined</h2>
+      <p>If $x$ and $y$ are dependent, then we cannot simplify – the likelihood of one variable must include some information about the other.</p>
+      <p>If we rearrange the definition of conditional probability, we get:</p>
+      <p><br /><span class="math display"><em>P</em>(<em>x</em>, <em>y</em>) = <em>P</em>(<em>x</em>|<em>y</em>)<em>P</em>(<em>y</em>) = <em>P</em>(<em>y</em>|<em>x</em>)<em>P</em>(<em>x</em>)</span><br /></p>
+      <p>We will use this in a moment to define <strong>Bayes Rule</strong>. But first…</p>
+      </section>
+      <section id="the-law-of-total-probability" class="level2">
+      <h2>The Law of Total Probability</h2>
+      <p>The <strong>Law of Total Probability</strong> states that if an event $A$ can happen $m$ different ways, $A_{1}, A_{2}, \dots, A_{m}$, then the probability of the event occurring is the sum of the probabilities of each subevent $A_{i}$.</p>
+      <p><strong>Example</strong>: You want to go golfing (event $A$), but only in acceptable weather. You are willing to golf if it’s sunny ($A_{1}$) or overcast ($A_{2}$), but not if it’s raining or thunderstorming. The weather report says:</p>
+      <ul>
+      <li>80% chance of sunshine: $P(A_{1})=0.8$</li>
+      <li>10% chance of overcast: $P(A_{2})=0.1$</li>
+      <li>5% chance of rain</li>
+      <li>5% chance of thunderstorms</li>
+      </ul>
+      </section>
+      <section id="the-law-of-total-probability-1" class="level2">
+      <h2>The Law of Total Probability</h2>
+      <p><strong>What is the likelihood of you going golfing?</strong></p>
+      <p>$P(A_{1}) + P(A_{2}) = 0.8 + 0.1 = 0.9$</p>
+      <p><strong>Will you go golfing?</strong></p>
+      <p>It depends! Remember, a 90% chance of good weather does not mean that it WILL be good weather! Every $p_{i} &lt; 1.0$ has some likelihood of being wrong.</p>
+      <p>(In fact, a 90% chance of good weather is guaranteed to be wrong 10% of the time!)</p>
+      </section>
+      <section id="bayes-rule" class="level2">
+      <h2>Bayes Rule</h2>
+      <p>Consider the case where the $y$ has a particular value. This can occur $m$ different ways: when $x=v_{1}$, $x=v_{2},\ldots, x=v_{m}$.</p>
+      <p>We’ve already seen that $P(y)$ can be calculated by summing the joint probability $P(x,y)$ over all values of $x$:</p>
+      <p><br /><span class="math display"><em>P</em>(<em>y</em>) = ∑<sub><em>x</em> ∈ 𝒳</sub><em>P</em>(<em>x</em>, <em>y</em>)</span><br /></p>
+      <p>From the definition of conditional probability, we have:</p>
+      <p><br /><span class="math display"><em>P</em>(<em>x</em>, <em>y</em>) = <em>P</em>(<em>y</em>|<em>x</em>)<em>P</em>(<em>x</em>) = <em>P</em>(<em>x</em>|<em>y</em>)<em>P</em>(<em>y</em>)</span><br /></p>
+      </section>
+      <section id="bayes-rule-1" class="level2">
+      <h2>Bayes Rule</h2>
+      <div class="l-double">
+      <div>
+      <p><br /><span class="math display"><em>P</em>(<em>y</em>) = ∑<sub><em>x</em> ∈ 𝒳</sub><em>P</em>(<em>x</em>, <em>y</em>)</span><br /></p>
+      </div>
+      <div>
+      <p><br /><span class="math display"><em>P</em>(<em>x</em>, <em>y</em>) = <em>P</em>(<em>y</em>|<em>x</em>)<em>P</em>(<em>x</em>) = <em>P</em>(<em>x</em>|<em>y</em>)<em>P</em>(<em>y</em>)</span><br /></p>
+      </div>
+      </div>
+      <p>We can rewrite these equations to get Bayes Rule:</p>
+      <p><br /><span class="math display">$$ P(x|y) = \frac{P(y|x)P(x)}{\sum_{x\in\mathcal{X}}P(y|x)P(x)} $$</span><br /></p>
+      </section>
+      <section id="bayes-rule-in-english" class="level2">
+      <h2>Bayes Rule: In English</h2>
+      <p><br /><span class="math display">$$ P(x|y) = \frac{P(y|x)P(x)}{\sum_{x\in\mathcal{X}}P(y|x)P(x)} $$</span><br /></p>
+      <p>We will cover Bayes Rule all on its own, because it’s very important. But quickly, here is another way of looking at it:</p>
+      <p>Posterior: $P(x|y)$, the probability of $x$ given $y$</p>
+      <p>Likelihood: $P(y|x)$, the probability of $y$ given $x$</p>
+      <p>Prior: $P(x)$, the probability of observing $x$, regardless of $y$</p>
+      <p>Evidence: $_{x}P(y|x)P(x)$, a normalizing factor</p>
+      </section>
+      <section id="bayes-rule-in-example" class="level2">
+      <h2>Bayes Rule: In Example</h2>
+      <p><br /><span class="math display">$$ P(x|y) = \frac{P(y|x)P(x)}{\sum_{x\in\mathcal{X}}P(y|x)P(x)} $$</span><br /></p>
+      <dl>
+      <dt>Posterior $P(x|y)$:</dt>
+      <dd>What is the probability that a nucleus is malignant, given its radius?
+      </dd>
+      <dt>Likelihood $P(y|x)$:</dt>
+      <dd>What is the probability this radius came from a malignant nucleus?
+      </dd>
+      <dt>Prior $P(x)$:</dt>
+      <dd>What is the likelihood of observing a malignant nucleus?
+      </dd>
+      <dt>Evidence $\sum_{x\in\mathcal{X}}P(y|x)P(x)$:</dt>
+      <dd>What does our training set say about all radii, in all classes?
+      </dd>
+      </dl>
+      </section>
+      <section id="central-limit-theorem" class="level2">
+      <h2>Central Limit Theorem</h2>
+      <p>An important concept is the <strong>Central Limit Theorem (CLT)</strong>:</p>
+      <p class="fragment">
+      Usually, when independent random variables are added, their sum tends toward a normal distribution even if the original variables themselves are not normally distributed.
+      </p>
+      </section>
+      <section id="central-limit-theorem-1" class="level2">
+      <h2>Central Limit Theorem</h2>
+      <p><br /><span class="math display">$$ P(x) = \frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{(x-\mu)^{2}}{2\sigma^{2}}} $$</span><br /></p>
+      <p>This is important because the Gaussian is a very well-studied function and reflects many phenomena in nature. We will come back to this again and again in the course.</p>
+      </section>
+      <section id="central-limit-theorem-demos" class="level2">
+      <h2>Central Limit Theorem: Demos</h2>
+      <p>This demo from Victor Powell’s (defunct) blog illustrates the CLT very well:</p>
+      <p><a href="http://blog.vctr.me/posts/central-limit-theorem.html">http://blog.vctr.me/posts/central-limit-theorem.html</a></p>
+      <p>You can also see this in a physical model as well, called a Galton Board:</p>
+      <p><a href="https://www.youtube.com/watch?v=6YDHBFVIvIs">https://www.youtube.com/watch?v=6YDHBFVIvIs</a></p>
+      </section>
+      <section id="normal-distribution" class="level2">
+      <h2>Normal Distribution</h2>
+      <p><br /><span class="math display">$$ P(x) = \frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{(x-\mu)^{2}}{2\sigma^{2}}} $$</span><br /></p>
+      <p>The curve is parameterized by its mean, $\mu$, and variance, $\sigma^{2}$. To indicate that a function has a Gaussian distribution, we write $p(x) \text{\textasciitilde} N(\mu,\sigma^{2})$.</p>
+      <p>Finally, with a change of variables we can subtract the mean and divide the standard deviation to <strong>standardize</strong> the function to have $\mu=0$ and $\sigma=1$:</p>
+      <p><br /><span class="math display">$$ p(u) = \frac{1}{\sqrt{2\pi}}e^{-\frac{u^{2}}{2}} $$</span><br /></p>
+      </section>
+      </section>
+      <section id="section-5" class="level1">
+      <h1></h1>
+      <section id="final-words" class="level2">
+      <h2>Final Words</h2>
+      </section>
+      <section id="dont-panic" class="level2">
+      <h2>Don’t Panic!</h2>
+      <p>We reviewed (or introduced) a lot of new concepts today, don’t feel overwhelmed.</p>
+      <p>We will continue to reinforce these concepts throughout the course, so hopefully they will click later on.</p>
+      <p>If you feel stressed or just uncertain, please e-mail me with questions or feel free to set up an appointment.</p>
+      </section>
+      </section>
+      <section id="section-6" class="level1">
+      <h1></h1>
+      <section id="next-lecture" class="level2">
+      <h2>Next Lecture</h2>
+      </section>
+      <section id="next-lecture-1" class="level2">
+      <h2>Next Lecture</h2>
+      <p>Bayes Decision Theory</p>
+      <p>Minimum-Error-Rate Classification</p>
+      <p>Discriminant Functions and Decision Surfaces</p>
+      <p>Normal / Gaussian Densities, Distributions, and Parameters</p>
+      </section>
+      <section id="thank-you" class="level2">
+      <h2>Thank You!</h2>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        fragments: true,
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
