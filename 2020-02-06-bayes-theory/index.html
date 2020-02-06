@@ -1,0 +1,914 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bayes Theory</title>
+
+    <meta name="description" content="Bayes Theory">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">Bayes Theory</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="announcements" class="level2">
+      <h2>Announcements</h2>
+      </section>
+      <section id="sign-in-sheets" class="level2">
+      <h2>Sign-In Sheets</h2>
+      <p><strong>Starting next week:</strong> Randomly-distributed (Tue / Wed) sign-up sheets for attendance.</p>
+      <p class="fragment">
+      Attendance and participation is 10% of your grade; this is how it will be tracked.
+      </p>
+      </section>
+      <section id="looking-for-group" class="level2">
+      <h2>Looking for Group</h2>
+      <p>If you are looking for people to group up with, you can use the following sheet:</p>
+      <p><a href="https://docs.google.com/spreadsheets/d/1x3bJouo54h5hiNFMOzFxT7ldIs-c9Kb-_NqbZIZkicw/">Spring 2020 - Looking for Group</a></p>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="bayes-theorem" class="level2">
+      <h2>Bayes Theorem</h2>
+      <p>Probabilistic Classification</p>
+      </section>
+      <section id="bayes-theorem-1" class="level2">
+      <h2>Bayes Theorem</h2>
+      <p>$ P(x|y) = \frac{P(y|x)P(x)}{\sum_{x\in\mathcal{X}}P(y|x)P(x)} $</p>
+      <div class="txt-left">
+      <ul>
+      <li class="fragment">
+      <strong>Posterior</strong>: $P(x|y)$, the probability of $x$ given $y$
+      </li>
+      <li class="fragment">
+      <strong>Likelihood</strong>: $P(y|x)$, the probability of $y$ given $x$
+      </li>
+      <li class="fragment">
+      <strong>Prior</strong>: $P(x)$, the probability of observing $x$, regardless of $y$
+      </li>
+      <li class="fragment">
+      <strong>Evidence</strong>: $\sum_{x\in\mathcal{X}}P(y|x)P(x)$, a normalizing factor
+      </li>
+      </ul>
+      </div>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="introduction-to-probability" class="level2">
+      <h2>Introduction to Probability</h2>
+      </section>
+      <section id="getting-back-to-the-fna-dataset" class="level2">
+      <h2>Getting Back to the FNA Dataset</h2>
+      <p>Each object has a <strong>class</strong> associated with it, which we will call $\omega$</p>
+      <ul>
+      <li class="fragment">
+      $\omega = \omega_{1}$ represents <strong>Malignant</strong>
+      </li>
+      <li class="fragment">
+      $\omega = \omega_{2}$ represents <strong>Benign</strong>
+      </li>
+      </ul>
+      <p class="fragment">
+      <strong>Binary class</strong>: Only have two possible values.
+      </p>
+      <p class="fragment">
+      $\omega$ is a <strong>discrete random variable</strong> representing those values.
+      </p>
+      </section>
+      <section id="notation-notes-continuous-vs.-discrete" class="level2">
+      <h2>Notation Notes: Continuous vs. Discrete</h2>
+      <p>Probabilies can be written as both $P(\cdot)$ and $p(\cdot)$.</p>
+      <ul>
+      <li class="fragment">
+      $P(\cdot)$ is a <strong>discrete</strong> variable, and is a <strong>probability mass function</strong>.
+      </li>
+      <li class="fragment">
+      $p(\cdot)$ is a <strong>continuous</strong> variable, and is a <strong>probability density function</strong>.
+      </li>
+      </ul>
+      </section>
+      <section id="continuous-vs.-discrete-variables" class="level2">
+      <h2>Continuous vs. Discrete Variables</h2>
+      <p>The math behind $P(\cdot)$ and $p(\cdot)$ is different:</p>
+      <ul>
+      <li class="fragment">
+      <strong>Discrete</strong> probabilities are calculated using <strong>sums</strong>
+      </li>
+      <li class="fragment">
+      <strong>Continuous</strong> probabilities use <strong>integrals</strong> over the domain
+      </li>
+      </ul>
+      <p class="fragment">
+      Continuous variables have infinite possible values, so you cannot sum them all across the domain.
+      </p>
+      <p class="fragment">
+      Discrete values have discontinuities in the domain, so the integral is not fully differentiable in the domain.
+      </p>
+      </section>
+      <section id="probability-preliminaries-priors" class="level2">
+      <h2>Probability Preliminaries: Priors</h2>
+      <p>$P(x)$ is the <strong>Prior</strong>, or <strong><em>a priori</em></strong>, probability of observing a certain $x$, in the absence of any other information.</p>
+      <ul>
+      <li class="fragment">
+      The prior for observing a “Malignant” image is $P(\omega=\omega_{1}) = P(\omega_{1})$.
+      </li>
+      <li class="fragment">
+      The prior for observing a “Benign” image is $P(\omega_{2})$.
+      </li>
+      </ul>
+      </section>
+      <section id="probability-preliminaries-priors-1" class="level2">
+      <h2>Probability Preliminaries: Priors</h2>
+      <p>Recall that any set of probabilities must:</p>
+      <ul>
+      <li class="fragment">
+      Sum to one: $\sum_{i=1}^{c}P(\omega_{i}) = 1$
+      </li>
+      <li class="fragment">
+      Be positive: $P(\omega_{i}) \geq 0, \forall i\in\{1,2,\dots,c\}$
+      </li>
+      </ul>
+      <p class="fragment">
+      How do we find $P(\omega_{1})$ and $P(\omega_{2})$?
+      </p>
+      </section>
+      <section id="what-do-we-know-ahead-of-time" class="level2">
+      <h2>What Do We Know Ahead of Time?</h2>
+      <p><strong>Domain Knowledge</strong></p>
+      <p>If we know that there are twice as many benign patients as there are malignant patients in the world, then we might say that:</p>
+      <p>$P(\omega_{2}) = 2P(\omega_{1})$</p>
+      <p>$P(\omega_{2})\approx 66\%\qquad P(\omega_{1})\approx 33\%$</p>
+      <p class="fragment">
+      How do we decide whether a random patient is benign or malignant?
+      </p>
+      </section>
+      </section>
+      <section id="section-3" class="level1">
+      <h1></h1>
+      <section id="a-priori-decision-rules" class="level2">
+      <h2>A Priori Decision Rules</h2>
+      <p>Guessing Game</p>
+      </section>
+      <section id="decision-rule-based-on-a-priori-data" class="level2">
+      <h2>Decision Rule Based on A Priori Data</h2>
+      <p>Here we find our first <strong>Decision Rule</strong>:</p>
+      <div class="fragment">
+      <p>If $P(\omega_{1}) &gt; P(\omega_{2})$, decide $\omega_{1}$; otherwise, decide $\omega_{2}.$</p>
+      </div>
+      <p class="fragment">
+      Since the priors are fixed, <strong>we always decide the same class</strong> for each patient randomly drawn from our collection.
+      </p>
+      </section>
+      <section id="calculating-the-error-rate" class="level2">
+      <h2>Calculating the Error Rate</h2>
+      <p>Of course, this doesn’t work very well.</p>
+      <p class="fragment">
+      Both types of patients <strong>do</strong> exist, so we will clearly be making mistakes.
+      </p>
+      <p class="fragment">
+      How do we calculate our <strong>error rate</strong>?
+      </p>
+      </section>
+      <section id="error-rate-depends-on-the-prior" class="level2">
+      <h2>Error Rate Depends on the Prior</h2>
+      <p>The error depends on the difference between $P(\omega_{1})$ and $P(\omega_{2})$:</p>
+      <ul>
+      <li class="fragment">
+      If $P(\omega_{1}) &gt;&gt; P(\omega_{2})$, the error will be small.
+      </li>
+      <ul>
+      <li class="fragment">
+      If $P(\omega_{1}) = 0.99$ and $P(\omega_{2})=0.01$, and you always choose $\omega_{1}$, how often will you make a mistake?
+      </li>
+      </ul>
+      <li class="fragment">
+      If $P(\omega_{1}) \approx P(\omega_{2})$, the error will be close to 50%.
+      </li>
+      <ul>
+      <li class="fragment">
+      If $P(\omega_{1}) = 0.51$ and $P(\omega_{2})=0.49$, and you always choose $\omega_{1}$, how often will you make a mistake?
+      </li>
+      </ul>
+      </ul>
+      <p class="fragment">
+      Keep in mind, this assumes your estimates of $P(\omega_{1})$ and $P(\omega_{2})$ are accurate!
+      </p>
+      </section>
+      </section>
+      <section id="section-4" class="level1">
+      <h1></h1>
+      <section id="a-posteriori-decision-rules" class="level2">
+      <h2>A Posteriori Decision Rules</h2>
+      <p>Using Evidence to Make Decisions</p>
+      </section>
+      <section id="improving-our-decision-rule" class="level2">
+      <h2>Improving Our Decision Rule</h2>
+      <p>This is a bit boring: our “classifier” just gives us the same answer, forever!</p>
+      <p class="fragment">
+      We improve this rule through the use of <strong>evidence</strong>, or <strong>features</strong>.
+      </p>
+      <p class="fragment">
+      Let’s say that:
+      </p>
+      <ul>
+      <li class="fragment">
+      A single feature is represented as the random variable $x$
+      </li>
+      <li class="fragment">
+      A vector of $d$ features is $\mathbf{x}$
+      </li>
+      </ul>
+      <p class="fragment">
+      Each feature is considered a <strong>dimension</strong> of the feature vector, so $\mathbf{x}\in\mathbb{R}^{d}$.
+      </p>
+      </section>
+      <section id="building-our-pdf" class="level2">
+      <h2>Building our PDF</h2>
+      <p>We want the probability of observing a particular feature value given $\omega$:</p>
+      <p>$p(x|\omega)$</p>
+      <p class="fragment">
+      This is the <strong>class-conditional probability density function</strong> (PDF).
+      </p>
+      <ul>
+      <li class="fragment">
+      Collect data samples
+      </li>
+      <li class="fragment">
+      For each data sample, measure our feature, and identify the class
+      </li>
+      <li class="fragment">
+      Place it into the $\omega_{1}$ or $\omega_{2}$ PDF for that feature.
+      </li>
+      </ul>
+      </section>
+      <section id="class-conditional-pdf-example" class="level2">
+      <h2>Class-Conditional PDF Example</h2>
+      <iframe frameborder="0" seamless="seamless" scrolling="no" src="plots/radius_mean.html">
+      </iframe>
+      </section>
+      <section id="class-conditional-pdf" class="level2">
+      <h2>Class-Conditional PDF</h2>
+      <p>$p(x|\omega_{i})$ says that <strong>if we know</strong> the class label $\omega_{i}$, what is the probability of observing $x$?</p>
+      <p class="fragment">
+      The <strong>difference</strong> between $p(x|\omega_{1})$ and $p(x|\omega_{2})$ is the difference in likelihood of observing feature value $x$ between the two populations.
+      </p>
+      </section>
+      <section id="modifying-decision-rules-using-pdfs" class="level2">
+      <h2>Modifying Decision Rules Using PDFs</h2>
+      <p>How do we use our PDFs to improve our decision rule?</p>
+      <p class="fragment">
+      We know $P(\omega_{i})$ (our prior) and $p(x|\omega_{i})$ (our PDF), for both classes $i\in\{1,2\}$.
+      </p>
+      <p class="fragment">
+      If we have a <strong>new image</strong> and measure this feature, it gives us a location on the horizontal axis of our PDF.
+      </p>
+      </section>
+      <section id="pdf-with-specific-feature-value" class="level2">
+      <h2>PDF with Specific Feature Value</h2>
+      <iframe frameborder="0" seamless="seamless" scrolling="no" src="plots/radius_mean.html">
+      </iframe>
+      </section>
+      <section id="modifying-decision-rules-using-pdfs-1" class="level2">
+      <h2>Modifying Decision Rules Using PDFs</h2>
+      <p>Recall <strong>joint probability</strong>, $P(y,x)$: The probability that you observe a specific value of $y$ and a specific value of $x$.</p>
+      <ul>
+      <li class="fragment">
+      Treat $y$ as the class variable ($\omega_{i}$)
+      </li>
+      <li class="fragment">
+      Treat $x$ as the feature variable (which we also called $x$)
+      </li>
+      </ul>
+      <p class="fragment">
+      So the joint probability for our example problem is $p(\omega_{i},x)$.
+      </p>
+      </section>
+      <section id="modifying-decision-rules-using-pdfs-2" class="level2">
+      <h2>Modifying Decision Rules Using PDFs</h2>
+      <p>We can rewrite the joint probability in terms of conditionals and priors:</p>
+      <div class="fragment">
+      $ p(\omega_{i},x) = P(\omega_{i}|x)p(x) = p(x|\omega_{i})P(\omega_{i}) $
+      </div>
+      <p class="fragment">
+      Which you can rearrange into <strong>Bayes formula</strong>:
+      </p>
+      <div class="fragment">
+      $ P(\omega_{i}|x) = \frac{p(x|\omega_{i})P(\omega_{i})}{p(x)} $
+      </div>
+      <p class="fragment">
+      This is the <strong>posterior</strong>, or the <strong><em>a posteriori</em></strong>: It is the probability of observing class $\omega_{i}$ AFTER observing a specific feature value.
+      </p>
+      </section>
+      <section id="decision-theory-with-pdfs" class="level2">
+      <h2>Decision Theory with PDFs</h2>
+      <p>$ P(\omega_{i}|x) = \frac{p(x|\omega_{i})P(\omega_{i})}{p(x)} $</p>
+      <p class="fragment">
+      The denominator, $p(x)$, is the “prior” for a particular feature value.
+      </p>
+      <p class="fragment">
+      Remember from last lecture:
+      </p>
+      <p class="fragment">
+      If an event can occur in many different ways, the probability of the event is the sum over the probabilities of each of the different ways it can happen.
+      </p>
+      </section>
+      <section id="calculating-the-denominator" class="level2">
+      <h2>Calculating the Denominator</h2>
+      <p>In this case, the “event” is “observing a specific value of $x$”.</p>
+      <p>The different ways it can happen are:</p>
+      <ul>
+      <li class="fragment">
+      You observe $x$ in a sample from $\omega_{1}$
+      </li>
+      <li class="fragment">
+      You observe $x$ in a sample from $\omega_{2}$
+      </li>
+      </ul>
+      <p class="fragment">
+      So the probability of observing a sample with feature value $x$ is the sum of the likelihood of both of those scenarios:
+      </p>
+      <div class="fragment">
+      <p>$ p(x) = \sum_{i=1}^{c}p(x|\omega_{i})P(\omega_{i}) $</p>
+      </div>
+      <p class="fragment">
+      This makes the posterior likelihood $P(\omega_{i}|x)$ sum to 1 over all feature values.
+      </p>
+      <p class="fragment">
+      In other words, we will <strong>definitely</strong> observe <strong>some</strong> class after measuring $x$.
+      </p>
+      </section>
+      <section id="cumulative-probability-density" class="level2">
+      <h2>Cumulative Probability Density</h2>
+      <iframe frameborder="0" seamless="seamless" scrolling="no" src="plots/pdf_cdf.html">
+      </iframe>
+      </section>
+      <section id="a-posteriori-decision-rule" class="level2">
+      <h2>A Posteriori Decision Rule</h2>
+      <p>Now we can define our new <strong>Decision Rule</strong> in terms of our <strong><em>A Posteriori</em></strong> knowledge:</p>
+      <p class="fragment">
+      If $P(\omega_{1}|x)&gt;P(\omega_{2}|x)$, decide $\omega_{1}$; otherwise, decide $\omega_{2}.$
+      </p>
+      <p class="fragment">
+      Another way of writing this is:
+      </p>
+      <p class="fragment">
+      $\omega^{\star} = \textrm{arg max}_{i}\left[P(\omega_{i}|x)\right]$
+      </p>
+      </section>
+      <section id="a-posteriori-decision-rule-1" class="level2">
+      <h2>A Posteriori Decision Rule</h2>
+      <iframe frameborder="0" seamless="seamless" scrolling="no" src="plots/pdf_cdf.html">
+      </iframe>
+      </section>
+      </section>
+      <section id="section-5" class="level1">
+      <h1></h1>
+      <section id="calculating-error-rates" class="level2">
+      <h2>Calculating Error Rates</h2>
+      <p>How Wrong Are We?</p>
+      </section>
+      <section id="calculating-decision-error-rates" class="level2">
+      <h2>Calculating Decision Error Rates</h2>
+      <p>What is the probability of this decision rule being wrong?</p>
+      <div class="fragment">
+      <p>$P(\textrm{error}|x)= \begin{cases} P(\omega_{1}|x)&amp;\textrm{if we decide } \omega_{2} \\ P(\omega_{2}|x)&amp;\textrm{if we decide } \omega_{1} \end{cases} $</p>
+      </div>
+      <p class="fragment">
+      This gives us the probability of error for a single value of $x$.
+      </p>
+      <p class="fragment">
+      To get the <strong>total error</strong>, we have to integrate over all possible values of $x$:
+      </p>
+      <div class="fragment">
+      <p>$ P(\textrm{error}) = \int_{-\infty}^{\infty}P(\textrm{error}|x)p(x)dx $</p>
+      </div>
+      <p class="fragment">
+      We integrate over $\infty$ because this accounts for literally <strong>any</strong> feature value.
+      </p>
+      </section>
+      <section id="bayes-decision-rule" class="level2">
+      <h2>Bayes Decision Rule</h2>
+      <p>Our decision rule is now:</p>
+      <p class="fragment">
+      $ \textrm{If } P(\omega_{1}|x) &gt; P(\omega_{2}|x), \textrm{decide } \omega_{1}; \textrm{otherwise, decide } \omega_{2}.$
+      </p>
+      <p class="fragment">
+      Equivalently:
+      </p>
+      <p class="fragment">
+      $ \textrm{If } p(x|\omega_{1})P(\omega_{1}) &gt; p(x|\omega_{2})P(\omega_{2}), \textrm{decide } \omega_{1}; \textrm{otherwise, decide } \omega_{2}.$
+      </p>
+      <p class="fragment">
+      Under this rule, we can express the error as:
+      </p>
+      <p class="fragment">
+      $P(\textrm{error}|x) = \min{\left[P(\omega_{1}|x), P(\omega_{2}|x)\right]}$
+      </p>
+      </section>
+      <section id="bayes-decision-rule-1" class="level2">
+      <h2>Bayes Decision Rule</h2>
+      <p>If $p(x|\omega_{1})P(\omega_{1}) &gt; p(x|\omega_{2})P(\omega_{2})$ decide $\omega_{1}$ otherwise, decide $\omega_{2}$.</p>
+      <p class="fragment">
+      Two conditions to consider:
+      </p>
+      <ul>
+      <li class="fragment">
+      If $p(x|\omega_{1}) = p(x|\omega_{2})$, the decision is entirely based on the priors.
+      </li>
+      <li class="fragment">
+      If $P(\omega_{1}) = P(\omega_{2})$, the decision is entirely based on the PDFs calculated from the feature values.
+      </li>
+      </ul>
+      <p class="fragment">
+      Bayes Rule combines these factors to minimize error.
+      </p>
+      </section>
+      <section id="loss-and-risk" class="level2">
+      <h2>Loss and Risk</h2>
+      <p>The error is the likelihood of making the wrong classification.</p>
+      <p>We can extend this to <strong>risk</strong> or <strong>loss</strong>, which is the “cost” of a wrong classification.</p>
+      <ul>
+      <li class="fragment">
+      An <strong>action</strong>, $\alpha_{i}$, is “what you do” if you think the true label is $\omega_{i}$.
+      </li>
+      <li class="fragment">
+      A <strong>loss function</strong>, $\lambda(\alpha_{i}|\omega_{j})$, describes the loss incurred when taking action $\alpha_{i}$ when the true class is $\omega_{j}$.
+      </li>
+      <li class="fragment">
+      If $i=j$, the action corresponds with the true label (therefore our action is correct).
+      </li>
+      <li class="fragment">
+      If $i\neq j$, the action does not match the true label (our action is incorrect).
+      </li>
+      </ul>
+      </section>
+      <section id="kronecker-delta-function" class="level2">
+      <h2>Kronecker Delta Function</h2>
+      <p>Recall the <strong>Kronecker delta</strong> or <strong>impulse</strong> function:</p>
+      <p>$\delta_{ij} = \begin{cases} 1 &amp; \quad \textrm{if } i=j\\ 0 &amp; \quad \textrm{otherwise} \end{cases}$</p>
+      <p class="fragment">
+      We can use this to define our loss function.
+      </p>
+      </section>
+      <section id="kronecker-delta-function-1" class="level2">
+      <h2>Kronecker Delta Function</h2>
+      <p><img src="img/delta_function.svg" style="width:80.0%" /></p>
+      </section>
+      <section id="zero-one-loss-function" class="level2">
+      <h2>Zero-One Loss Function</h2>
+      <p>If we express our loss as a simple “Right” or “Wrong”, then we have the <strong>zero-one loss</strong> function:</p>
+      <div class="fragment">
+      <p>$ \lambda(\alpha_{i}|\omega_{j}) = \begin{cases} 0 &amp; \textrm{if } i=j\\ 1 &amp; \textrm{if } i\neq j \end{cases} \quad\textrm{for } i,j = 1,\dots,c $</p>
+      </div>
+      <p class="fragment">
+      Translation:
+      </p>
+      <ul>
+      <li class="fragment">
+      If we make the right call, we incur no loss.
+      </li>
+      <li class="fragment">
+      If we make a mistake, we incur a loss of 1.
+      </li>
+      </ul>
+      <p class="fragment">
+      In this case, the zero-one loss is the inverse of the delta function, i.e. $|1-d_{ij}|$.
+      </p>
+      </section>
+      <section id="expected-loss-conditional-risk" class="level2">
+      <h2>Expected Loss, Conditional Risk</h2>
+      <p><strong>Expected Loss</strong> is the average loss for an action for all possible classes: $ \begin{aligned} R(\alpha_{i}|\mathbf{x}) &amp; = \sum_{j=1}^{c}\lambda(\alpha_{i}|\omega_{j})P(\omega_{j}|\mathbf{x}) \\ R(\alpha_{i}|\mathbf{x}) &amp; = \sum_{j\neq i} P(\omega_{j}|\mathbf{x}) \\ R(\alpha_{i}|\mathbf{x}) &amp; = 1 - P(\omega_{i}|\mathbf{x}) \end{aligned}$</p>
+      <p class="fragment">
+      This is also the <strong>conditional risk</strong>, because the risk “depends on” the feature vector $\mathbf{x}$.
+      </p>
+      </section>
+      <section id="expected-loss-conditional-risk-1" class="level2">
+      <h2>Expected Loss, Conditional Risk</h2>
+      <p>$ R(\alpha_{i}|\mathbf{x}) = 1 - P(\omega_{i}|\mathbf{x}) $</p>
+      <p class="fragment">
+      We can take the action that minimizes risk by choosing the class that maximizes $P(\omega_{i}|\mathbf{x})$.
+      </p>
+      <p class="fragment">
+      <strong>This is the same as Bayes Rule:</strong> You are taking the action associated with the most “likely” class.
+      </p>
+      </section>
+      <section id="overall-risk" class="level2">
+      <h2>Overall Risk</h2>
+      <p>More generally, let’s assume there are $a$ different actions that we can take, denoted $\alpha_{1}, \alpha_{2}, \dots, \alpha_{a}$.</p>
+      <p class="fragment">
+      Note that $a$ doesn’t have to equal $c$, the number of classes!
+      </p>
+      <ul>
+      <li class="fragment">
+      Patients in classes $\omega_{1},\omega_{2},\omega_{3}$ get treatment $\alpha_{1}$
+      </li>
+      <li class="fragment">
+      Patients in classes $\omega_{4},\omega_{5},\omega_{6}$ get treatment $\alpha_{2}$
+      </li>
+      </ul>
+      </section>
+      <section id="overall-risk-1" class="level2">
+      <h2>Overall Risk</h2>
+      <p>Define a <strong>decision rule</strong> $\alpha(\mathbf{x})$ to be a decision rule that maps a $d$-dimensional feature vector $\mathbf{x}$ to an action: $\mathbb{R}^{d}\mapsto{\alpha_{1},\alpha_{2},\dots,\alpha_{a}}$.</p>
+      <p class="fragment">
+      The <strong>overall risk</strong> for this rule over all $\mathbf{x}$ is calculated as the integral: $ R = \int R(\alpha(\mathbf{x}) | \mathbf{x}) p(\mathbf{x}) d\mathbf{x} $
+      </p>
+      <div class="fragment">
+      <p>The <strong>Bayes Decision Rule</strong>: we should take the action that minimizes the conditional risk:</p>
+      <p>$\alpha^{\star}=\textrm{arg min}_{\alpha_{i}} R(\alpha_{i}|\mathbf{x}) = \textrm{arg min}_{\alpha_{i}} \sum_{j=1}^{c}\lambda(\alpha_{i}|\omega_{j})P(\omega_{j}|\mathbf{x})$</p>
+      </div>
+      </section>
+      <section id="making-decisions-in-two-class-problems" class="level2">
+      <h2>Making Decisions in Two-Class Problems</h2>
+      <p>Let’s simplify the problem problem to two classes, and assume only two possible actions:</p>
+      <ul>
+      <li class="fragment">
+      $\alpha_{1}$: assign label $\omega_{1}$
+      </li>
+      <li class="fragment">
+      $\alpha_{2}$: assign label $\omega_{2}$
+      </li>
+      </ul>
+      <p class="fragment">
+      $\lambda_{ij} = \lambda(\alpha_{i}|\omega_{j})$ is the loss incurred when $\alpha_{i}$ is taken and the class is $\omega_{j}$.
+      </p>
+      <p class="fragment">
+      The conditional risk, $R(\alpha_{i}|\mathbf{x})$, becomes:
+      </p>
+      <div class="fragment">
+      <p>$ \begin{aligned} R(\alpha_{1}|\mathbf{x}) &amp;= \lambda_{11}P(\omega_{1}|\mathbf{x}) + \lambda_{12}P(\omega_{2}|\mathbf{x}) \\ R(\alpha_{2}|\mathbf{x}) &amp;= \lambda_{21}P(\omega_{1}|\mathbf{x}) + \lambda_{22}P(\omega_{2}|\mathbf{x}) \end{aligned} $</p>
+      </div>
+      </section>
+      <section id="fundamental-rule-in-two-class-classification" class="level2">
+      <h2>Fundamental Rule in Two-Class Classification</h2>
+      <p>The <strong>Fundamental Rule</strong> is that we can choose the class that has the smallest risk:</p>
+      <p class="fragment">
+      Decide $\omega_{1}$ if $R(\alpha_{1}|\mathbf{x}) &lt; R(\alpha_{2}|\mathbf{x})$ and decide $\omega_{2}$ otherwise.
+      </p>
+      </section>
+      <section id="fundamental-rule-in-two-class-classification-1" class="level2">
+      <h2>Fundamental Rule in Two-Class Classification</h2>
+      <p>We can rewrite this in terms of the <strong>posteriors</strong>:</p>
+      <p class="fragment">
+      Decide $\omega_{1}$ if $(\lambda_{21} - \lambda_{11})P(\omega_{1}|\mathbf{x}) &gt; (\lambda_{12} - \lambda_{22})P(\omega_{2}|\mathbf{x})$
+      </p>
+      </section>
+      <section id="fundamental-rule-in-two-class-classification-2" class="level2">
+      <h2>Fundamental Rule in Two-Class Classification</h2>
+      <p>And finally, we can rewrite in terms of <strong>Bayes Rule</strong>:</p>
+      <p class="fragment">
+      Decide $\omega_{1}$ if $(\lambda_{21} - \lambda_{11})p(\mathbf{x}|\omega_{1})P(\omega_{1}) &gt; (\lambda_{12} - \lambda_{22})p(\mathbf{x}|\omega_{2})P(\omega_{2})$
+      </p>
+      </section>
+      <section id="fundamental-rule-in-two-class-classification-3" class="level2">
+      <h2>Fundamental Rule in Two-Class Classification</h2>
+      <p>It makes sense that the loss for making a mistake is greater than the loss for getting something correct.</p>
+      <p class="fragment">
+      In other words, if the true class is $\omega_{1}$, then the loss for guessing class $\omega_{2}$, which is $\lambda_{21}$, is greater than the loss for guessing $\omega_{1}$, or $\lambda_{11}$.
+      </p>
+      <p class="fragment">
+      This means that $(\lambda_{21} - \lambda_{11})$ and $(\lambda_{12} - \lambda_{22})$ are positive.
+      </p>
+      <p class="fragment">
+      If we make that assumption, we can write the relationship between the PDFs as:
+      </p>
+      <div class="fragment">
+      <p>$\frac{p(\mathbf{x}|\omega_{1})}{p(\mathbf{x}|\omega_{2})} &gt; \frac{\lambda_{12}-\lambda_{22}}{\lambda_{21}-\lambda_{11}}\frac{P(\omega_{2})}{P(\omega_{1})}$</p>
+      </div>
+      </section>
+      <section id="setting-up-decision-thresholds" class="level2">
+      <h2>Setting up Decision Thresholds</h2>
+      <p>$\frac{p(\mathbf{x}|\omega_{1})}{p(\mathbf{x}|\omega_{2})} &gt; \frac{\lambda_{12}-\lambda_{22}}{\lambda_{21}-\lambda_{11}}\frac{P(\omega_{2})}{P(\omega_{1})}$</p>
+      <p class="fragment">
+      <strong>Why do we want to do this?</strong>
+      </p>
+      <p class="fragment">
+      We can set a threshold, $\theta_{a}$, corresponding to a zero-one (symmetrical) loss function. In this case, our errors are equally weighted.
+      </p>
+      </section>
+      <section id="visualizing-decision-thresholds" class="level2">
+      <h2>Visualizing Decision Thresholds</h2>
+      <figure>
+      <img src="img/decision_threshold_a.svg" alt="Decision Threshold with Evenly Weighted Errors" style="width:80.0%" /><figcaption>Decision Threshold with Evenly Weighted Errors</figcaption>
+      </figure>
+      </section>
+      <section id="visualizing-decision-thresholds-1" class="level2">
+      <h2>Visualizing Decision Thresholds</h2>
+      <p>If $\lambda_{21} &gt; \lambda_{12}$, then when we guess $\omega_{2}$ and are wrong, the loss is greater than when we guess $\omega_{1}$ and are wrong.</p>
+      <p class="fragment">
+      We might want to adjust our threshold to decrease the number of samples we call $\omega_{2}$.
+      </p>
+      <p class="fragment">
+      In other words, we “prefer” to make the other mistake (taking action $\alpha_{1}$ when the class is $\omega_{2}$).
+      </p>
+      <p class="fragment">
+      In medicine, this is like preferring to <strong>over</strong> treat rather than <strong>under</strong> treat a patient.
+      </p>
+      <p class="fragment">
+      By adjusting our threshold from $\theta_{a}$ to $\theta_{b}$, we shrink region $\mathcal{R}_{2}$ and enlarge region $\mathcal{R}_{1}$. In other words, we classify more of $x$ as $\omega_{1}$.
+      </p>
+      </section>
+      <section id="visualizing-decision-thresholds-2" class="level2">
+      <h2>Visualizing Decision Thresholds</h2>
+      <figure>
+      <img src="img/decision_threshold_b.svg" alt="Decision Threshold that Classifies More Samples as $\omega_{2}$" style="width:80.0%" /><figcaption>Decision Threshold that Classifies More Samples as $\omega_{2}$</figcaption>
+      </figure>
+      </section>
+      <section id="comparing-decision-thresholds" class="level2">
+      <h2>Comparing Decision Thresholds</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/decision_threshold_a.svg" alt="Evenly Weighted Errors" style="width:100.0%" /><figcaption>Evenly Weighted Errors</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/decision_threshold_b.svg" alt="Errors Favor $\omega_{1}$" style="width:100.0%" /><figcaption>Errors Favor $\omega_{1}$</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      </section>
+      <section id="section-6" class="level1">
+      <h1></h1>
+      <section id="discriminant-functions" class="level2">
+      <h2>Discriminant Functions</h2>
+      </section>
+      <section id="discriminant-functions-1" class="level2">
+      <h2>Discriminant Functions</h2>
+      <p><strong>Discriminant Functions</strong> are a set of $c$ functions, one for each class, that map a $d$-dimensional feature vector $\mathbf{x}$ to a value.</p>
+      <p class="fragment">
+      For $g_{i}(\mathbf{x})$, where $i=1,\dots,c$, the classifier assigns $\mathbf{x}$ to class $\omega_{i}$ if:
+      </p>
+      <p class="fragment">
+      $ g_{i}(\mathbf{x}) &gt; g_{j}(\mathbf{x}) \textrm{ for all } i\neq j $
+      </p>
+      </section>
+      <section id="discriminant-functions-2" class="level2">
+      <h2>Discriminant Functions</h2>
+      <figure>
+      <img src="img/disc_func.svg" alt="Discriminant Function Schematic" style="width:80.0%" /><figcaption>Discriminant Function Schematic</figcaption>
+      </figure>
+      </section>
+      <section id="bayes-classifier-as-discriminant-functions" class="level2">
+      <h2>Bayes Classifier as Discriminant Functions</h2>
+      <p>How do we get $g_{i}(\mathbf{x})$?</p>
+      <p class="fragment">
+      We can use any function, as long as the value is highest for the correct class.
+      </p>
+      <p class="fragment">
+      For example, we can tie $g_{i}(\mathbf{x})$ to the risk associated with action $\alpha_{i}$:
+      </p>
+      <p class="fragment">
+      $ g_{i}(\mathbf{x}) = -R(\alpha_{i}|\mathbf{x}) $
+      </p>
+      <p class="fragment">
+      The action with the <strong>lowest</strong> risk has the <strong>highest</strong> value for $g(\cdot)$, and vice-versa.
+      </p>
+      <p class="fragment">
+      The classifier will then assign the label corresponding to the action that carries the lowest risk.
+      </p>
+      </section>
+      <section id="bayes-classifier-as-discriminant-functions-1" class="level2">
+      <h2>Bayes Classifier as Discriminant Functions</h2>
+      <p>If we assume a zero-one loss function, this generalizes to:</p>
+      <p>$ g_{i}(\mathbf{x}) = P(\omega_{i}|\mathbf{x}) $</p>
+      <p class="fragment">
+      So in this case, the <strong>highest</strong> posterior probability yields the <strong>highest</strong> discriminant function.
+      </p>
+      <p class="fragment">
+      Thus, the classifier will always choose the class with the highest likelihood.
+      </p>
+      </section>
+      <section id="shifting-the-discriminant-function" class="level2">
+      <h2>Shifting the Discriminant Function</h2>
+      <p>We can build different discriminant functions, which yield identical classifier results:</p>
+      <p>$ \begin{aligned} g_{i}(\mathbf{x}) &amp;= P(\omega_{i}|\mathbf{x}) \\ g_{i}(\mathbf{x}) &amp;= p(\mathbf{x}|\omega_{i})P(\omega_{i}) \\ g_{i}(\mathbf{x}) &amp;= \ln{p(\mathbf{x}|\omega_{i})} + \ln{P(\omega_{i})} \end{aligned} $</p>
+      <p class="fragment">
+      The output of $g_{i}(\mathbf{x})$ doesn’t have any restrictions on it; they don’t all have to sum to 1, they don’t have to all be positive, etc.
+      </p>
+      <p class="fragment">
+      If we replace $g_{i}(\mathbf{x})$ with $f(g_{i}(\mathbf{x}))$, where $f(\cdot)$ is monotonically increasing, then the classification results are the same.
+      </p>
+      </section>
+      <section id="back-to-decision-regions" class="level2">
+      <h2>Back to Decision Regions</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/decision_threshold_a.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p>The goal of a decision rule is to divide the feature space into <strong>decision regions</strong>, $\mathcal{R}_{1},\mathcal{R}_{2},\dots,\mathcal{R}_{c}$.</p>
+      <p class="fragment">
+      If $g_{i}(\mathbf{x}) &gt; g_{j}(\mathbf{x})$ for all $j\neq i$, then $\mathbf{x}$ falls in region $\mathcal{R}_{i}$ and is assigned to $\omega_{i}$.
+      </p>
+      <p class="fragment">
+      The size of the region, and samples assigned to that class, is driven by the loss functions.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="back-to-decision-regions-1" class="level2">
+      <h2>Back to Decision Regions</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/decision_threshold_a.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      Regions are separated by <strong>decision boundaries</strong>.
+      <p class="fragment">
+      If, for any $j\neq i$, $g_{i}(\mathbf{x}) = g_{j}(\mathbf{x})$, then $\mathbf{x}$ is on the decision boundary of $\mathcal{R}_{i}$ and $\mathcal{R}_{j}$.
+      </div>
+      </div>
+      </section>
+      <section id="visualizing-2d-decision-spaces" class="level2">
+      <h2>Visualizing 2D Decision Spaces</h2>
+      <p>This is all well and good for one feature, but how does it look with two?</p>
+      </section>
+      <section id="visualizing-2d-decision-spaces-1" class="level2">
+      <h2>Visualizing 2D Decision Spaces</h2>
+      <figure>
+      <img src="img/2d_disc_func.svg" alt="2D Discriminant Function" style="width:80.0%" /><figcaption>2D Discriminant Function</figcaption>
+      </figure>
+      </section>
+      <section id="two-class-discriminant-functions" class="level2">
+      <h2>Two-Class Discriminant Functions</h2>
+      <p>When $c=2$ (two-class case), then we have just two functions, $g_{1}$ and $g_{2}$.</p>
+      <p class="fragment">
+      Instead of finding which is greater, we can define a combined discriminant function:
+      </p>
+      <p class="fragment">
+      $ g(\mathbf{x}) \equiv g_{1}(\mathbf{x}) - g_{2}(\mathbf{x}) $
+      </p>
+      <p class="fragment">
+      and now our decision is simply:
+      </p>
+      <p class="fragment">
+      If $g(\mathbf{x})&gt;0$, decide $\omega_{1}$; otherwise, decide $\omega_{2}$.
+      </p>
+      </section>
+      <section id="two-class-discriminant-functions-1" class="level2">
+      <h2>Two-Class Discriminant Functions</h2>
+      <p>We can also create our alternative discriminant functions in this way:</p>
+      <p>$ g(\mathbf{x}) = P(\omega_{1}|\mathbf{x}) - P(\omega_{2}|\mathbf{x}) $</p>
+      <p>$ g(\mathbf{x}) = \ln{\frac{p(\mathbf{x}|\omega_{1})}{p(\mathbf{x}|\omega_{2})}} + \ln{\frac{P(\omega_{1})}{P(\omega_{2})}} $</p>
+      <p class="fragment">
+      These are equivalent to the previous examples with $c$ classes.
+      </p>
+      <p class="fragment">
+      Since two-class problems are so common, you’ll often see the decision rule based on a positive or negative value for the discriminant function.
+      </p>
+      </section>
+      </section>
+      <section id="section-7" class="level1">
+      <h1></h1>
+      <section id="summary" class="level2">
+      <h2>Summary</h2>
+      </section>
+      <section id="bayes-probabilities-and-decisions" class="level2">
+      <h2>Bayes Probabilities and Decisions</h2>
+      <p>Why is Bayes so useful?</p>
+      <ul>
+      <li class="fragment">
+      Classification is <strong>probabilistic</strong>, allowing us to incorporate <strong>uncertainty</strong> in the outcome.
+      </li>
+      <li class="fragment">
+      Bayes Theorem allows us to integrate prior knowledge about the system: risk, cost, prior probabilities, and evidence.
+      </li>
+      <li class="fragment">
+      The math behind these equations holds for different distributions of PDFs, so you don’t need to assume any “form” of your distribution.
+      </li>
+      </ul>
+      <p class="fragment">
+      We haven’t gone into parameters yet, but assuming a Gaussian distribution makes a lot of things easier.
+      </p>
+      </section>
+      </section>
+      <section id="section-8" class="level1">
+      <h1></h1>
+      <section id="next-class" class="level2">
+      <h2>Next Class</h2>
+      </section>
+      <section id="next-class-1" class="level2">
+      <h2>Next Class</h2>
+      <p>We have so far assumed that we have some way of modeling our feature data, going from a histogram to a function $p(x | \omega_{i})$.</p>
+      <p class="fragment">
+      In the next class, we will see how this modeling takes place by covering <strong>normal density</strong> in univariate and multivariate cases.
+      </p>
+      <p class="fragment">
+      We will also cover how to compute <strong>decision surfaces</strong>, or how to set thresholds for your feature values to define your decision space.
+      </p>
+      <p class="fragment">
+      Finally we’ll talk a little about entropy and information content of a signal – how much one signal (like a feature) tells you about another signal (like a class label).
+      </p>
+      </section>
+      </section>
+      <section id="section-9" class="level1">
+      <h1></h1>
+      <section id="thank-you" class="level2">
+      <h2>Thank you!</h2>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        fragments: true,
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
