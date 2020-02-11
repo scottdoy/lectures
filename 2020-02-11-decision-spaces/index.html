@@ -1,0 +1,872 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bayes Theory</title>
+
+    <meta name="description" content="Bayes Theory">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css">
+    <script src="http://tikzjax.com/v1/tikzjax.js"></script>
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">Bayes Theory</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="announcements" class="level2">
+      <h2>Announcements</h2>
+      </section>
+      <section id="first-assignment" class="level2">
+      <h2>First Assignment</h2>
+      First assignment instructions will be up by the end of the day!
+      <p class="fragment">
+      <strong>Due date: Tuesday, Feb. 25</strong>
+      </p>
+      <p class="fragment">
+      Goal: Choose a dataset and perform some preliminary, exploratory analysis of the data.
+      </p>
+      <p class="fragment">
+      Use either public datasets or your own research data (with permission of your PI).
+      </p>
+      </section>
+      <section id="dataset-sources" class="level2">
+      <h2>Dataset Sources</h2>
+      <ul>
+      <li>
+      UC Irvine Machine Learning Repository (<a href="https://archive.ics.uci.edu/ml/index.php">https://archive.ics.uci.edu/ml/index.php</a>)
+      </li>
+      <li>
+      R Datasets on Github (<a href="https://vincentarelbundock.github.io/Rdatasets/">https://vincentarelbundock.github.io/Rdatasets/</a>)
+      </li>
+      <li>
+      Kaggle Datasets: (<a href="https://www.kaggle.com/datasets">https://www.kaggle.com/datasets</a>)
+      </li>
+      <li>
+      Awesome Lists: Public Datasets (<a href="https://github.com/caesar0301/awesome-public-datasets">https://github.com/caesar0301/awesome-public-datasets</a>)
+      </li>
+      <li>
+      Yahoo! Webscope Datasets (<a href="https://webscope.sandbox.yahoo.com/">https://webscope.sandbox.yahoo.com/</a>)
+      </li>
+      <li>
+      Reddit: /r/datasets (<a href="https://www.reddit.com/r/datasets">https://www.reddit.com/r/datasets</a>)
+      </li>
+      </ul>
+      </section>
+      <section id="first-assignment-dataset-selection-tips" class="level2">
+      <h2>First Assignment: Dataset Selection Tips</h2>
+      <p>Things you should look for:</p>
+      <ul>
+      <li class="fragment">
+      <strong>Well-documented</strong>: How was it collected? Who owns it? Are there any publications that use this dataset?
+      </li>
+      <li class="fragment">
+      <strong>Good Size</strong>: How many classes and observations are there? What is the distribution across the classes? How many features are there relative to the number of observations?
+      </li>
+      <li class="fragment">
+      <strong>Annotated</strong>: Are there labels? Who provided them? Are the labels assigned by an expert? Are they noisy, approximate, or exact?
+      </li>
+      <li class="fragment">
+      <strong>Feature Types</strong>: What are the format of the features? (HINT: Look for features that are <strong>continuous</strong>, not <strong>categorical</strong> or <strong>binary</strong>!)
+      </li>
+      </ul>
+      <p class="fragment">
+      Datasets of unlabeled data (e.g. text corpora and raw images) <strong><em>should be avoided</em></strong>.
+      </p>
+      </section>
+      <section id="pdf-lectures" class="level2">
+      <h2>PDF Lectures</h2>
+      <p>PDF versions of the previous lectures are up on UBLearns.</p>
+      <p class="fragment">
+      These lectures may not look as well-formatted as the website, but they should be understandable.
+      </p>
+      </section>
+      <section id="link-to-lecture-page" class="level2">
+      <h2>Link to Lecture Page</h2>
+      <p>A link to the lecture page has been added to <a href="scottdoy.com">scottdoy.com</a>.</p>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="normal-gaussian-distribution" class="level2">
+      <h2>Normal (Gaussian) Distribution</h2>
+      <p>Simple, Common Model Parametric Model</p>
+      </section>
+      <section id="revisiting-the-normal-density" class="level2">
+      <h2>Revisiting the Normal Density</h2>
+      <p>The <strong>normal</strong> or <strong>Gaussian</strong> density is a good model for a lot of phenomena, so we will discuss it in some length.</p>
+      <div class="txt-left">
+      <ul>
+      <li class="fragment">
+      <strong>Univariate:</strong> “One Variable” (a one-dimensional function)
+      </li>
+      <li class="fragment">
+      <strong>Multivariate:</strong> “Multiple Variable” (more than one dimensions)
+      </li>
+      </ul>
+      </div>
+      </section>
+      <section id="normal-density-diagram" class="level2">
+      <h2>Normal Density Diagram</h2>
+      <p><img src="img/normal_std.svg" style="width:80.0%" /></p>
+      </section>
+      <section id="normal-density-formula" class="level2">
+      <h2>Normal Density Formula</h2>
+      <p>The normal distribution:</p>
+      <p>$ p(x) = \frac{1}{\sqrt{2\pi}\sigma}\exp{\left[-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^{2}\right]}$</p>
+      <p class="fragment">
+      This is a <strong>parameterized</strong> distribution.
+      </p>
+      <p class="fragment">
+      What does that mean?
+      </p>
+      </section>
+      <section id="definition-of-parameters" class="level2">
+      <h2>Definition of Parameters</h2>
+      <p><strong>Parameters</strong> are places in a function where you can plug in different numbers and get different “versions” of the distribution.</p>
+      <p class="fragment">
+      The set of parameters $\boldsymbol{\theta}$ are all you need to replicate a parametric function.
+      </p>
+      <p class="fragment">
+      The normal density is parameterized by the <strong>mean</strong> and <strong>standard deviation</strong>:
+      </p>
+      <p class="fragment">
+      $ p(x) \sim N(\mu,\sigma^{2}) $
+      </p>
+      </section>
+      <section id="normal-density-parameters" class="level2">
+      <h2>Normal Density Parameters</h2>
+      <p>The mean, $\mu$, is defined as the expected value of $x$:</p>
+      <p class="fragment">
+      $ \mu \equiv \mathcal{E}\left[x\right]=\int_{-\infty}^{\infty}xp(x)dx $
+      </p>
+      <p class="fragment">
+      The variance (standard deviation squared) is:
+      </p>
+      <p class="fragment">
+      $\sigma^{2} \equiv \mathcal{E}\left[(x-\mu)^{2}\right] = \int_{-\infty}^{\infty} (x-\mu)^{2} p(x)dx$
+      </p>
+      </section>
+      <section id="using-the-normal-distribution" class="level2">
+      <h2>Using the Normal Distribution</h2>
+      <p>Why is the normal in particular so useful? According to Wikipedia:</p>
+      <blockquote>
+      <p>Of all probability distributions over the reals with a specified mean $\mu$ and variance $\sigma^{2}$, the normal distribution $N(\mu, \sigma^{2})$ is the one with maximum entropy.</p>
+      </blockquote>
+      <p class="fragment">
+      Okay… so then what does <strong>maximum entropy</strong> mean?
+      </p>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="information-entropy" class="level2">
+      <h2>Information Entropy</h2>
+      </section>
+      <section id="definition-of-entropy" class="level2">
+      <h2>Definition of Entropy</h2>
+      <p>Entropy is a measure of <strong>randomness</strong> in a sequence.</p>
+      <p class="fragment">
+      If our random variable $x$ can take on one of $m$ values, $\{v_{1},v_{2},\ldots,v_{m}\}$, and value $v_{i}$ has an associated probability $P_{i}$, then the measure of randomness is given as:
+      </p>
+      <p class="fragment">
+      $ H = -\sum_{i=1}^{m}P_{i}\log_{2}P_{i} $
+      </p>
+      <p class="fragment">
+      In this discrete case, entropy is measured in <strong>bits</strong> using the base 2 logarithm.
+      </p>
+      <p class="fragment">
+      In the continuous case, entropy is measured in <strong>nats</strong> using the natural logarithm, and would be calculated using an integral instead of a sum.
+      </p>
+      </section>
+      <section id="example-of-entropy" class="level2">
+      <h2>Example of Entropy</h2>
+      <p>Example: Let’s say $x\in\{0,1,\ldots,7\}$, and each value is equally likely.</p>
+      <p class="fragment">
+      There are eight digits, so the probability of any individual value appearing, $p_{i}$, is $\frac{1}{8}$.
+      </p>
+      <p class="fragment">
+      In this case, the entropy is calculated as:
+      </p>
+      <p class="fragment">
+      $ H=-\sum_{i=0}^{7}\frac{1}{8}\log_{2}\left[\frac{1}{8}\right] = \log_{2}\left[2^{3}\right] = 3 \textrm{ bits} $
+      </p>
+      <p class="fragment">
+      Indeed, in base 2 (binary) we need a minimum of 3 bits to encode all possible values:
+      </p>
+      <p class="fragment">
+      $ \underbrace{000}_{0} \quad \underbrace{001}_{1}\quad\underbrace{010}_{2}\quad\underbrace{011}_{3}\quad\underbrace{100}_{4}\quad\underbrace{101}_{5}\quad\underbrace{110}_{6}\quad\underbrace{111}_{7} $
+      </p>
+      </section>
+      <section id="entropy-and-the-normal-distribution" class="level2">
+      <h2>Entropy and the Normal Distribution</h2>
+      <p>If each of our values $\{v_{1},v_{2},\ldots,v_{m}\}$ is <strong>equally likely</strong> to appear, they are said to be drawn from a <strong>uniform distribution</strong>.</p>
+      <p class="fragment">
+      Since each observation holds no information about the next, the uniform distribution has the <strong>maximum entropy</strong> of all distributions with a given mean and variance.
+      </p>
+      </section>
+      <section id="why-is-maximum-entropy-a-good-thing" class="level2">
+      <h2>Why is Maximum Entropy a Good Thing?</h2>
+      <p>There are a lot of mathy ways to say this, but the reason we want a probability distribution with maximum entropy is that it means we are making <strong>as few assumptions as possible</strong> about the data.</p>
+      <p class="fragment">
+      For example: If I know that the average nuclei radius is $10\mu m$, it’s reasonable to assume that an $8\mu m$ nucleus is <strong>just as likely</strong> as a $12\mu m$ one.
+      </p>
+      </section>
+      <section id="central-limit-theorem" class="level2">
+      <h2>Central Limit Theorem</h2>
+      <p>Recall the <strong>Central Limit Theorem:</strong></p>
+      <blockquote>
+      <p>If a random variable is observed a large number of times, and the variable has a known mean and standard deviation, the average of the observations will approximate a normal distribution.</p>
+      </blockquote>
+      </section>
+      <section id="entropy-and-the-normal-distribution-1" class="level2">
+      <h2>Entropy and the Normal Distribution</h2>
+      <p>In many cases, we can safely assume that <strong>feature values</strong> are drawn from a uniform distribution.</p>
+      <p class="fragment">
+      The Central Limit Theorem tells us that because of this, the probability distribution over a large number of samples can be modeled as a normal distribution.
+      </p>
+      <p class="fragment">
+      So all of this means that $p(x|\omega_{j})$ takes the form:
+      </p>
+      <p class="fragment">
+      $ p(x|\omega_{j}) = \frac{1}{\sqrt{2\pi}\sigma}\exp{\left[-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^{2}\right]}$
+      </p>
+      </section>
+      </section>
+      <section id="section-3" class="level1">
+      <h1></h1>
+      <section id="multivariate-normal-distributions" class="level2">
+      <h2>Multivariate Normal Distributions</h2>
+      </section>
+      <section id="multivariate-normal-distribution" class="level2">
+      <h2>Multivariate Normal Distribution</h2>
+      <p>So far, we have been talking about a single variable or feature, $x$. But what if we have multiple features?</p>
+      <p class="fragment">
+      If we have a $d$-dimensional feature vector $\mathbf{x}=(x_{1},x_{2},\ldots,x_{d})^{T}$, and each component is <strong>statistically independent</strong>, then the probability of observing $\mathbf{x}$ is the product of the probabilities of observing each individual event:
+      </p>
+      <p class="fragment">
+      $ p(\mathbf{x}) = \prod_{i=1}^{d}p(x_{i}) $
+      </p>
+      </section>
+      <section id="multivariate-normal-distribution-1" class="level2">
+      <h2>Multivariate Normal Distribution</h2>
+      <p>Since <strong>each component</strong> of $\mathbf{x}$ can be modeled as a normally-distributed random variable, then $p(\mathbf{x})$ is the product of $d$ Gaussians:</p>
+      <p class="fragment">
+      $ p(\mathbf{x}) = \prod_{i=1}^{d}\frac{1}{\sqrt{2\pi}\sigma_{i}}\exp{\left[-\frac{1}{2}\left(\frac{x_{i}-\mu_{i}}{\sigma_{i}}\right)^{2}\right]} $
+      </p>
+      <p class="fragment">
+      We can simplify this by distributing the product inside:
+      </p>
+      <p class="fragment">
+      $ p(\mathbf{x}) = \frac{1}{(2\pi)^{\frac{d}{2}} \prod_{i=1}^{d} \sigma_{i}} \exp{\left[-\frac{1}{2} \sum_{i=1}^{d} \left(\frac{x_{i}-\mu_{i}}{\sigma_{i}}\right)^{2} \right]}$
+      </p>
+      </section>
+      <section id="multivariate-normal-distribution-2" class="level2">
+      <h2>Multivariate Normal Distribution</h2>
+      <p>$ p(\mathbf{x}) = \frac{1}{(2\pi)^{\frac{d}{2}} \prod_{i=1}^{d} \sigma_{i}} \exp{\left[-\frac{1}{2} \sum_{i=1}^{d} \left(\frac{x_{i}-\mu_{i}}{\sigma_{i}}\right)^{2} \right]}$</p>
+      <p class="fragment">
+      We can simplify even further by replacing the red components with the covariance matrix $\boldsymbol{\Sigma}$ and mean vector $\boldsymbol{\mu}$.
+      </p>
+      </section>
+      <section id="review-of-covariance" class="level2">
+      <h2>Review of Covariance</h2>
+      <p>Remember: for two random variables $x_{i}$ and $x_{j}$, we can calculate the covariance or “cross-moment” to measure statistical independence:</p>
+      <p class="fragment">
+      $ \sigma_{ij} = \mathcal{E}\left[(x_{i}-\mu_{i})(x_{j}-\mu_{j})\right] $
+      </p>
+      <p class="fragment">
+      “Covariance” is a measure of how much two random variables change together. If the covariance is zero, i.e. $\sigma_{ij}=0$, then the two variables do not change together and they are <strong>uncorrelated</strong>.
+      </p>
+      <p class="fragment">
+      When $i=j$, the “co”-variance is just the variance (how much the variable changes from the mean), which we’ve defined as:
+      </p>
+      <p class="fragment">
+      $ \sigma_{ii} = \mathcal{E}\left[(x_{i}-\mu_{i})(x_{i}-\mu_{i})\right] = \mathcal{E}\left[(x_{i}-\mu_{i})^{2}\right] $
+      </p>
+      </section>
+      <section id="covariance-matrix" class="level2">
+      <h2>Covariance Matrix</h2>
+      <p>The covariance matrix $\boldsymbol{\Sigma}$ just collects each of the covariances. It is a square matrix whose $ij$-th element is $\sigma_{ij}$:</p>
+      <p class="fragment">
+      $ \boldsymbol{\Sigma} = \begin{bmatrix} \sigma_{11} &amp; \sigma_{12} &amp; \cdots &amp; \sigma_{1d} \\ \sigma_{21} &amp; \sigma_{22} &amp; \cdots &amp; \sigma_{2d} \\ \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\ \sigma_{d1} &amp; \sigma_{d2} &amp; \cdots &amp; \sigma_{dd} \end{bmatrix}$
+      </p>
+      </section>
+      <section id="covariance-matrix-1" class="level2">
+      <h2>Covariance Matrix</h2>
+      <p>If we assume each dimension in $\mathbf{x}$ is <strong>uncorrelated</strong>, then $\sigma_{ij}=0$ for all $i\neq j$, so the matrix becomes a diagonal matrix:</p>
+      <p class="fragment">
+      $ \boldsymbol{\Sigma} = \begin{bmatrix} \sigma_{11} &amp; 0 &amp; \cdots &amp; 0 \\ 0 &amp; \sigma_{22} &amp; \cdots &amp; 0 \\ \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\ 0 &amp; 0 &amp; \cdots &amp; \sigma_{dd} \end{bmatrix} $
+      </p>
+      </section>
+      <section id="inverse-of-the-covariance-matrix" class="level2">
+      <h2>Inverse of the Covariance Matrix</h2>
+      <p>The <strong>inverse</strong> of a matrix $\mathbf{M}$ is one where $\mathbf{MM}^{-1} = \mathbf{I}$ (the identity matrix).</p>
+      <p class="fragment">
+      Hence, we can easily calculate $\boldsymbol{\Sigma}^{-1}$ as:
+      </p>
+      <p class="fragment">
+      $ \boldsymbol{\Sigma}^{-1} = \begin{bmatrix} \frac{1}{\sigma_{11}} &amp; 0 &amp; \cdots &amp; 0 \\ 0 &amp; \frac{1}{\sigma_{22}} &amp; \cdots &amp; 0 \\ \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\ 0 &amp; 0 &amp; \cdots &amp; \frac{1}{\sigma_{dd}} \end{bmatrix} $
+      </p>
+      <p class="fragment">
+      <strong>Note</strong>: The inverse of a matrix is not usually just 1 divided by each element. It just works out because $\boldsymbol{\Sigma}$ is diagonal, in the case where all dimensions are uncorrelated.
+      </p>
+      </section>
+      <section id="calculating-the-covariance-determinant" class="level2">
+      <h2>Calculating the Covariance Determinant</h2>
+      <p>Finally, the determinant of $\boldsymbol{\Sigma}$ is the product of the variances:</p>
+      <p class="fragment">
+      $ |\boldsymbol{\Sigma}| = \sigma_{11}\sigma_{22}\cdots\sigma_{dd} $
+      </p>
+      <p class="fragment">
+      The rest of the terms disappear because they all contain zeroes.
+      </p>
+      </section>
+      <section id="simplified-multivariate-normal-equation" class="level2">
+      <h2>Simplified Multivariate Normal Equation</h2>
+      <p>Thus we can rewrite this:</p>
+      <p>$ p(\mathbf{x}) = \frac{1}{(2\pi)^{\frac{d}{2}} \prod_{i=1}^{d} \sigma_{i}} \exp{\left[-\frac{1}{2} \sum_{i=1}^{d} \left(\frac{x_{i}-\mu_{i}}{\sigma_{i}}\right)^{2} \right]} $</p>
+      <div class="fragment">
+      <p>… like this:</p>
+      <p>$ p(\mathbf{x}) = \frac{1}{(2\pi)^{\frac{d}{2}} |\boldsymbol{\Sigma}|^{\frac{1}{2}}} \exp{\left[-\frac{1}{2} (\mathbf{x}-\boldsymbol{\mu})^{T} \boldsymbol{\Sigma}^{-1} (\mathbf{x}-\boldsymbol{\mu}) \right]} $</p>
+      </div>
+      </section>
+      <section id="explanation-of-multivariate-normal-distribution" class="level2">
+      <h2>Explanation of Multivariate Normal Distribution</h2>
+      <p>$ p(\mathbf{x}) = \frac{1}{(2\pi)^{\frac{d}{2}} |\boldsymbol{\Sigma}|^{\frac{1}{2}}} \exp{\left[-\frac{1}{2} (\mathbf{x}-\boldsymbol{\mu})^{T} \boldsymbol{\Sigma}^{-1} (\mathbf{x}-\boldsymbol{\mu}) \right]} $</p>
+      <p class="fragment">
+      This function combines multiple normally-distributed random variables (components of $\mathbf{x}$), each of which has its own mean and variance.
+      </p>
+      <p class="fragment">
+      In terms of expected values, the mean and covariance can be written as:
+      </p>
+      <p class="fragment">
+      $ \boldsymbol{\mu} \equiv \mathcal{E}\left[\mathbf{x}\right] = \int\mathbf{x}p(\mathbf{x})d\mathbf{x} $
+      </p>
+      <p class="fragment">
+      $ \boldsymbol{\Sigma} \equiv \mathcal{E}\left[(\mathbf{x}-\boldsymbol{\mu})(\mathbf{x}-\boldsymbol{\mu})^{T}\right] = \int (\mathbf{x}-\boldsymbol{\mu})(\mathbf{x}-\boldsymbol{\mu})^{T}p(\mathbf{x})d\mathbf{x} $
+      </p>
+      </section>
+      <section id="multivariate-normal-distribution-3" class="level2">
+      <h2>Multivariate Normal Distribution</h2>
+      <p>$ p(\mathbf{x}) = \frac{1}{(2\pi)^{\frac{d}{2}} |\boldsymbol{\Sigma}|^{\frac{1}{2}}} \exp{\left[-\frac{1}{2} (\mathbf{x}-\boldsymbol{\mu})^{T} \boldsymbol{\Sigma}^{-1} (\mathbf{x}-\boldsymbol{\mu}) \right]} $</p>
+      <div class="txt-left">
+      <p class="fragment">
+      How many components does $\boldsymbol{\mu}$ have?
+      </p>
+      <p class="fragment">
+      $d$, which is the same as $\mathbf{x}$
+      </p>
+      <p class="fragment">
+      What are the values of these components?
+      </p>
+      <p class="fragment">
+      $\mu_{i} = \mathcal{E}\left[x_{i}\right]$
+      </p>
+      <p class="fragment">
+      What is the dimensionality of $\boldsymbol{\Sigma}$?
+      </p>
+      </div>
+      <ul>
+      <li class="fragment">
+      $\mathbf{x}-\boldsymbol{\mu}=$ a $d$-dimensional vector
+      </li>
+      <li class="fragment">
+      $(\mathbf{x}-\boldsymbol{\mu})(\mathbf{x}-\boldsymbol{\mu})^{T}=\mathbf{M}$, a $d\times d$ dimensional vector
+      </li>
+      </ul>
+      </section>
+      <section id="visualizing-multivariate-distributions" class="level2">
+      <h2>Visualizing Multivariate Distributions</h2>
+      <iframe frameborder="0" seamless="seamless" scrolling="no" src="plots/scatter_histogram_plot.html">
+      </iframe>
+      </section>
+      </section>
+      <section id="section-4" class="level1">
+      <h1></h1>
+      <section id="transforms-of-normal-distributions" class="level2">
+      <h2>Transforms of Normal Distributions</h2>
+      </section>
+      <section id="linear-transforms" class="level2">
+      <h2>Linear Transforms</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/transforms01.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p>Linear transforms of normal distribuion are also normally distributed.</p>
+      </div>
+      </div>
+      </section>
+      <section id="linear-transforms-1" class="level2">
+      <h2>Linear Transforms</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/transforms02.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p>If $\mathbf{A}$ is a $d$-by-$k$ transformation matrix and $\mathbf{y}=\mathbf{A}^{T}\mathbf{x}$ is a $k$-component vector, then:</p>
+      <p>$ p(\mathbf{y}) \sim N(\mathbf{A}^{T} \boldsymbol{\mu},\mathbf{A}^{T} \boldsymbol{\Sigma}\mathbf{A}) $</p>
+      <p>This results in another normal distribution.</p>
+      </div>
+      </div>
+      </section>
+      <section id="projections-of-normals-onto-a-line" class="level2">
+      <h2>Projections of Normals onto a Line</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/transforms03.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p>If $k=1$, then $\mathbf{A}$ is a unit-length vector $\mathbf{a}$, and so $y=\mathbf{a}^{T}\mathbf{x}$ is a scalar (dot product!) that represents the projection of $\mathbf{x}$ onto the line represented by $\mathbf{a}$.</p>
+      <p class="fragment">
+      Now $p(y)$ is a univariate normal distribution with a mean of $\mathbf{a}^{T}\boldsymbol{\mu}$ and a variance of a $\mathbf{a}^{T}\boldsymbol{\Sigma}\mathbf{a}$.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="whitening-transform" class="level2">
+      <h2>Whitening Transform</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/transforms04.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p>The “whitening” transform, $\mathbf{A}_{w}$ is a special projection that makes an arbitrary distribution $p(\mathbf{x})$ into a spherical one (i.e. its covariance matrix is the identiy matrix).</p>
+      <p class="fragment">
+      Define $\boldsymbol{\Phi}$ as the matrix whose columns are the eigenvectors of $\boldsymbol{\Sigma}$, and $\boldsymbol{\Lambda}$ is a diagonal matrix of corresponding eigenvalues.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="whitening-transform-1" class="level2">
+      <h2>Whitening Transform</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/transforms04.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p>$ \mathbf{A}_{w} = \boldsymbol{\Phi}\boldsymbol{\Lambda}^{\frac{1}{2}} $</p>
+      <p class="fragment">
+      The resulting distribution $p(\mathbf{w})$ has a covariance equal to 1 along each component.
+      </p>
+      <p class="fragment">
+      Why would we do this?
+      </p>
+      <p class="fragment">
+      <strong>Feature scaling:</strong> It can help to get all features into a similar arrangement such as a spherical multivariate distribution.
+      </p>
+      </div>
+      </div>
+      </section>
+      </section>
+      <section id="section-5" class="level1">
+      <h1></h1>
+      <section id="gaussian-discriminant-functions" class="level2">
+      <h2>Gaussian Discriminant Functions</h2>
+      </section>
+      <section id="discriminant-functions-revisited" class="level2">
+      <h2>Discriminant Functions Revisited</h2>
+      <p>Remember how we created a bunch of forms of the discriminant function?</p>
+      <p class="fragment">
+      The idea is that as long as the equation gives us <strong>higher values</strong> for the desired class, the form can be anything we want.
+      </p>
+      <p class="fragment">
+      One of the forms was a natural log of the probabilities:
+      </p>
+      <p class="fragment">
+      $ g_{i}(\mathbf{x}) = \ln{p(\mathbf{x}|\omega_{i})} + \ln{P(\omega_{i})} $
+      </p>
+      </section>
+      <section id="discriminant-functions-simplified" class="level2">
+      <h2>Discriminant Functions Simplified</h2>
+      <p>$ g_{i}(\mathbf{x}) = \ln{p(\mathbf{x}|\omega_{i})} + \ln{P(\omega_{i})} $</p>
+      <p>If we assume that $p(\mathbf{x}|\omega_{i}) \sim N(\boldsymbol{\mu}_{i},\boldsymbol{\Sigma}_{i})$, then we can plug the multivariate normal distribution function into the above equation:</p>
+      <p class="fragment">
+      $ g_{i}(\mathbf{x}) = \ln{\left[\frac{1}{ (2\pi)^{\frac{d}{2}} |\boldsymbol{\Sigma}|^{\frac{1}{2}} }\exp{\left[-\frac{1}{2}(\mathbf{x}-\boldsymbol{\mu})^{T} \boldsymbol{\Sigma}^{-1} (\mathbf{x}-\boldsymbol{\mu}) \right]}\right]} + \ln{P(\omega_{i})} $
+      </p>
+      <p class="fragment">
+      $ g_{i}(\mathbf{x}) = -\frac{1}{2}(\mathbf{x}-\boldsymbol{\mu}_{i})^{T} \boldsymbol{\Sigma}_{i}^{-1} (\mathbf{x}-\boldsymbol{\mu}_{i}) - \frac{d}{2}\ln{2\pi} - \frac{1}{2}\ln{|\boldsymbol{\Sigma}|} + \ln{P(\omega_{i})} $
+      </p>
+      </section>
+      <section id="discriminant-functions-revisited-1" class="level2">
+      <h2>Discriminant Functions Revisited</h2>
+      <p>Let’s examine our discriminant functions under two conditions:</p>
+      <ol>
+      <li class="fragment">
+      All classes and features are assumed to have the <strong>same variance</strong> ($\boldsymbol{\sigma_{i}}=\sigma^{2}\boldsymbol{I}$), and
+      </li>
+      <li class="fragment">
+      Classes and features have <strong>arbitrary variances</strong>.
+      </li>
+      </ol>
+      <p class="fragment">
+      In the first case, we can make some simplifying assumptions to help us draw decision boundaries.
+      </p>
+      <p class="fragment">
+      In the second, we cannot assume anything about the form of the discriminant functions.
+      </p>
+      </section>
+      </section>
+      <section id="section-6" class="level1">
+      <h1></h1>
+      <section id="equal-variances" class="level2">
+      <h2>Equal Variances</h2>
+      </section>
+      <section id="discriminant-function-when-boldsymbolsigma_i-sigma2boldsymboli" class="level2">
+      <h2>Discriminant Function When $\boldsymbol{\Sigma}_{i} = \sigma^{2}\boldsymbol{I}$</h2>
+      <p>In the equal variances case, components of $\mathbf{x}$ are independent and have the same variance, $\sigma^{2}$.</p>
+      <p class="fragment">
+      Each class falls into a <strong>hypersphere</strong> in $d$ dimensions, and each class is clustered around the corresponding mean vector $\boldsymbol{\mu}_{i}$.
+      </p>
+      <p class="fragment">
+      (Think of each class as a perfectly round blob in $d$-dimensional space.)
+      </p>
+      </section>
+      <section id="discriminant-function-when-boldsymbolsigma_i-sigma2boldsymboli-1" class="level2">
+      <h2>Discriminant Function When $\boldsymbol{\Sigma}_{i} = \sigma^{2}\boldsymbol{I}$</h2>
+      <p>Here’s our discriminant function again:</p>
+      <p class="fragment">
+      $ g_{i}(\mathbf{x}) = -\frac{1}{2}(\mathbf{x}-\boldsymbol{\mu}_{i})^{T} \boldsymbol{\Sigma}_{i}^{-1}(\mathbf{x}-\boldsymbol{\mu}_{i})-\frac{d}{2}\ln{2\pi}-\frac{1}{2}\ln{|\boldsymbol{\Sigma}|}+\ln{P(\omega_{i})} $
+      </p>
+      <p class="fragment">
+      Since $\boldsymbol{\Sigma}_{i}=\sigma^{2}\mathbf{I}$, the determinant is just $|\boldsymbol{\Sigma}_{i}|=\sigma^{2d}$ and the inverse is $\boldsymbol{\Sigma}_{i}^{-1}=(\frac{1}{\sigma^{2}})\mathbf{I}$.
+      </p>
+      <p class="fragment">
+      $ g_{i}(\mathbf{x}) = -\frac{(\mathbf{x}-\boldsymbol{\mu}_{i})^{T} (\mathbf{x}-\boldsymbol{\mu}_{i})}{2\sigma^{2}}-\frac{d}{2}\ln{2\pi}-\frac{1}{2}\ln{|\boldsymbol{\Sigma}|}+\ln{P(\omega_{i})} $
+      </p>
+      </section>
+      <section id="discriminant-function-when-boldsymbolsigma_i-sigma2boldsymboli-2" class="level2">
+      <h2>Discriminant Function When $\boldsymbol{\Sigma}_{i} = \sigma^{2}\boldsymbol{I}$</h2>
+      <p>$ g_{i}(\mathbf{x}) = -\frac{(\mathbf{x}-\boldsymbol{\mu}_{i})^{T} (\mathbf{x}-\boldsymbol{\mu}_{i})}{2\sigma^{2}}-\frac{d}{2}\ln{2\pi}-\frac{1}{2}\ln{|\boldsymbol{\Sigma}|}+\ln{P(\omega_{i})} $</p>
+      <p class="fragment">
+      Terms independent of $i$ can be dropped, so the discriminant function reduces to:
+      </p>
+      <p class="fragment">
+      $ g_{i}(\mathbf{x}) = -\frac{(\mathbf{x}-\boldsymbol{\mu}_{i})^{T} (\mathbf{x}-\boldsymbol{\mu}_{i})}{2\sigma^{2}} +\ln{P(\omega_{i})} $
+      </p>
+      <p class="fragment">
+      Expanding $(\mathbf{x}-\boldsymbol{\mu}_{i})^{T} (\mathbf{x}-\boldsymbol{\mu}_{i})$ gives:
+      </p>
+      <p class="fragment">
+      $ g_{i}(\mathbf{x}) = - \frac{1}{2\sigma^{2}} \left[\mathbf{x}^{T}\mathbf{x} -2\boldsymbol{\mu}_{i}^{T} \mathbf{x} +\boldsymbol{\mu}_{i}^{T} \boldsymbol{\mu}_{i}\right] + \ln{P(\omega_{i})} $
+      </p>
+      </section>
+      <section id="discriminant-function-when-boldsymbolsigma_i-sigma2boldsymboli-3" class="level2">
+      <h2>Discriminant Function When $\boldsymbol{\Sigma}_{i} = \sigma^{2}\boldsymbol{I}$</h2>
+      <p>$ g_{i}(\mathbf{x}) = -\frac{1}{2\sigma^{2}}\left[\mathbf{x}^{T}\mathbf{x} -2\boldsymbol{\mu}_{i}^{T}\mathbf{x} +\boldsymbol{\mu}_{i}^{T}\boldsymbol{\mu}_{i}\right] + \ln{P(\omega_{i})} $</p>
+      <p class="fragment">
+      We can ignore $\mathbf{x}^{T}\mathbf{x}$ since it doesn’t change with $i$, so we can rewrite the above as:
+      </p>
+      <p class="fragment">
+      $ g_{i}(\mathbf{x}) = \frac{1}{2\sigma^{2}}\left[2\boldsymbol{\mu}_{i}^{T}\mathbf{x} -\boldsymbol{\mu}_{i}^{T}\boldsymbol{\mu}_{i}\right] + \ln{P(\omega_{i})} $
+      </p>
+      </section>
+      <section id="discriminant-function-when-boldsymbolsigma_i-sigma2boldsymboli-4" class="level2">
+      <h2>Discriminant Function When $\boldsymbol{\Sigma}_{i} = \sigma^{2}\boldsymbol{I}$</h2>
+      <p>With a change of variables, we can simplify further:</p>
+      <p class="fragment">
+      $ g_{i}(\mathbf{x}) = \mathbf{w}_{i}^{T} \mathbf{x} + w_{i0}$, where
+      </p>
+      <p class="fragment">
+      $ \mathbf{w}_{i} = \frac{1}{\sigma^{2}}\boldsymbol{\mu}_{i} $
+      </p>
+      <p class="fragment">
+      $ w_{i0} = -\frac{1}{2\sigma^{2}}\boldsymbol{\mu}_{i}^{T} \boldsymbol{\mu}_{i} +\ln{P(\omega_{i})} $
+      </p>
+      <p class="fragment">
+      We call $w_{i0}$ the <strong>bias</strong> or <strong>threshold</strong> for the $i$-th category.
+      </p>
+      <p class="fragment">
+      What do these functions look like?
+      </p>
+      </section>
+      <section id="discriminant-function-when-boldsymbolsigma_i-sigma2boldsymboli-5" class="level2">
+      <h2>Discriminant Function When $\boldsymbol{\Sigma}_{i} = \sigma^{2}\boldsymbol{I}$</h2>
+      <p><img src="img/disc_func_equal_var.svg" style="width:80.0%" /></p>
+      </section>
+      <section id="discriminant-function-when-boldsymbolsigma_i-sigma2boldsymboli-6" class="level2">
+      <h2>Discriminant Function When $\boldsymbol{\Sigma}_{i} = \sigma^{2}\boldsymbol{I}$</h2>
+      <p><img src="img/disc_func_equal_var_2d.svg" style="width:80.0%" /></p>
+      </section>
+      <section id="discriminant-function-when-boldsymbolsigma_i-sigma2boldsymboli-7" class="level2">
+      <h2>Discriminant Function When $\boldsymbol{\Sigma}_{i} = \sigma^{2}\boldsymbol{I}$</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/disc_func_equal_var.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p>The decision hyperplane is where:</p>
+      <p>$g_{i}(\mathbf{x})=g_{j}(\mathbf{x})$</p>
+      <p class="fragment">
+      $ \mathbf{w}_{i}^{T} \mathbf{x} + w_{i0} = \mathbf{w}_{j}^{T} \mathbf{x} + w_{j0}$
+      </p>
+      <small>
+      <p class="fragment">
+      $ \frac{1}{2\sigma^{2}} \left[2\boldsymbol{\mu}_{i}^{T} \mathbf{x} -\boldsymbol{\mu}_{i}^{T}\boldsymbol{\mu}_{i}\right] + \ln{P(\omega_{i})} = \frac{1}{2\sigma^{2}} \left[2\boldsymbol{\mu}_{j}^{T} \mathbf{x} -\boldsymbol{\mu}_{j}^{T} \boldsymbol{\mu}_{j}\right] + \ln{P(\omega_{j})}$
+      </p>
+      <p></small></p>
+      <p class="fragment">
+      We want to find the point, $\mathbf{x}_{0}$, where this is true.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="discriminant-function-when-boldsymbolsigma_i-sigma2boldsymboli-8" class="level2">
+      <h2>Discriminant Function When $\boldsymbol{\Sigma}_{i} = \sigma^{2}\boldsymbol{I}$</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/disc_func_equal_var.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p>By rearranging the equation, we get:</p>
+      <p><small> $ \mathbf{x}_{0} = \frac{1}{2}(\boldsymbol{\mu}_{i} + \boldsymbol{\mu}_{j}) - \frac{\sigma^{2}}{||\boldsymbol{\mu}_{i}-\boldsymbol{\mu}_{j}||^{2}} \ln{\frac{P(\omega_{i})}{P(\omega_{j})}}(\boldsymbol{\mu}_{i}-\boldsymbol{\mu}_{j}) $ </small></p>
+      </div>
+      </div>
+      </section>
+      <section id="discriminant-function-when-boldsymbolsigma_i-sigma2boldsymboli-9" class="level2">
+      <h2>Discriminant Function When $\boldsymbol{\Sigma}_{i} = \sigma^{2}\boldsymbol{I}$</h2>
+      <p>$ \mathbf{x}_{0} = \frac{1}{2}(\boldsymbol{\mu}_{i} + \boldsymbol{\mu}_{j}) - \frac{\sigma^{2}}{||\boldsymbol{\mu}_{i}-\boldsymbol{\mu}_{j}||^{2}} \ln{\frac{P(\omega_{i})}{P(\omega_{j})}}(\boldsymbol{\mu}_{i}-\boldsymbol{\mu}_{j}) $</p>
+      <p class="fragment">
+      If $P(\omega_{i})=P(\omega_{j})$, then $\ln{\frac{P(\omega_{i})}{P(\omega_{j})}}=0$ and $\mathbf{x}_{0}=\frac{1}{2}(\boldsymbol{\mu}_{i}+\boldsymbol{\mu}_{j})$; in other words, it is located halfway between the means.
+      </p>
+      <p class="fragment">
+      If $P(\omega_{i})\neq P(\omega_{j})$, then the decision boundary shifts towards the mean with the lower prior.
+      </p>
+      <p class="fragment">
+      Why does this happen?
+      </p>
+      </section>
+      <section id="discriminant-function-when-boldsymbolsigma_i-sigma2boldsymboli-10" class="level2">
+      <h2>Discriminant Function When $\boldsymbol{\Sigma}_{i} = \sigma^{2}\boldsymbol{I}$</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/disc_func_priors_07.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/disc_func_priors_09.svg" style="width:100.0%" /></p>
+      </div>
+      </div>
+      </section>
+      <section id="discriminant-function-when-boldsymbolsigma_i-sigma2boldsymboli-11" class="level2">
+      <h2>Discriminant Function When $\boldsymbol{\Sigma}_{i} = \sigma^{2}\boldsymbol{I}$</h2>
+      <p><img src="img/disc_func_priors_07_2d.png" style="width:100.0%" /></p>
+      </section>
+      <section id="discriminant-function-when-boldsymbolsigma_i-sigma2boldsymboli-12" class="level2">
+      <h2>Discriminant Function When $\boldsymbol{\Sigma}_{i} = \sigma^{2}\boldsymbol{I}$</h2>
+      <p><img src="img/disc_func_priors_07_3d.png" style="width:100.0%" /></p>
+      </section>
+      </section>
+      <section id="section-7" class="level1">
+      <h1></h1>
+      <section id="arbitrary-variances" class="level2">
+      <h2>Arbitrary Variances</h2>
+      </section>
+      <section id="arbitrary-boldsymbolsigma_i" class="level2">
+      <h2>Arbitrary $\boldsymbol{\Sigma}_{i}$</h2>
+      <p>If the covariance matrices for the classes are <strong>different</strong> and <strong>arbitrary</strong>, then we can only drop one term from the general discriminant function:</p>
+      <p>$ g_{i}(\mathbf{x}) = \mathbf{x}^{T} \mathbf{W}_{i}\mathbf{x} + \mathbf{w}_{i}^{T} \mathbf{x} + w_{i0} $</p>
+      <p>$ \mathbf{W}_{i} = -\frac{1}{2}\boldsymbol{\Sigma}_{i}^{-1} $</p>
+      <p>$ \mathbf{w}_{i} = \boldsymbol{\Sigma}_{i}^{-1}\boldsymbol{\mu}_{i} $</p>
+      <p>$ w_{i0} = -\frac{1}{2}\boldsymbol{\mu}_{i}^{T}\boldsymbol{\Sigma}_{i}^{-1}\boldsymbol{\mu}_{i}-\frac{1}{2}\ln{|\boldsymbol{\Sigma}_{i}|}+\ln{P(\omega_{i})} $</p>
+      </section>
+      <section id="arbitrary-boldsymbolsigma_i-1" class="level2">
+      <h2>Arbitrary $\boldsymbol{\Sigma}_{i}$</h2>
+      <p>In this case, decision surfaces are <strong>hyperquadratic</strong> and can take on all kinds of crazy shapes.</p>
+      <p>They don’t even need to be continuous regions.</p>
+      </section>
+      <section id="arbitrary-boldsymbolsigma_i-2" class="level2">
+      <h2>Arbitrary $\boldsymbol{\Sigma}_{i}$</h2>
+      <p><img src="img/disc_func_noncontiguous.svg" style="width:80.0%" /></p>
+      </section>
+      <section id="arbitrary-boldsymbolsigma_i-3" class="level2">
+      <h2>Arbitrary $\boldsymbol{\Sigma}_{i}$</h2>
+      <p><img src="img/disc_func_noncontig_2d_01.png" style="width:100.0%" /></p>
+      </section>
+      <section id="arbitrary-boldsymbolsigma_i-4" class="level2">
+      <h2>Arbitrary $\boldsymbol{\Sigma}_{i}$</h2>
+      <p><img src="img/disc_func_noncontig_2d_02.png" style="width:100.0%" /></p>
+      </section>
+      <section id="arbitrary-boldsymbolsigma_i-5" class="level2">
+      <h2>Arbitrary $\boldsymbol{\Sigma}_{i}$</h2>
+      <p><img src="img/disc_func_noncontig_2d_03.png" style="width:100.0%" /></p>
+      </section>
+      <section id="extensions-to-additional-classes" class="level2">
+      <h2>Extensions to Additional Classes</h2>
+      <p>The theory holds when you extend to additional classes, although the decision boundaries can get fairly complex.</p>
+      <p class="fragment">
+      Note: If you have these kinds of problems, you must be sure your training set is very good (lots of samples, good fit between samples and model, etc.)
+      </p>
+      <p class="fragment">
+      Always remember the tradeoff of generalization vs. complexity!
+      </p>
+      </section>
+      <section id="arbitrary-boldsymbolsigma_i-6" class="level2">
+      <h2>Arbitrary $\boldsymbol{\sigma}_{i}$</h2>
+      <figure>
+      <img src="img/disc_func_multiclass_2d.png" alt="Multi-Class Decision Boundary" style="width:45.0%" /><figcaption>Multi-Class Decision Boundary</figcaption>
+      </figure>
+      </section>
+      </section>
+      <section id="section-8" class="level1">
+      <h1></h1>
+      <section id="parting-words" class="level2">
+      <h2>Parting Words</h2>
+      </section>
+      <section id="bayesian-theory-wrap-up" class="level2">
+      <h2>Bayesian Theory Wrap-Up</h2>
+      <p>Bayes forms the basis for a lot of “ideal” classifier problems.</p>
+      <p class="fragment">
+      Use this when the following conditions are met:
+      </p>
+      <ul>
+      <li class="fragment">
+      You can obtain a reasonably large set of labeled training data to estimate $p(x|\omega)$
+      </li>
+      <li class="fragment">
+      You can estimate the distribution that characterizes $p(x|\omega)$ (it doesn’t HAVE to be normal, but it helps)
+      </li>
+      <li class="fragment">
+      You know what your prior $P(\omega)$ is for each class, or you can assume them to be non-informative
+      </li>
+      <li class="fragment">
+      You have a relatively small number of features in your dataset
+      </li>
+      </ul>
+      </section>
+      <section id="bayesian-theory-wrap-up-1" class="level2">
+      <h2>Bayesian Theory Wrap-Up</h2>
+      <p>Bayes gives you a very good statistical understanding of classifier performance.</p>
+      <p class="fragment">
+      If you get errors, look at your PDFs and associated feature values!
+      </p>
+      <p class="fragment">
+      You can easily troubleshoot your system by checking your PDFs.
+      </p>
+      </section>
+      </section>
+      <section id="section-9" class="level1">
+      <h1></h1>
+      <section id="next-class" class="level2">
+      <h2>Next Class</h2>
+      </section>
+      <section id="non-metric-methods" class="level2">
+      <h2>Non-Metric Methods</h2>
+      <p>What happens when our features are not numbers, but attribute-value pairs like “color” or “taste”?</p>
+      <p class="fragment">
+      These are not “metrics”, meaning you can’t put them in a specific order or calculate a meaningful distance between them
+      </p>
+      <p class="fragment">
+      There’s no such thing as a distance value between “chocolate” and “vanilla”.
+      </p>
+      <p class="fragment">
+      We can address this problem using Non-Metric methods like Decision Trees.
+      </p>
+      <p class="fragment">
+      Tree-building methods: CART, ID3, C4.5
+      </p>
+      </section>
+      </section>
+      <section id="section-10" class="level1">
+      <h1></h1>
+      <section id="thank-you" class="level2">
+      <h2>Thank You!</h2>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        fragments: true,
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
