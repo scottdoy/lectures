@@ -508,25 +508,25 @@ for both the optimal split AND the optimal supercategories.
 
 <div class="l-multiple" style="grid-template-columns: auto auto auto auto;">
 <div style="grid-row: 1;">
-![Gleason Grade 3](img/gleason_g3.png){width=100%}
+![Gleason Grade 3](img/gleason_g3.png){width=80%}
 </div>
 <div style="grid-row: 1;">
-![Gleason Grade 4](img/gleason_g4.png){width=100%}
+![Gleason Grade 4](img/gleason_g4.png){width=80%}
 </div>
 <div style="grid-row: 1;">
-![Gleason Grade 5](img/gleason_g5.png){width=100%}
+![Gleason Grade 5](img/gleason_g5.png){width=80%}
 </div>
 <div style="grid-row: 1 / span 2; vertical-align: middle;">
-![Neoplasia (PIN)](img/gleason_pin.png){width=100%}
+![Neoplasia (PIN)](img/gleason_pin.png){width=80%}
 </div>
 <div style="grid-row: 2;">
-![Benign Epithelium](img/gleason_epi.png){width=100%}
+![Benign Epithelium](img/gleason_epi.png){width=80%}
 </div>
 <div style="grid-row: 2;">
-![Benign Stroma](img/gleason_str.png){width=100%}
+![Benign Stroma](img/gleason_str.png){width=80%}
 </div>
 <div style="grid-row: 2;">
-![Atrophy](img/gleason_atr.png){width=100%}
+![Atrophy](img/gleason_atr.png){width=80%}
 </div>
 </div>
 
