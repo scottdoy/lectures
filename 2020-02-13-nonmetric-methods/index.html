@@ -1,0 +1,1032 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nonmetric Methods<br/>Decision Trees</title>
+
+    <meta name="description" content="Nonmetric Methods<br/>Decision Trees">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css">
+    <script src="http://tikzjax.com/v1/tikzjax.js"></script>
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">Nonmetric Methods<br/>Decision Trees</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="definitions-of-metrics" class="level2">
+      <h2>Definitions of Metrics</h2>
+      </section>
+      <section id="what-is-a-metric" class="level2">
+      <h2>What is a Metric?</h2>
+      <p>Let’s say we have a set of points called $\mathcal{X}$.</p>
+      <p class="fragment">
+      We define a function called a <strong><em>distance function</em></strong>:
+      </p>
+      <p class="fragment">
+      $$ d: \mathcal{X} \times \mathcal{X} \mapsto [0,\infty) $$
+      </p>
+      <p class="fragment">
+      This function says that you can take two points in $\mathcal{X}$ and map them to a point on the number line from 0 to an arbitrarily large number.
+      </p>
+      </section>
+      <section id="metric-conditions" class="level2">
+      <h2>Metric Conditions</h2>
+      <p>We call $d$ a <strong><em>metric</em></strong> if, for all points $\mathbf{x,y,z}\in\mathcal{X}$, ALL of the following conditions are satisified:</p>
+      <p class="fragment">
+      <strong>Non-negativity</strong>: Distances cannot be less than zero.
+      </p>
+      <p class="fragment">
+      $$d(\mathbf{x,y}) \geq 0$$
+      </p>
+      <p class="fragment">
+      <strong>Identity of Indiscernibles</strong>: If two points have a distance of 0, then they are (effectively) the same point.
+      </p>
+      <p class="fragment">
+      $$d(\mathbf{x,y})=0\iff\mathbf{x}=\mathbf{y}$$
+      </p>
+      <p class="fragment">
+      <strong>Symmetry</strong>: The distance from $\mathbf{x}$ to $\mathbf{y}$ should be the same as the distance from $\mathbf{y}$ to $\mathbf{x}$
+      </p>
+      <p class="fragment">
+      $$d(\mathbf{x,y}) = d(\mathbf{y,x})$$
+      </p>
+      <p class="fragment">
+      <strong>Triangle Inequality</strong>: A straight path between two points $\mathbf{x}$ and $\mathbf{z}$ should be the shortest path, compared to a “detour” through point $\mathbf{y}$)
+      </p>
+      <p class="fragment">
+      $$d(\mathbf{x,z}) \leq d(\mathbf{x,y}) + d(\mathbf{y,z})$$
+      </p>
+      </section>
+      <section id="discrete-metric" class="level2">
+      <h2>Discrete Metric</h2>
+      <p>$$ d(\mathbf{x,y}) = \begin{cases} 1 &amp; \text{if } \mathbf{x\neq y}\\ 0 &amp; \text{if } \mathbf{x=y} \end{cases}$$</p>
+      </section>
+      <section id="euclidean-metric" class="level2">
+      <h2>Euclidean Metric</h2>
+      <p>$ d(\mathbf{x,y}) = \sqrt{(x_{1}-y_{1})^{2}+\cdots+(x_{d}-y_{d})^{2}} $</p>
+      </section>
+      <section id="taxicab-metric" class="level2">
+      <h2>Taxicab Metric:</h2>
+      <p>$$ d(\mathbf{x,y}) = \sum_{i=1}^{d}|x_{i}-y_{i}| $$</p>
+      </section>
+      <section id="illustration-of-distances" class="level2">
+      <h2>Illustration of Distances</h2>
+      <p><img src="img/distancemetrics.png" style="width:45.0%" /></p>
+      </section>
+      <section id="metric-vs.-nonmetric-features" class="level2">
+      <h2>Metric vs. Nonmetric Features</h2>
+      <p><strong>Metric features</strong> are those which can be:</p>
+      <ul>
+      <li class="fragment">
+      Ordered – One is numerically higher, bigger, or greater than another
+      </li>
+      <li class="fragment">
+      Distanced – You can calculate a distance metric between two objects
+      </li>
+      </ul>
+      <p class="fragment">
+      <strong>Nonmetric</strong> or <strong>nominal</strong> features cannot be ordered, and there is no “distance” between them.
+      </p>
+      </section>
+      <section id="metric-vs.-nonmetric-features-1" class="level2">
+      <h2>Metric vs. Nonmetric Features</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/walrus.jpg" alt="Walrus" style="width:80.0%" /><figcaption>Walrus</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/seal.jpg" alt="Seal" style="width:80.0%" /><figcaption>Seal</figcaption>
+      </figure>
+      </div>
+      </div>
+      <p class="fragment">
+      Example: Animal teeth can be small and fine, they can exist in one line or multiple rows, they can be tusks, and some animals have no teeth.
+      </p>
+      <p class="fragment">
+      There is no sense of distance between “tusks” and “beaks”.
+      </p>
+      </section>
+      <section id="metric-vs.-nonmetric-features-2" class="level2">
+      <h2>Metric vs. Nonmetric Features</h2>
+      <p>Objects in nonmetric features can be represented by <strong>property d-tuples</strong>.</p>
+      <p class="fragment">
+      For example, an animal might be a $d$-tuple characterizing the animal’s teeth: (size, type, use).
+      </p>
+      <div class="fragment txt-left">
+      <p>Thus, to describe two different animals:</p>
+      <ul>
+      <li>walrus = (large, tusk, dominance)</li>
+      <li>seal = (small, cusped, chewing)</li>
+      </ul>
+      </div>
+      <p class="fragment">
+      How do we classify a set of objects represented by tuples?
+      </p>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="decision-trees" class="level2">
+      <h2>Decision Trees</h2>
+      </section>
+      <section id="elaborate-ifthanelse-questions" class="level2">
+      <h2>Elaborate if/than/else Questions</h2>
+      <p>For each object, ask a series of questions to try and identify it.</p>
+      <p class="fragment">
+      These can be “yes/no”, “true/false”, or “value(property)$\in${values}” questions.
+      </p>
+      <ul>
+      <li class="fragment">
+      How do we <strong><em>choose</em></strong> these questions?
+      </li>
+      <li class="fragment">
+      What is the <strong><em>smallest number</em></strong> of questions we can ask to reach a conclusion?
+      </li>
+      <li class="fragment">
+      When can we <strong><em>stop</em></strong> asking questions; i.e. when have we reached the true label?
+      </li>
+      <li class="fragment">
+      What is the correct <strong><em>order</em></strong> in which to ask these questions?
+      </li>
+      </ul>
+      </section>
+      <section id="decision-tree-example" class="level2">
+      <h2>Decision Tree Example</h2>
+      <p><img src="img/decisiontree.svg" style="width:70.0%" /></p>
+      </section>
+      <section id="decision-tree-terminology" class="level2">
+      <h2>Decision Tree Terminology</h2>
+      <p>Links or <strong>branches</strong> correspond to specific values from the node.</p>
+      <p class="fragment">
+      Starting from the <strong>root node</strong>, the link is followed to the <strong>descendent node</strong> based on its value.
+      </p>
+      <p class="fragment">
+      Links must be <strong>distinct</strong> and <strong>exhaustive</strong>:
+      </p>
+      <ul>
+      <li class="fragment">
+      Only one link can be followed.
+      </li>
+      <li class="fragment">
+      There must be a link for each possible value
+      </li>
+      </ul>
+      <p class="fragment">
+      When a <strong>leaf</strong> node is reached, there are no more questions and the object is classified.
+      </p>
+      </section>
+      <section id="decision-tree-example-and-terminology" class="level2">
+      <h2>Decision Tree Example and Terminology</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/decisiontree.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p>Objects can be represented by their property-value sets:</p>
+      <p>$\mathbf{x}=${“sweet”, “yellow”, “thin”, “medium”}</p>
+      <p class="fragment">
+      <strong>Banana:</strong> is (yellow AND thin), which is all we need to find a leaf for $\mathbf{x}$
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="decision-tree-example-and-terminology-1" class="level2">
+      <h2>Decision Tree Example and Terminology</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/decisiontree.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p>Categories are defined by node paths:</p>
+      <ul>
+      <li class="fragment">
+      Apples are: (green AND medium) OR (red AND medium)
+      </li>
+      <li class="fragment">
+      Apples are also: (medium AND NOT yellow)
+      </li>
+      </ul>
+      <p class="fragment">
+      Easily incorporates knowledge from human experts (assuming the problem is simple and training set is small).
+      </p>
+      </div>
+      </div>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="training-classification-and-regression-trees-cart" class="level2">
+      <h2>Training: Classification and Regression Trees (CART)</h2>
+      </section>
+      <section id="cart-training-preliminaries" class="level2">
+      <h2>CART Training: Preliminaries</h2>
+      <p>Assume we have training data $\mathcal{D}$ and a pre-determined set of <strong>nodes</strong> or features.</p>
+      <p class="fragment">
+      Each node splits the training set into smaller subsets: $\mathcal{D} = \{\mathcal{D}_{1}, \mathcal{D}_{2}\}$.
+      </p>
+      <p class="fragment">
+      If all the subsets have the same label, then we can stop splitting because the node is <strong>pure</strong>; otherwise, the node is <strong>impure</strong>.
+      </p>
+      </section>
+      <section id="cart" class="level2">
+      <h2>CART</h2>
+      <p>This is part of the CART approach (Classification And Regression Trees).</p>
+      <p class="fragment">
+      At any node, you can either:
+      </p>
+      <ul>
+      <li class="fragment">
+      Declare this node a leaf and stop splitting (Leads to an imperfect result if the node is impure); or
+      </li>
+      <li class="fragment">
+      Continue with a different property and grow the tree further.
+      </li>
+      </ul>
+      </section>
+      <section id="cart-1" class="level2">
+      <h2>CART</h2>
+      <p>Six questions arise from this approach:</p>
+      <ol>
+      <li class="fragment">
+      How many branches do we extend from a node?
+      </li>
+      <li class="fragment">
+      Which property is tested at a node?
+      </li>
+      <li class="fragment">
+      When do we declare a node to a leaf?
+      </li>
+      <li class="fragment">
+      Can we “prune” a tree to make it smaller?
+      </li>
+      <li class="fragment">
+      If a node is declared a leaf, and the leaf is impure, what category label should be assigned?
+      </li>
+      <li class="fragment">
+      How can we handle missing data?
+      </li>
+      </ol>
+      </section>
+      </section>
+      <section id="section-3" class="level1">
+      <h1></h1>
+      <section id="number-of-branches" class="level2">
+      <h2>Number of Branches</h2>
+      </section>
+      <section id="number-of-splits-at-each-node" class="level2">
+      <h2>Number of Splits at Each Node</h2>
+      <p>The number of branches descending from a node is its <strong>branching factor</strong>, $B$.</p>
+      <p class="fragment">
+      $B$ can be selected by the designer, but any node with $B&gt;2$ can be replaced with a series of nodes with $B=2$ to make it a <strong>binary tree</strong>.
+      </p>
+      <p class="fragment">
+      We will focus on binary trees, which are easier to train and understand. However, $B&gt;2$ may be more computationally efficient in practice.
+      </p>
+      </section>
+      <section id="non-binary-splits-bgeq-2" class="level2">
+      <h2>Non-Binary Splits ($B\geq 2$)</h2>
+      <figure>
+      <img src="img/decisiontree_nonbin.svg" alt="Non-Binary Decision Tree" style="width:60.0%" /><figcaption>Non-Binary Decision Tree</figcaption>
+      </figure>
+      </section>
+      <section id="binary-splits-b2" class="level2">
+      <h2>Binary Splits ($B=2$)</h2>
+      <figure>
+      <img src="img/decisiontree_bin.svg" alt="Binary Decision Tree" style="width:60.0%" /><figcaption>Binary Decision Tree</figcaption>
+      </figure>
+      </section>
+      </section>
+      <section id="section-4" class="level1">
+      <h1></h1>
+      <section id="query-selection" class="level2">
+      <h2>Query Selection</h2>
+      </section>
+      <section id="query-selection-and-node-impurity" class="level2">
+      <h2>Query Selection and Node Impurity</h2>
+      <p>We call a split a <strong>query</strong>, denoted $T$. We want to select our queries such that:</p>
+      <ul>
+      <li class="fragment">
+      The overall tree is simple and compact (minimize the overall number of nodes); and
+      </li>
+      <li class="fragment">
+      The data reaching the immediate descendent nodes should be as <strong><em>pure</em></strong> as possible.
+      </li>
+      </ul>
+      <p class="fragment">
+      First, <strong><em>simplicity</em></strong>: We should use the fewest number of possible queries.
+      </p>
+      </section>
+      <section id="complex-tree-not-simple-or-compact" class="level2">
+      <h2>Complex Tree (Not Simple or Compact)</h2>
+      <figure>
+      <img src="img/decisiontree_complex.svg" alt="Complex Decision Tree" style="width:60.0%" /><figcaption>Complex Decision Tree</figcaption>
+      </figure>
+      </section>
+      <section id="simple-tree-simple-and-compact" class="level2">
+      <h2>Simple Tree (Simple and Compact)</h2>
+      <figure>
+      <img src="img/decisiontree_simple.svg" alt="Simple Decision Tree" style="width:60.0%" /><figcaption>Simple Decision Tree</figcaption>
+      </figure>
+      </section>
+      <section id="node-impurity-definition" class="level2">
+      <h2>Node Impurity Definition</h2>
+      <p>When deciding whether to split a node, we should quantify node “impurity”.</p>
+      <p class="fragment">
+      Define a function $i(N)$, which returns some measure of impurity at node $N$:
+      </p>
+      <ul>
+      <li class="fragment">
+      $i(N)=0$: all samples that reach $N$ have the same label
+      </li>
+      <li class="fragment">
+      $i(N)&gt;&gt;0$: all classes are equally mixed
+      </li>
+      </ul>
+      </section>
+      <section id="measures-of-node-impurity-entropy" class="level2">
+      <h2>Measures of Node Impurity: Entropy</h2>
+      <p>The most common impurity is <strong>Entropy / Information Impurity:</strong></p>
+      <p class="fragment">
+      $$ i(N) = - \sum_{j}\widehat{P}(\omega_{j})\log_{2}{\widehat{P}(\omega_{j})} $$
+      </p>
+      <p class="fragment">
+      Here, $\widehat{P}(\omega_{j})$ refers to the fraction of training patterns in category $\omega_{j}$ at node $N$.
+      </p>
+      </section>
+      <section id="max-and-min-of-entropy-impurity" class="level2">
+      <h2>Max and Min of Entropy Impurity</h2>
+      <p>$$ i(N) = - \sum_{j}\widehat{P}(\omega_{j})\log_{2}{\widehat{P}(\omega_{j})} $$</p>
+      <p class="fragment">
+      Given this, when is $i(N)$ at a maximum, and when is it at a minimum?
+      </p>
+      <ul>
+      <li class="fragment">
+      Entropy is a measure of <strong><em>randomness</em></strong> in a sequence.
+      </li>
+      <li class="fragment">
+      Coin flips are entirely random; the Fibonacci sequence is not random.
+      </li>
+      </ul>
+      <p class="fragment">
+      What are the values of $\widehat{P}(\omega_{1})$ and $\widehat{P}(\omega_{2})$, and when are they <strong>most informative</strong> or <strong>least informative</strong>?
+      </p>
+      </section>
+      <section id="when-is-entropy-impurity-maximum" class="level2">
+      <h2>When is Entropy Impurity Maximum?</h2>
+      <p>If there are two classes, and node $N$ contains <strong>equal numbers</strong> of points from each class, then $\widehat{P}(\omega_{1}) = \widehat{P}(\omega_{2}) = 0.5$</p>
+      <p class="fragment">
+      \begin{align} i(N) &amp;= - \sum_{j}\widehat{P}(\omega_{j})\log_{2}{\widehat{P}(\omega_{j})}\\ &amp;= -\left[ \widehat{P}(\omega_{1})\log_{2}{\widehat{P}(\omega_{1})} + \widehat{P}(\omega_{2})\log_{2}{\widehat{P}(\omega_{2})}\right]\\ &amp;= -\left[ 0.5\log_{2}{0.5} + 0.5\log_{2}{0.5} \right]\\ &amp;= -\left[ 0.5(-1) + 0.5(-1) \right]\\ &amp;= 1 \end{align}
+      </p>
+      </section>
+      <section id="when-is-entropy-impurity-minimum" class="level2">
+      <h2>When is Entropy Impurity Minimum?</h2>
+      <p>If there are two classes, and node $N$ contains <strong>only points from one class</strong>, $\omega_{1}$, then $\widehat{P}(\omega_{1}) = 1.0, \widehat{P}(\omega_{2}) = 0.0$</p>
+      <p class="fragment">
+      \begin{align} i(N) &amp;= - \sum_{j}\widehat{P}(\omega_{j})\log_{2}{\widehat{P}(\omega_{j})}\\ &amp;= -\left[ \widehat{P}(\omega_{1})\log_{2}{\widehat{P}(\omega_{1})} + \widehat{P}(\omega_{2})\log_{2}{\widehat{P}(\omega_{2})}\right]\\ &amp;= -\left[ 1.0\log_{2}{1.0} \right]\\ &amp;= -\left[ 1.0(0) \right]\\ &amp;= 0 \end{align}
+      </p>
+      </section>
+      <section id="measures-of-node-impurity-variance-two-class" class="level2">
+      <h2>Measures of Node Impurity: Variance (Two-Class)</h2>
+      <p><strong>Variance Impurity:</strong></p>
+      <p>$$ i(N) = \widehat{P}(\omega_{1})\widehat{P}(\omega_{2}) $$</p>
+      <p class="fragment">
+      This is most useful in the two-category case; if the node is pure, then either $\widehat{P}(\omega_{1})$ or $\widehat{P}(\omega_{2})$ is $0$, and therefore $i(N)=0$.
+      </p>
+      </section>
+      <section id="measures-of-node-impurity-gini-multi-class" class="level2">
+      <h2>Measures of Node Impurity: Gini (Multi-Class)</h2>
+      <p><strong><em>Gini Impurity:</em></strong></p>
+      <p>$$ i(N) = \sum_{i\neq j}\widehat{P}(\omega_{i})\widehat{P}(\omega_{j}) = \left[1-\sum_{j}\widehat{P}^{2}(\omega_{j})\right]$$</p>
+      <p class="fragment">
+      This is the extension of Variance Impurity to the multi-class case.
+      </p>
+      <p class="fragment">
+      We simply sum over the product of priors of every unique pair of $\omega_{i}$ and $\omega_{j}$.
+      </p>
+      </section>
+      <section id="measures-of-node-impurity-misclassification" class="level2">
+      <h2>Measures of Node Impurity: Misclassification</h2>
+      <p><strong><em>Misclassification Impurity:</em></strong></p>
+      <p>$$ i(N) = 1-\max_{j}{\widehat{P}(\omega_{j})} $$</p>
+      <p class="fragment">
+      This is the minimum probability that a training pattern would be misclassified at $N$.
+      </p>
+      </section>
+      <section id="node-impurity-as-a-function-of-classes" class="level2">
+      <h2>Node Impurity as a Function of Classes</h2>
+      <figure>
+      <img src="img/impurity_function.svg" alt="Node Impurity Function" style="width:80.0%" /><figcaption>Node Impurity Function</figcaption>
+      </figure>
+      </section>
+      <section id="selecting-a-specific-query-to-test" class="level2">
+      <h2>Selecting a Specific Query to Test</h2>
+      <p>So we have two criteria: a <strong><em>simple</em></strong> tree that leads to nodes with <strong><em>minimum impurity</em></strong>.</p>
+      <p class="fragment">
+      Therefore, given node $N$, what split $s$ should we use for query $T$?
+      </p>
+      </section>
+      <section id="selecting-a-specific-query-to-test-1" class="level2">
+      <h2>Selecting a Specific Query to Test</h2>
+      <p>Since we’re trying to minimize impurity (i.e. maximize purity) at the descendent nodes, we can calculate the <strong><em>impurity gradient</em></strong>:</p>
+      <p class="fragment">
+      $$\Delta i(s) = i(N)-\widehat{P}_{L}i(N_{L})-(1 - \widehat{P}_{L})i(N_{R})$$
+      </p>
+      <p class="fragment">
+      $N_{L}, N_{R}$ are the left and right descendent nodes and $i(N_{L}), i(N_{R})$ are their impurities.
+      </p>
+      <p class="fragment">
+      $\widehat{P}_{L}$ is the fraction of patterns / data at node $N$ that go to $N_{L}$ when query $T$ is used.
+      </p>
+      <p class="fragment">
+      Thus, we seek the split $s^{\star}=\max_{s}{\Delta i(s)}$.
+      </p>
+      <p class="fragment">
+      If we are using entropy impurity, this is equivalent to <strong><em>maximizing information gain</em></strong>.
+      </p>
+      </section>
+      <section id="local-vs.-global-query-selection" class="level2">
+      <h2>Local vs. Global Query Selection</h2>
+      <p>$$ \Delta i(s) = i(N) - \widehat{P}_{L}i(N_{L}) - (1 - \widehat{P}_{L})i(N_{R}) $$</p>
+      <p>For binary trees, this is a one-dimensional optimization problem.</p>
+      <p class="fragment">
+      This is a <strong><em>local, greedy</em></strong> strategy: we select the optimal $s$ at each $N$ separately.
+      </p>
+      <p class="fragment">
+      This is NOT guaranteed to be <strong><em>globally optimal</em></strong>, and will not necessarily yield a small tree.
+      </p>
+      <p class="fragment">
+      However, it is a straightforward method that reaches a solution in a reasonable amount of time.
+      </p>
+      </section>
+      <section id="differences-in-impurity-functions" class="level2">
+      <h2>Differences in Impurity Functions</h2>
+      <p>The selection of impurity function can affect the selection of a split.</p>
+      <p class="fragment">
+      Imagine that at node $N$ there are 100 points, 90 of which are from $\omega_{1}$ and 10 of which are in $\omega_{2}$.
+      </p>
+      <p class="fragment">
+      Now you have to evaluate a proposed split that will create two new nodes (binary tree), where the left node contains 30 points (20 from $\omega_{1}$, and 10 from $\omega_{2}$), and the right contains 70 points (70 from $\omega_{1}$, and 0 from $\omega_{2}$).
+      </p>
+      <p class="fragment">
+      What are the <strong><em>Misclassification</em></strong> and <strong><em>Gini</em></strong> impurities?
+      </p>
+      </section>
+      <section id="differences-in-impurity-functions-1" class="level2">
+      <h2>Differences in Impurity Functions</h2>
+      <p><strong><em>Misclassification Impurity</em></strong></p>
+      <p>\begin{align} i_{MI}(N) &amp;= 1 - \max_{j}\widehat{P}(\omega_{j})\\ &amp;= 1 - 0.9 = 0.1 \\ i_{MI}(N_{R}) &amp;= 1 - 1 = 0 \\ i_{MI}(N_{L}) &amp;= 1 - 0.66 = 0.33 \\ \Delta i_{MI}(N) &amp;= i(N) - \widehat{P}_{L} i(N_{L}) - (1 - \widehat{P}_{L}) i(N_{R})\\ &amp;= 0.1 - 0.3 * 0.3 - (1-0.3) * 0\\ &amp;= \mathbf{0} \end{align}</p>
+      </section>
+      <section id="differences-in-impurity-functions-2" class="level2">
+      <h2>Differences in Impurity Functions</h2>
+      <p><strong><em>Gini Impurity</em></strong></p>
+      <p>\begin{align} i_{GI}(N) &amp;= \left[1-\sum_{j}\widehat{P}^{2}(\omega_{j})\right]\\ &amp;= \left[1 - (0.9^{2} + 0.1^{2})\right] = 0.09 \\ i_{GI}(N_{R}) &amp;= 0.5 \left[1 - (1.0^{2} + 0^{2})\right] = 0 \\ i_{GI}(N_{L}) &amp;= 0.5 \left[1 - (0.66^{2} + 0.33^{2})\right] = 0.22 \\ \Delta i_{GI}(N) &amp;= i(N) - \widehat{P}_{L} i(N_{L}) - (1 - \widehat{P}_{L}) i(N_{R})\\ &amp;= 0.09 - 0.33 * 0.22 - (1-0.3) * 0\\ &amp;= \mathbf{0.0234} \end{align}</p>
+      </section>
+      <section id="twoing-criterion-for-multiple-classes" class="level2">
+      <h2>Twoing Criterion for Multiple Classes</h2>
+      <p>The goal in the multiclass case is to identify <strong><em>groups</em></strong> of the $c$ classes.</p>
+      <p class="fragment">
+      If our set of categories is $\mathcal{C}=\{\omega_{1},\omega_{2},,\omega_{c}\}$, we want a split that creates <strong><em>supercategories</em></strong> $\mathcal{C}_{1}=\{\omega_{1i},\omega_{2i},,\omega_{ik}\}$ and $\mathcal{C}_{2} = \mathcal{C}-\mathcal{C}_{1}$.
+      </p>
+      <p class="fragment">
+      Our impurity criterion is now the <strong><em>change</em></strong> in impurity: $\Delta i(s,\mathcal{C}_{1})$. Thus, we find the split $s^{}(\mathcal{C}_{1})$ that maximizes the impurity gradient, given $\mathcal{C}_{1}$.
+      </p>
+      <p class="fragment">
+      Then we find the supercategory $\mathcal{C}_{1}^{\ast}$ that maximizes $\Delta i(s^{\ast}(\mathcal{C}_{1}), \mathcal{C}_{1})$, meaning that we are searching for both the optimal split AND the optimal supercategories.
+      </p>
+      <p class="fragment">
+      <strong><em>This has many applications in biomedical data!</em></strong>
+      </p>
+      </section>
+      <section id="supercategories-in-prostate-cancer" class="level2">
+      <h2>Supercategories in Prostate Cancer</h2>
+      <div class="l-multiple" style="grid-template-columns: auto auto auto auto;">
+      <div style="grid-row: 1;">
+      <figure>
+      <img src="img/gleason_g3.png" alt="Gleason Grade 3" style="width:100.0%" /><figcaption>Gleason Grade 3</figcaption>
+      </figure>
+      </div>
+      <div style="grid-row: 1;">
+      <figure>
+      <img src="img/gleason_g4.png" alt="Gleason Grade 4" style="width:100.0%" /><figcaption>Gleason Grade 4</figcaption>
+      </figure>
+      </div>
+      <div style="grid-row: 1;">
+      <figure>
+      <img src="img/gleason_g5.png" alt="Gleason Grade 5" style="width:100.0%" /><figcaption>Gleason Grade 5</figcaption>
+      </figure>
+      </div>
+      <div style="grid-row: 1 / span 2; vertical-align: middle;">
+      <figure>
+      <img src="img/gleason_pin.png" alt="Neoplasia (PIN)" style="width:100.0%" /><figcaption>Neoplasia (PIN)</figcaption>
+      </figure>
+      </div>
+      <div style="grid-row: 2;">
+      <figure>
+      <img src="img/gleason_epi.png" alt="Benign Epithelium" style="width:100.0%" /><figcaption>Benign Epithelium</figcaption>
+      </figure>
+      </div>
+      <div style="grid-row: 2;">
+      <figure>
+      <img src="img/gleason_str.png" alt="Benign Stroma" style="width:100.0%" /><figcaption>Benign Stroma</figcaption>
+      </figure>
+      </div>
+      <div style="grid-row: 2;">
+      <figure>
+      <img src="img/gleason_atr.png" alt="Atrophy" style="width:100.0%" /><figcaption>Atrophy</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="supercategories-in-prostate-cancer-1" class="level2">
+      <h2>Supercategories in Prostate Cancer</h2>
+      <figure>
+      <img src="img/tissue_cascade.png" alt="How to Select the Best Supercategories?" style="width:90.0%" /><figcaption>How to Select the Best Supercategories?</figcaption>
+      </figure>
+      </section>
+      </section>
+      <section id="section-5" class="level1">
+      <h1></h1>
+      <section id="stop-splitting" class="level2">
+      <h2>Stop Splitting</h2>
+      </section>
+      <section id="when-to-stop" class="level2">
+      <h2>When to Stop?</h2>
+      <p>What happens if we keep splitting until each leaf only contains one data point?</p>
+      <ul>
+      <li class="fragment">
+      We’ve <strong><em>over-trained</em></strong> our tree!
+      </li>
+      <li class="fragment">
+      This is a classifier with <strong><em>high complexity</em></strong> and <strong><em>low generalizability</em></strong>.
+      </li>
+      </ul>
+      </section>
+      <section id="under-training-scenario" class="level2">
+      <h2>Under-Training Scenario</h2>
+      <p>What happens if we stop splitting our training set too early?</p>
+      <ul>
+      <li class="fragment">
+      We’ve <strong><em>under-trained</em></strong> our tree!
+      </li>
+      <li class="fragment">
+      This is a classifier with <strong><em>low complexity</em></strong> and <strong><em>low accuracy</em></strong>.
+      </li>
+      </ul>
+      </section>
+      <section id="when-to-stop-splitting" class="level2">
+      <h2>When to Stop Splitting</h2>
+      <p>So we need to know how to stop splitting - How should we do this?</p>
+      <ol>
+      <li class="fragment">
+      Cross-validation
+      </li>
+      <li class="fragment">
+      Threshold the impurity gradient
+      </li>
+      <li class="fragment">
+      Set a global criterion function that measures complexity vs. accuracy
+      </li>
+      </ol>
+      </section>
+      <section id="cross-validation-criterion" class="level2">
+      <h2>Cross-Validation Criterion</h2>
+      <p>We separate $\mathcal{D}$ into <strong><em>training</em></strong>, $\mathcal{D}_{1}$, and <strong><em>validation</em></strong>, $\mathcal{D}_{2}=\mathcal{D}-\mathcal{D}_{1}$.</p>
+      <p class="fragment">
+      Use $\mathcal{D}_{1}$ to build a tree, then evaluate performance with $\mathcal{D}_{2}$.
+      </p>
+      <p class="fragment">
+      Continue splitting the tree until performance peaks on $\mathcal{D}_{2}$.
+      </p>
+      <p class="fragment">
+      Consider this method if you have a LOT of training data, and you are reasonably sure that $\mathcal{D}_{2}$ generalizes well to the entire feature space.
+      </p>
+      </section>
+      <section id="threshold-impurity" class="level2">
+      <h2>Threshold Impurity</h2>
+      <p>Keep splitting until the best splits do not change the impurity:</p>
+      <p class="fragment">
+      $$ \max_{s}{\Delta i(s)}\leq \beta $$
+      </p>
+      <p class="fragment">
+      This allows us to use all of $\mathcal{D}$ to train the tree (without splitting off a validation set).
+      </p>
+      <p class="fragment">
+      Leaf nodes can exist at different levels in the tree, allowing for varieties of class complexity.
+      </p>
+      <p class="fragment">
+      Need to select $\beta$ appropriately?
+      </p>
+      </section>
+      <section id="global-criterion-function" class="level2">
+      <h2>Global Criterion Function</h2>
+      <p>To balance accuracy and complexity, we can define an overall <strong><em>complexity function</em></strong> to minimize:</p>
+      <p class="fragment">
+      $$ \alpha \ast \left[\textrm{size}\right] + \sum_{\textrm{nodes}}i(N) $$
+      </p>
+      <p class="fragment">
+      where $\left[\textrm{size}\right]$ is the number of nodes or links, and $\alpha$ is a positive constant.
+      </p>
+      <p class="fragment">
+      We keep splitting the tree until this function is minimized.
+      </p>
+      <p class="fragment">
+      If we are using entropy impurity, this is related to the <strong><em>minimum description length (MDL)</em></strong>, which we’ll talk about later when we discuss classifier evaluation.
+      </p>
+      <p class="fragment">
+      The first term penalizes having too many nodes or links, while the second term penalizes leaf nodes with a high degree of impurity.
+      </p>
+      <p class="fragment">
+      Again, we have a <strong><em>parameter</em></strong> in $\alpha$ that we need to set.
+      </p>
+      </section>
+      </section>
+      <section id="section-6" class="level1">
+      <h1></h1>
+      <section id="pruning-trees" class="level2">
+      <h2>Pruning Trees</h2>
+      </section>
+      <section id="the-horizon-effect" class="level2">
+      <h2>The Horizon Effect</h2>
+      <p>Building a tree from the ground up requires us to decide whether to split <strong><em>at the current node</em></strong>.</p>
+      <p class="fragment">
+      We cannot incorporate information about descendent nodes – the so-called <strong><em>horizon effect</em></strong>.
+      </p>
+      <p class="fragment">
+      In <strong><em>pruning</em></strong>, we build an “exhaustive” tree, and try to merge pairs of neighboring leaves together – the inverse of splitting.
+      </p>
+      <p class="fragment">
+      Pairs are merged if they yield an acceptable (small) increase in impurity, and the common antecedent node is declared a leaf.
+      </p>
+      </section>
+      <section id="pruning-uses-all-features" class="level2">
+      <h2>Pruning Uses All Features</h2>
+      <p>Pruning uses <strong><em>all training</em></strong>, and avoids the horizon effect by working backwards.</p>
+      <p class="fragment">
+      For large training sets and complex problems, this can be computationally prohibitive.
+      </p>
+      <p class="fragment">
+      For small training sets, pruning is generally preferred, but is <strong><em>sensitive to training data</em></strong>!
+      </p>
+      </section>
+      <section id="pruning-sensitivity-to-training" class="level2">
+      <h2>Pruning Sensitivity to Training</h2>
+      <figure>
+      <img src="img/pruning01.png" alt="Grey Area Indicates Lower-Left Region" style="width:90.0%" /><figcaption>Grey Area Indicates Lower-Left Region</figcaption>
+      </figure>
+      </section>
+      <section id="example-of-pruning-and-volatility" class="level2">
+      <h2>Example of Pruning and Volatility</h2>
+      <figure>
+      <img src="img/pruning02.png" alt="Slight Change in Training Leads to New Splits" style="width:90.0%" /><figcaption>Slight Change in Training Leads to New Splits</figcaption>
+      </figure>
+      </section>
+      </section>
+      <section id="section-7" class="level1">
+      <h1></h1>
+      <section id="classifying-a-leaf" class="level2">
+      <h2>Classifying a Leaf</h2>
+      </section>
+      <section id="leaf-class-assignment" class="level2">
+      <h2>Leaf Class Assignment</h2>
+      <p>This rule is easy:</p>
+      <ul>
+      <li class="fragment">
+      A <strong><em>pure</em></strong> leaf is assigned to the class of all its data points.
+      </li>
+      <li class="fragment">
+      An <strong><em>impure</em></strong> leaf is assigned to the <strong><em>dominant class</em></strong>, i.e. the class that has the most samples at that node.
+      </li>
+      </ul>
+      </section>
+      </section>
+      <section id="section-8" class="level1">
+      <h1></h1>
+      <section id="missing-attributes" class="level2">
+      <h2>Missing Attributes</h2>
+      </section>
+      <section id="missing-attributes-1" class="level2">
+      <h2>Missing Attributes</h2>
+      <p>We sometimes encounter <strong><em>deficient patterns</em></strong>, or data points with some during training or classification.</p>
+      <p class="fragment">
+      If we throw out the deficient patterns at the start, we end up wasting a lot of valuable data!
+      </p>
+      </section>
+      <section id="calculating-splits-with-missing-data" class="level2">
+      <h2>Calculating Splits with Missing Data</h2>
+      <p>For training, we can just ignore the missing attributes.</p>
+      <p class="fragment">
+      To handle classification, we can also calculate “surrogate” splits that approximate the primary.
+      </p>
+      <p class="fragment">
+      If a pattern is deficient, we use the best split that does not include the missing attributes.
+      </p>
+      </section>
+      <section id="missing-attributes-2" class="level2">
+      <h2>Missing Attributes</h2>
+      <p><img src="img/missing_attrs.png" style="width:70.0%" /></p>
+      </section>
+      </section>
+      <section id="section-9" class="level1">
+      <h1></h1>
+      <section id="handling-multiple-features" class="level2">
+      <h2>Handling Multiple Features</h2>
+      </section>
+      <section id="combinations-of-features" class="level2">
+      <h2>Combinations of Features</h2>
+      <p>Sometimes it can be more efficient to use linear combinations of features to define splits.</p>
+      <p class="fragment">
+      This can help create trees with <strong><em>simple decision planes</em></strong>, which are probably more realistic. It’s easy to see this in the two-variable case.
+      </p>
+      </section>
+      <section id="combinations-of-features-multivariate-trees" class="level2">
+      <h2>Combinations of Features: Multivariate Trees</h2>
+      <figure>
+      <img src="img/multivariate_trees_threshold.png" alt="Linear Bounds" style="width:80.0%" /><figcaption>Linear Bounds</figcaption>
+      </figure>
+      </section>
+      <section id="combinations-of-features-multivariate-trees-1" class="level2">
+      <h2>Combinations of Features: Multivariate Trees</h2>
+      <figure>
+      <img src="img/multivariate_trees_lincomb.png" alt="Combinations of Features" style="width:80.0%" /><figcaption>Combinations of Features</figcaption>
+      </figure>
+      </section>
+      </section>
+      <section id="section-10" class="level1">
+      <h1></h1>
+      <section id="other-training-methods" class="level2">
+      <h2>Other Training Methods</h2>
+      </section>
+      <section id="interactive-dichotomizer-3-id3" class="level2">
+      <h2>Interactive Dichotomizer 3 (ID3)</h2>
+      <p>ID3: used with nominal / unordered inputs.</p>
+      <p class="fragment">
+      Every split has a branching factor $B_{j}$, which is the number of attribute bins of variable $j$ used for splitting – not often binary.
+      </p>
+      <p class="fragment">
+      The number of levels is equal to the number of input variables.
+      </p>
+      <p class="fragment">
+      The algorithm continues until all nodes are pure, and there are no more variables.
+      </p>
+      <p class="fragment">
+      This can be followed up by pruning.
+      </p>
+      </section>
+      <section id="c4.5" class="level2">
+      <h2>C4.5</h2>
+      <p>C4.5, a successor to ID3, is a popular method for decision trees.</p>
+      <p class="fragment">
+      Improvements to ID3:
+      </p>
+      <ul>
+      <li class="fragment">
+      Handles real-valued inputs (like CART)
+      </li>
+      <li class="fragment">
+      Ignores missing attributes for calculating gain and entropy, and attributes with different costs
+      </li>
+      <li class="fragment">
+      Employs multi-way splits (like ID3)
+      </li>
+      <li class="fragment">
+      Uses pruning based on the statistical significance method
+      </li>
+      </ul>
+      </section>
+      <section id="differences-between-c4.5-and-cart" class="level2">
+      <h2>Differences Between C4.5 and CART</h2>
+      <p>C4.5 does not pre-compute “surrogate” splits, as in CART.</p>
+      <li class="fragment">
+      If a node $N$ with branching factor $B$ requires the missing data during classification, C4.5 will follow EACH of the links down to the $B$ leaf nodes.
+      </li>
+      <li class="fragment">
+      The classification label is based on the labels of the $B$ leaf nodes, weighted by the decision probabilities at $N$ of the training data.
+      </li>
+      <li class="fragment">
+      During pruning, C4.5 “collapses” redundant rules from the root node to a leaf.
+      </li>
+      </section>
+      <section id="pruning-in-c4.5" class="level2">
+      <h2>Pruning in C4.5</h2>
+      <div class="l-double">
+      <div>
+      <p>The leftmost leaf in this tree has an associated rule:</p>
+      <p><strong>IF:</strong> $$\begin{bmatrix} (0.04x_{1} + 0.16x_{2} &lt; 0.11)\\ \textrm{AND }(0.27x_{1}-0.44x_{2} &lt; -0.02)\\ \textrm{AND }(0.96x_{1}-1.77x_{2} &lt; -0.45)\\ \textrm{AND }(5.43x_{1}-13.33x_{2} &lt; -6.03) \end{bmatrix}$$</p>
+      <p><strong>THEN:</strong> $$\mathbf{x}\in\omega_{1}$$</p>
+      </div>
+      <div>
+      <figure>
+      <img src="img/pruningc45.png" alt="Pruning Figure" style="height:80.0%" /><figcaption>Pruning Figure</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="pruning-in-c4.5-1" class="level2">
+      <h2>Pruning in C4.5</h2>
+      <div class="l-double">
+      <div>
+      <p>This rule can be simplified as:</p>
+      <p><strong>IF:</strong> $$\begin{bmatrix} (0.04x_{1} + 0.16x_{2} &lt; 0.11)\\ \textrm{AND }(5.43x_{1}-13.33x_{2} &lt; -6.03) \end{bmatrix}$$</p>
+      <p><strong>THEN:</strong> $$\mathbf{x}\in\omega_{1}$$</p>
+      <p>Note that unlike the leaf merging strategy of CART, the rule-based method can collapse nodes near the root.</p>
+      </div>
+      <div>
+      <figure>
+      <img src="img/pruningc45.png" alt="Pruning Figure" style="height:80.0%" /><figcaption>Pruning Figure</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      </section>
+      <section id="section-11" class="level1">
+      <h1></h1>
+      <section id="parting-words" class="level2">
+      <h2>Parting Words</h2>
+      </section>
+      <section id="advantages-of-decision-trees" class="level2">
+      <h2>Advantages of Decision Trees</h2>
+      <ul>
+      <li class="fragment">
+      Simple to understand and to interpret, and can be visualised
+      </li>
+      <li class="fragment">
+      Requires little preparation (normalization, cleaning, etc.)
+      </li>
+      <li class="fragment">
+      Cost of predicting is low
+      </li>
+      <li class="fragment">
+      Handles both numerical and categorical data
+      </li>
+      <li class="fragment">
+      Handles multiple classes
+      </li>
+      </ul>
+      </section>
+      <section id="disadvantages-of-decision-trees" class="level2">
+      <h2>Disadvantages of Decision Trees</h2>
+      <ul>
+      <li class="fragment">
+      Trees can be overly complex and may not generalise well (overfitting)
+      </li>
+      <li class="fragment">
+      Can be dependent on small variations in the data (brittle)
+      </li>
+      <li class="fragment">
+      Creating an <strong><em>optimal</em></strong> tree is computationally difficult
+      </li>
+      <li class="fragment">
+      Trees can be biased if some classes are very rare
+      </li>
+      </ul>
+      </section>
+      <section id="which-decision-tree-is-best" class="level2">
+      <h2>Which Decision Tree is Best?</h2>
+      <p>The general components of decision tree design are:</p>
+      <ul>
+      <li class="fragment">
+      Feature processing
+      </li>
+      <li class="fragment">
+      Impurity measure for deciding on optimal splits
+      </li>
+      <li class="fragment">
+      Stopping criterion for growing the tree
+      </li>
+      <li class="fragment">
+      Pruning method
+      </li>
+      </ul>
+      <p class="fragment">
+      Each algorithm has attributes that may be well-suited to your dataset.
+      </p>
+      <p class="fragment">
+      As with everything in ML, you should experiment, see what works and what doesn’t.
+      </p>
+      <p class="fragment">
+      Remember that there is no such thing as a “best” classifier for all situations.
+      </p>
+      </section>
+      </section>
+      <section id="section-12" class="level1">
+      <h1></h1>
+      <section id="next-class" class="level2">
+      <h2>Next Class</h2>
+      <ul>
+      <li class="fragment">
+      Extensions of Decision Trees: Randomized Decision Trees
+      </li>
+      <li class="fragment">
+      Random Forests Algorithm, an early classifier ensemble algorithm
+      </li>
+      </ul>
+      </section>
+      </section>
+      <section id="section-13" class="level1">
+      <h1></h1>
+      <section id="thank-you" class="level2">
+      <h2>Thank You!</h2>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        fragments: true,
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
