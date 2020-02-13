@@ -663,7 +663,7 @@ For training, we can just ignore the missing attributes.
 
 ## Missing Attributes
 
-![](img/missing_attrs.png){width=70%}
+![](img/missing_attrs.png){width=50%}
 
 # 
 ## Handling Multiple Features
