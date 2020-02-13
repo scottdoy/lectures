@@ -79,30 +79,23 @@
       <section id="metric-conditions" class="level2">
       <h2>Metric Conditions</h2>
       <p>We call $d$ a <strong><em>metric</em></strong> if, for all points $\mathbf{x,y,z}\in\mathcal{X}$, ALL of the following conditions are satisified:</p>
-      <p class="fragment">
-      <strong>Non-negativity</strong>: Distances cannot be less than zero.
-      </p>
-      <p class="fragment">
+      <div class="fragment">
+      <p><strong>Non-negativity</strong>: Distances cannot be less than zero.</p>
       $$d(\mathbf{x,y}) \geq 0$$
-      </p>
-      <p class="fragment">
-      <strong>Identity of Indiscernibles</strong>: If two points have a distance of 0, then they are (effectively) the same point.
-      </p>
-      <p class="fragment">
+      </div>
+      <div class="fragment">
+      <p><strong>Identity of Indiscernibles</strong>: If two points have a distance of 0, then they are (effectively) the same point.</p>
       $$d(\mathbf{x,y})=0\iff\mathbf{x}=\mathbf{y}$$
-      </p>
-      <p class="fragment">
-      <strong>Symmetry</strong>: The distance from $\mathbf{x}$ to $\mathbf{y}$ should be the same as the distance from $\mathbf{y}$ to $\mathbf{x}$
-      </p>
-      <p class="fragment">
-      $$d(\mathbf{x,y}) = d(\mathbf{y,x})$$
-      </p>
-      <p class="fragment">
-      <strong>Triangle Inequality</strong>: A straight path between two points $\mathbf{x}$ and $\mathbf{z}$ should be the shortest path, compared to a “detour” through point $\mathbf{y}$)
-      </p>
-      <p class="fragment">
+      </div>
+      </section>
+      <section id="metric-conditions-1" class="level2">
+      <h2>Metric Conditions</h2>
+      <p><strong>Symmetry</strong>: The distance from $\mathbf{x}$ to $\mathbf{y}$ should be the same as the distance from $\mathbf{y}$ to $\mathbf{x}$</p>
+      <p>$$d(\mathbf{x,y}) = d(\mathbf{y,x})$$</p>
+      <div class="fragment">
+      <p><strong>Triangle Inequality</strong>: A straight path between two points $\mathbf{x}$ and $\mathbf{z}$ should be the shortest path, compared to a “detour” through point $\mathbf{y}$)</p>
       $$d(\mathbf{x,z}) \leq d(\mathbf{x,y}) + d(\mathbf{y,z})$$
-      </p>
+      </div>
       </section>
       <section id="discrete-metric" class="level2">
       <h2>Discrete Metric</h2>

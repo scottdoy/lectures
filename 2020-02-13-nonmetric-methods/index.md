@@ -32,30 +32,28 @@ a point on the number line from 0 to an arbitrarily large number.
 We call \$d\$ a ***metric*** if, for all points \$\\mathbf{x,y,z}\\in\\mathcal{X}\$,
 ALL of the following conditions are satisified:
 
-<p class="fragment">**Non-negativity**: Distances cannot be less than
-zero.</p>
+<div class="fragment">**Non-negativity**: Distances cannot be less than
+zero.
 
-<p class="fragment">\$\$d(\\mathbf{x,y}) \\geq 0\$\$</p>
+\$\$d(\\mathbf{x,y}) \\geq 0\$\$</div>
 
-<p class="fragment">**Identity of Indiscernibles**: If two points have a distance of 0, then they are (effectively) the same point.</p>
+<div class="fragment">**Identity of Indiscernibles**: If two points have a distance of 0, then they are (effectively) the same point.
 
-<p class="fragment">\$\$d(\\mathbf{x,y})=0\\iff\\mathbf{x}=\\mathbf{y}\$\$</p>
+\$\$d(\\mathbf{x,y})=0\\iff\\mathbf{x}=\\mathbf{y}\$\$</div>
 
+## Metric Conditions
 
-<p class="fragment">
 **Symmetry**: The distance from \$\\mathbf{x}\$ to \$\\mathbf{y}\$ should be
 the same as the distance from \$\\mathbf{y}\$ to \$\\mathbf{x}\$
-</p>
 
-<p class="fragment">\$\$d(\\mathbf{x,y}) = d(\\mathbf{y,x})\$\$</p>
+\$\$d(\\mathbf{x,y}) = d(\\mathbf{y,x})\$\$
 
-<p class="fragment">
+<div class="fragment">
 **Triangle Inequality**: A straight path between two points \$\\mathbf{x}\$
 and \$\\mathbf{z}\$ should be the shortest path, compared to a "detour" through
 point \$\\mathbf{y}\$)
-</p>
 
-<p class="fragment">\$\$d(\\mathbf{x,z}) \\leq d(\\mathbf{x,y}) + d(\\mathbf{y,z})\$\$</p>
+\$\$d(\\mathbf{x,z}) \\leq d(\\mathbf{x,y}) + d(\\mathbf{y,z})\$\$</div>
 
 
 
