@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Random Forests</title>
+
+    <meta name="description" content="Random Forests">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css">
+    <script src="http://tikzjax.com/v1/tikzjax.js"></script>
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">Random Forests</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="problems-with-decision-trees" class="level2">
+      <h2>Problems with Decision Trees</h2>
+      </section>
+      <section id="when-do-decision-trees-perform-badly" class="level2">
+      <h2>When Do Decision Trees Perform Badly?</h2>
+      <p>Decision Trees are sensitive to the training set!</p>
+      <ul>
+      <li class="fragment">
+      In cases where there are few training samples, the measure of impurity, splitting, and so on are extremely dependent on just a few data points.
+      </li>
+      <li class="fragment">
+      This is what we mean when we refer to <strong>variance</strong>.
+      </li>
+      </ul>
+      </section>
+      <section id="dts-are-sensitive-to-training" class="level2">
+      <h2>DTs are Sensitive to Training</h2>
+      <figure>
+      <img src="img/pruning01.png" alt="Grey Area Indicates Lower-Left Region" style="width:90.0%" /><figcaption>Grey Area Indicates Lower-Left Region</figcaption>
+      </figure>
+      </section>
+      <section id="dts-are-sensitive-to-training-1" class="level2">
+      <h2>DTs are Sensitive to Training</h2>
+      <figure>
+      <img src="img/pruning02.png" alt="Slight Change in Training Leads to New Splits" style="width:90.0%" /><figcaption>Slight Change in Training Leads to New Splits</figcaption>
+      </figure>
+      </section>
+      <section id="decision-trees-rely-on-smaller-problems" class="level2">
+      <h2>Decision Trees Rely on Smaller Problems</h2>
+      <p>Decision Trees depend on a <strong>small</strong> number of highly <strong>relevant</strong> features.</p>
+      <ul>
+      <li class="fragment">
+      For highly complex datasets that require a large number of attribute:value pairs, the process of growing / splitting / pruning trees can be overly complex.
+      </li>
+      <li class="fragment">
+      These problems are quite common in biomedical applications, when there could be <strong>thousands</strong> of input variables and <strong>tens of thousands</strong> of training samples.
+      </li>
+      </ul>
+      </section>
+      <section id="example-problem-character-recognition" class="level2">
+      <h2>Example Problem: Character Recognition</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/glyphs.png" alt="Target Glyphs" style="width:90.0%" /><figcaption>Target Glyphs</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>The goal in Amit and Geman’s “Shape Quantization” paper was to describe binary glyphs (left) under various deformations using trees.</p>
+      <p class="fragment">
+      Each of the training images was broken down into sub-images of $4\times 4$ pixels to create a set of glyph “parts”.
+      </p>
+      <p class="fragment">
+      At each pixel, there was a binary split: was the pixel black or white?
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="example-problem-character-recognition-1" class="level2">
+      <h2>Example Problem: Character Recognition</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/glyphtree.png" alt="Glyph Tree" style="width:90.0%" /><figcaption>Glyph Tree</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>This image space is obviously very large for all of the glyphs on the previous slide.</p>
+      <p class="fragment">
+      Training a single tree to recognize all of these image subtypes is computationally intractable and time-expensive.
+      </p>
+      <p class="fragment">
+      How can we deal with these large, complex datasets?
+      </p>
+      </div>
+      </div>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="classifier-ensembles" class="level2">
+      <h2>Classifier Ensembles</h2>
+      <p>Bagging Estimators</p>
+      </section>
+      <section id="bootstrap-aggregation-bagging" class="level2">
+      <h2>Bootstrap Aggregation (Bagging)</h2>
+      <p>Bootstrap aggregation or “bagging”: multiple classifiers are trained on <strong>samples</strong> of the training set.</p>
+      <p class="fragment">
+      The classification is some combination (average, weighted average, majority vote, etc.) of each individual classifier’s guess.
+      </p>
+      <p class="fragment">
+      This <strong>reduces variance</strong> (sensitivity to training data)
+      </p>
+      </section>
+      <section id="intuition-to-bagging" class="level2">
+      <h2>Intuition to Bagging</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/bagging.svg" alt="Bagging" style="width:80.0%" /><figcaption>Bagging</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Take training $\mathcal{D}$ of size $n$ and create $m$ new subsets, $\mathcal{D}_{i}$, each of size $n^{\prime}$.</p>
+      </div>
+      </div>
+      </section>
+      <section id="intuition-to-bagging-1" class="level2">
+      <h2>Intuition to Bagging</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/bagging01.svg" alt="Bagging" style="width:80.0%" /><figcaption>Bagging</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Take training $\mathcal{D}$ of size $n$ and create $m$ new subsets, $\mathcal{D}_{i}$, each of size $n^{\prime}$.</p>
+      <p class="fragment">
+      These subsets are created by uniformly sampling <strong>with replacement</strong> from $\mathcal{D}$; so a sample may appear in multiple subsets.
+      </p>
+      <p class="fragment">
+      Each $\mathcal{D}_{i}$ is a “bootstrap” sample.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="intuition-to-bagging-2" class="level2">
+      <h2>Intuition to Bagging</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/bagging02.svg" alt="Bagging" style="width:80.0%" /><figcaption>Bagging</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>We then build $m$ classifiers, where the $i$-th classifier is trained on bootstrap sample $\mathcal{D}_{i}$.</p>
+      <p class="fragment">
+      The final classification result is some combination of each $m$ classifier outputs (like a vote).
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="intuition-to-bagging-3" class="level2">
+      <h2>Intuition to Bagging</h2>
+      <p>Bagging has the greatest benefit on classifiers where the training is <strong>highly dependent</strong> on the specific samples used.</p>
+      <p class="fragment">
+      Leo Brieman, who developed the technique, called these “unstable” classifiers.
+      </p>
+      <div class="fragment">
+      <blockquote>
+      <p>“If perturbing the learning set can cause significant changes in the predictor constructed, then bagging can improve accuracy.”</p>
+      </blockquote>
+      </div>
+      <p class="fragment">
+      Reasoning: If you resample the training set (with replacement) over and over again, the small pertubations that cause a large change in the classifier will be “lost” in the aggregated (bagged) classifier.
+      </p>
+      </section>
+      <section id="how-does-bagging-work-technical" class="level2">
+      <h2>How Does Bagging Work? (Technical)</h2>
+      <p>It seems reasonable that if you have a “sensitive” training set, then taking an aggregate of multiple samples (i.e. “trials”) will give a more stable answer.</p>
+      <p class="fragment">
+      Can we prove this? (Yes, we can.)
+      </p>
+      </section>
+      <section id="how-does-bagging-work-technical-1" class="level2">
+      <h2>How Does Bagging Work? (Technical)</h2>
+      <p>Our training $\mathcal{D}$ is made up of samples $(\mathbf{x}, y)$ drawn from some underlying distribution which we’ll call $P$.</p>
+      <p class="fragment">
+      The classifier takes both the target feature vector (the one we want to predict a class label for) and the training set: $\varphi(\mathbf{x},\mathcal{D})$.
+      </p>
+      <p class="fragment">
+      The <strong>aggregated classifier</strong> is the “expected” classifier over the distribution $P$:
+      </p>
+      <p class="fragment">
+      $$\varphi_{A}(\mathbf{x},P)=\mathcal{E}_{\mathcal{D}}\left[\varphi(\mathbf{x},\mathcal{D})\right]$$
+      </p>
+      <p class="fragment">
+      where $\mathcal{E}_{\mathcal{D}}$ is the expected classifier over the entire training set $\mathcal{D}$.
+      </p>
+      <p class="fragment">
+      In other words: $\varphi_{A}(\mathbf{x}, P)$ is the “average” classifier we get from the training distribution; it’s the one that’s most likely to occur in a single observation of $P$.
+      </p>
+      </section>
+      <section id="how-does-bagging-work-technical-2" class="level2">
+      <h2>How Does Bagging Work? (Technical)</h2>
+      <p>Let’s say $\mathbf{X}, Y$ are two random variables where:</p>
+      <ul>
+      <li class="fragment">
+      $\mathbf{X}$ is the random variable for the data points
+      </li>
+      <li class="fragment">
+      $Y$ is the variable for the class labels.
+      </li>
+      </ul>
+      <p class="fragment">
+      We can write the expected <strong>error</strong> of the classifier trained on a single training set as the difference between the true labels and the classifier output:
+      </p>
+      <p class="fragment">
+      $$ e = \mathcal{E}_{\mathcal{D}}\left[\mathcal{E}_{\mathbf{X},Y}\left[Y - \varphi(\mathbf{X},\mathcal{D})\right]^{2}\right]$$
+      </p>
+      <p class="fragment">
+      The error on the <strong>aggregated</strong> classifier is:
+      </p>
+      <p class="fragment">
+      $$ e_{A} = \mathcal{E}_{\mathbf{X}, Y}\left[Y - \varphi_{A}(\mathbf{X},P)\right]^{2} $$
+      </p>
+      </section>
+      <section id="how-does-bagging-work-technical-3" class="level2">
+      <h2>How Does Bagging Work? (Technical)</h2>
+      <p>\begin{align} e = \mathcal{E}_{\mathcal{D}}\left[\mathcal{E}_{\mathbf{X},Y}\left[Y - \varphi(\mathbf{X},\mathcal{D})\right]^{2}\right] &amp;&amp; e_{A} = \mathcal{E}_{\mathbf{X}, Y}\left[Y - \varphi_{A}(\mathbf{X},P)\right]^{2} \\ \textrm{Error of a single, fully-trained classifier} &amp;&amp; \textrm{Error of an aggregate classifier} \\ \end{align}</p>
+      <p class="fragment">
+      To show that bagging (training multiple classifiers on subsets of $\mathcal{D}$) reduces classification error versus a single classifier trained only on $\mathcal{D}$, we must show that $e \geq e_{A}$.
+      </p>
+      </section>
+      <section id="sidenote-variance" class="level2">
+      <h2>Sidenote: Variance</h2>
+      <p>Variance is the expected difference between a random variable and its mean, squared.</p>
+      <p class="fragment">
+      According to the <a href="https://en.wikipedia.org/wiki/Algebraic_formula_for_the_variance">Algebraic formula for the variance</a>:
+      </p>
+      <p class="fragment">
+      \begin{align} \textrm{Var}\left[\mathbf{X}\right] &amp;= \mathcal{E}\left[(\mathbf{X}-\mathcal{E}\left[\mathbf{X}\right])^{2}\right]\\ &amp;= \mathcal{E}\left[(\mathbf{X}^{2}-2\mathbf{X}\mathcal{E}\left[\mathbf{X}\right] + (\mathcal{E}\left[\mathbf{X}\right])^{2}\right]\\ &amp;= \mathcal{E}\left[\mathbf{X}^{2}\right] - 2\mathcal{E}\left[\mathbf{X}\right]\mathcal{E}\left[\mathbf{X}\right] + (\mathcal{E}\left[\mathbf{X}\right])^{2}\\ &amp;= \mathcal{E}\left[\mathbf{X}^{2}\right] - 2(\mathcal{E}\left[\mathbf{X}\right])^{2} + (\mathcal{E}\left[\mathbf{X}\right])^{2}\\ &amp;= \mathcal{E}\left[\mathbf{X}^{2}\right] - (\mathcal{E}\left[\mathbf{X}\right])^{2} \\ \end{align}
+      </p>
+      <p class="fragment">
+      Variance is always greater than or equal to zero. Thus, $\mathcal{E}\left[\mathbf{X}^{2}\right] \geq (\mathcal{E}\left[\mathbf{X}\right])^{2}$.
+      </p>
+      </section>
+      <section id="how-does-bagging-work-technical-4" class="level2">
+      <h2>How Does Bagging Work? (Technical)</h2>
+      <p>Since $\mathcal{E}\left[\mathbf{X}^{2}\right] \geq (\mathcal{E}\left[\mathbf{X}\right])^{2}$, we can compare the average single-classifier error with the average aggregated-classifier error by treating $Y-\varphi(\cdot)$ as the random variable:</p>
+      <p class="fragment">
+      \begin{align} e = \mathcal{E}_{\mathcal{D}}\left[\mathcal{E}_{\mathbf{X},Y}\left[Y - \varphi(\mathbf{X},\mathcal{D})\right]^{2}\right] \sim \mathcal{E}\left[\mathbf{X}^{2}\right]\\ e_{A} = \mathcal{E}_{\mathbf{X}, Y}\left[Y - \varphi_{A}(\mathbf{X},P)\right]^{2} \sim (\mathcal{E}\left[\mathbf{X}\right])^{2} \end{align}
+      </p>
+      <p class="fragment">
+      Thus:
+      </p>
+      <p class="fragment">
+      $$ e \geq e_{A} $$
+      </p>
+      <p class="fragment">
+      <strong>Takeaway</strong>: The predicted error on a single predictor should always be greater than or equal to the error on the aggregated predictor.
+      </p>
+      </section>
+      <section id="when-bagging-does-not-help" class="level2">
+      <h2>When Bagging Does Not Help</h2>
+      <p>There are three situations in which bagging doesn’t improve accuracy:</p>
+      <ol>
+      <li class="fragment">
+      If changes in $\mathcal{D}$ do not cause a large change in $\varphi(\mathbf{X},\mathcal{D})$, then the two sides of the inequality will be nearly equal and performance will be about the same.
+      </li>
+      <li class="fragment">
+      If the predictor is already close to optimal, then bagging can’t improve things any more.
+      </li>
+      <li class="fragment">
+      If the classifiers are very poor, there’s a limit to how much bagging can help.
+      </li>
+      </ol>
+      <p class="fragment">
+      There is actually a crossover point between instability and stability where bagged classifiers actually do <strong>worse</strong>.
+      </p>
+      </section>
+      <section id="stability-vs.-instability" class="level2">
+      <h2>Stability vs. Instability</h2>
+      <figure>
+      <img src="img/bagging_stability.png" alt="Bagging Instability" style="width:60.0%" /><figcaption>Bagging Instability</figcaption>
+      </figure>
+      </section>
+      <section id="randomizing-everything-in-random-forests" class="level2">
+      <h2>Randomizing Everything in Random Forests</h2>
+      <p>In addition to collecting bootstrap samples, we can also select random features.</p>
+      <p class="fragment">
+      The reasoning is similar: perturbations in the feature space can cause fluctuations in the performance of the classifier, and so by randomizing over the feature sets we can “smooth out” this variance.
+      </p>
+      <p class="fragment">
+      In this case we rely on the fact that each feature adds at least <strong>some</strong> descriminatory information to the system.
+      </p>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="combining-multiple-trees" class="level2">
+      <h2>Combining Multiple Trees</h2>
+      </section>
+      <section id="growing-a-forest" class="level2">
+      <h2>Growing a Forest</h2>
+      <p>Suppose we train a group of trees, $T_{1}, \ldots, T_{N}$. Our label of classification is now denoted:</p>
+      <p class="fragment">
+      $ \widehat{Y}_{A} = \textrm{arg max}_c \left[P(Y=c|T_{1},\ldots,T_{N})\right] $
+      </p>
+      <p class="fragment">
+      The probability is conditional upon all of the trees, which is a very difficult parameter set to estimate properly.
+      </p>
+      <p class="fragment">
+      For complex problems, estimating the parameters for a classifier like this is computationally intractable.
+      </p>
+      </section>
+      <section id="averaging-across-trees" class="level2">
+      <h2>Averaging Across Trees</h2>
+      <p>Let $\mu_{T_{n}}(\mathbf{x})$ be the leaf that $\mathbf{x}$ arrives at when it’s evaluated by tree $T_{n}$.</p>
+      <p class="fragment">
+      Then the arithmetic average of the distributions at the leaves is the average across all of the $N$ trees:
+      </p>
+      <p class="fragment">
+      $$ \bar{\mu}(\mathbf{x}) = \frac{1}{N}\sum_{n=1}^{N}\mu_{T_{n}}(\mathbf{x})$$
+      </p>
+      <p class="fragment">
+      The mode of $\bar{\mu}(\mathbf{x})$ is the class assigned to the data point of $\mathbf{x}$; this allows our new classifier to be:
+      </p>
+      <p class="fragment">
+      $ \widehat{Y}_{S} = \textrm{arg max}_{c}\left[\bar{\mu}_{c}\right] $
+      </p>
+      </section>
+      <section id="assumption-for-all-ensemble-classifiers" class="level2">
+      <h2>Assumption for All Ensemble Classifiers</h2>
+      <p>We have to assume that while we are building decently-accurate trees, they are <strong>minimally correlated</strong>, meaning they make <strong>independent</strong> errors.</p>
+      <p class="fragment">
+      If we have a set of trees $T_{1},\ldots,T_{N}$ and tree $T_{i}$ makes an error, that error should be extremely unlikely to appear in any other tree $T_{j}$.
+      </p>
+      <p class="fragment">
+      Thus the error is “lost” or averaged out when we calculate our aggregated classification label.
+      </p>
+      <p class="fragment">
+      We will see this idea again in a later lecture on classifier ensembles.
+      </p>
+      </section>
+      <section id="experimental-validation" class="level2">
+      <h2>Experimental Validation</h2>
+      <p>Brieman offers a number of characteristics of Random Forests:</p>
+      <ol>
+      <li class="fragment">
+      The accuracy it achieves is comparable to other popular ensemble methods (Adaptive Boosting or AdaBoost was the main competitor at the time)
+      </li>
+      <li class="fragment">
+      It is relatively robust to noise and outliers
+      </li>
+      <li class="fragment">
+      It’s faster than alternative methods
+      </li>
+      <li class="fragment">
+      It gives internal measures of error estimates, strength (certainty in classification), correlation, and variable importance
+      </li>
+      <li class="fragment">
+      It can be easily parallelized
+      </li>
+      </ol>
+      </section>
+      <section id="experimental-validation-1" class="level2">
+      <h2>Experimental Validation</h2>
+      <figure>
+      <img src="img/accuracy_table.png" alt="Comparison of Forest Accuracy" style="width:45.0%" /><figcaption>Comparison of Forest Accuracy</figcaption>
+      </figure>
+      </section>
+      </section>
+      <section id="section-3" class="level1">
+      <h1></h1>
+      <section id="parting-words" class="level2">
+      <h2>Parting Words</h2>
+      </section>
+      <section id="classifier-ensembles-1" class="level2">
+      <h2>Classifier Ensembles</h2>
+      <p>Classifier ensembles are a “meta” topic.</p>
+      <p class="fragment">
+      Ensembles can be used with ANY classifier, not just decision trees.
+      </p>
+      <p class="fragment">
+      Random Forests (like most classifiers) utilize the “averaging” effect of randomized selection to handle unstable situations, where the classifier is overly sensitive to the training.
+      </p>
+      </section>
+      </section>
+      <section id="section-4" class="level1">
+      <h1></h1>
+      <section id="next-class" class="level2">
+      <h2>Next Class</h2>
+      </section>
+      <section id="next-class-1" class="level2">
+      <h2>Next Class</h2>
+      <p>We will look more closely at discriminants and perceptrons - what they are and how to work with them under various conditions.</p>
+      <p class="fragment">
+      This will provide an introduction to a very popular classifier, Support Vector Machines.
+      </p>
+      <p class="fragment">
+      In terms of traditional classifier algorithms, these three - Bayes, Decision Trees, and SVMs - are the most well-studied.
+      </p>
+      <p class="fragment">
+      Everything else is useful under certain situations.
+      </p>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        fragments: true,
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
