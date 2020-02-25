@@ -1,0 +1,77 @@
+s/^\#\ YAML.*//g
+s/^fontsize\:\ 10pt//g
+s/^documentclass.*//g
+s/^classoption.*//g
+s/^\-\ xcolor.*//g
+s/^\-\ aspectratio.*//g
+s/^theme\:\ .*/theme\:\ scottdoy\nhighlight\-style\:\ atelier\-dune\-light\ntransition\:\ fade/g
+s/^institute\:/contact\:/g
+s/^\#\ /# \n## /g
+s/\$\([^$]*\)\$/\\$\1\\$/g
+s/\\\$\\\$/\\\$/g
+s/\\mathcal/\\\\mathcal/g
+s/\\times/\\\\times/g
+s/\\mapsto/\\\\mapsto/g
+s/\\infty/\\\\infty/g
+s/\\mathbf/\\\\mathbf/g
+s/\\in/\\\\in/g
+s/\\geq/\\\\geq/g
+s/\\iff/\\\\iff/g
+s/\\leq/\\\\leq/g
+s/\\begin{/\\\\begin{/g
+s/\\end/\\\\end/g
+s/\\neq/\\\\neq/g
+s/\\text/\\\\text/g
+s/\\sqrt/\\\\sqrt/g
+s/\\cdots/\\\\cdots/g
+s/\\ldots/\\\\ldots/g
+s/\\dots/\\\\dots/g
+s/\\sum/\\\\sum/g
+s/\\abs{\([A-Za-z0-9\ \_{}\-]*\)}/|\1|/g
+s/\([A-Za-z]}\)_/\1\\_/g
+s/\([A-Za-z]\)_/\1\\_/g
+s/\^/\\^/g
+s/\\{/\\\\{/g
+s/\\}/\\\\}/g
+s/\\widehat/\\\\widehat/g
+s/\\omega/\\\\omega/g
+s/\\log/\\\\log/g
+s/\\left/\\\\left/g
+s/\\right/\\\\right/g
+s/\\max/\\\\max/g
+s/\\Delta/\\\\Delta/g
+s/\\delta/\\\\delta/g
+s/\\beta/\\\\beta/g
+s/\\alpha/\\\\alpha/g
+s/(..\/imgs\/[0-9]*\_/(img\//g
+s/“/"/g
+s/”/"/g
+s/\\varphi/\\\\varphi/g
+s/–/-/g
+s/\*\*\*/**/g
+s/\\norm/\\\\norm/g
+s/\\ast/\\\\ast/g
+s/\\argmax/\\\\argmax/g
+s/\\argmin/\\\\argmin/g
+s/\\prime/\\\\prime/g
+s/align\*/align/g
+s/\\cdot/\\\\cdot/g
+s/\\sim/\\\\sim/g
+s/\\mu/\\\\mu/g
+s/\\tau/\\\\tau/g
+s/\\frac/\\\\frac/g
+s/’/'/g
+s/\\bar/\\\\bar/g
+s/\\Var/\\\\Var/g
+s/\\\\\n/\\\\\\\\\n/g
+s/\\footnotesize/\\\\footnotesize/g
+s/\\emph/\\\\emph/g
+s/\\Repeat/\\\\Repeat/g
+s/\\ln/\\\\ln/g
+s/\\KwRet/\\\\KwRet/g
+s/^\\begincols/\<div\ class="l-double"\>/g
+s/^\\column{[0-9].[0-9]\\linewidth}/\<\/div\>\n\<div\>\n/g
+s/^\\stopcols/\<\/div\>\n\<\/div\>/g
+s/\\approx/\\\\approx/g
+s/\\boldsymbol/\\\\boldsymbol/
+s/\\theta/\\\\theta/g

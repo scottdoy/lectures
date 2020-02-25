@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ensembles and Errors</title>
+
+    <meta name="description" content="Ensembles and Errors">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Custom Addons: TikzJax -->
+    <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css">
+    <script src="http://tikzjax.com/v1/tikzjax.js"></script>
+    <!-- Custom Addons: pseudocode.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">Ensembles and Errors</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="recap" class="level2">
+      <h2>Recap</h2>
+      </section>
+      <section id="recap-so-far-two-approaches-to-classification" class="level2">
+      <h2>Recap: So Far, Two Approaches to Classification</h2>
+      <div class="l-double">
+      <div>
+      <iframe frameborder="0" seamless="seamless" scrolling="no" src="plots/radius_mean.html">
+      </iframe>
+      </div>
+      <div>
+      <figure>
+      <img src="img/decision_tree.svg" alt="Decision Tree" style="width:100.0%" /><figcaption>Decision Tree</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="recap-choosing-a-classifier" class="level2">
+      <h2>Recap: Choosing a Classifier</h2>
+      <p>Good data (descriptive features, low noise, high $N$) means that <strong>any classifier will do a decent job</strong>.</p>
+      <p class="fragment">
+      However, some are more suited to different situations than others.
+      </p>
+      <div class="l-double fragment">
+      <div>
+      <dl>
+      <dt><strong>Bayesian Decision Theory</strong></dt>
+      <dd>Large $N$
+      </dd>
+      <dd>Metric (numeric) features
+      </dd>
+      <dd>Probabilistic classification
+      </dd>
+      </dl>
+      </div>
+      <div>
+      <dl>
+      <dt><strong>Decision Trees</strong></dt>
+      <dd>Smaller (but still significant!) $N$
+      </dd>
+      <dd>Nonmetric (categorical) features
+      </dd>
+      <dd>Binary / All-or-nothing classification (except with Random Forests)
+      </dd>
+      </dl>
+      </div>
+      </div>
+      </section>
+      <section id="recap-bayesian-decision-theory" class="level2">
+      <h2>Recap: Bayesian Decision Theory</h2>
+      <p>Posterior probability:</p>
+      <p>$ P(\omega_{j}|\mathbf{x}) = \frac{p(\mathbf{x}|\omega_{j})P(\omega_{j})}{p(\mathbf{x})}$</p>
+      <p class="fragment">
+      $ p(\mathbf{x}) = \sum_{j=1}^{c}p(\mathbf{x}|\omega_{j})P(\omega_{j}) $
+      </p>
+      </section>
+      <section id="recap-bootstrap-aggregation-bagging" class="level2">
+      <h2>Recap: Bootstrap Aggregation (Bagging)</h2>
+      <ul>
+      <li class="fragment">
+      Bootstrap aggregation (“bagging”): Multiple classifiers trained on <strong>sub-samples</strong> of training data
+      </li>
+      <li class="fragment">
+      The classification is some combination (average, weighted average, majority vote, etc.) of each individual classifier’s guess
+      </li>
+      <li class="fragment">
+      This <strong>reduces variance</strong> (sensitivity to training data)
+      </li>
+      </ul>
+      </section>
+      <section id="recap-bagging" class="level2">
+      <h2>Recap: Bagging</h2>
+      <figure>
+      <img src="img/bagging02.svg" alt="Bagging" style="width:80.0%" /><figcaption>Bagging</figcaption>
+      </figure>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="classifier-ensembles" class="level2">
+      <h2>Classifier Ensembles</h2>
+      </section>
+      <section id="bagging" class="level2">
+      <h2>Bagging</h2>
+      <p>In bagging, training subsets of $\mathcal{D}$ are created by drawing $n^{\prime}&lt;n$ samples with replacement.</p>
+      <p class="fragment">
+      Each <strong>component</strong> classifier casts a “vote” for the classification of a sample point, and the final classification is the result of this vote.
+      </p>
+      <p class="fragment">
+      Each component classifier can be the same type, although the learned parameter values may vary (since they are created using different training sets).
+      </p>
+      <p class="fragment">
+      This increases the <strong>stability</strong> of the final classifier by averaging over the differences incurred by using different training sets.
+      </p>
+      </section>
+      <section id="boosting" class="level2">
+      <h2>Boosting</h2>
+      <p>In <strong>boosting</strong>, the goal is to increase the <strong>accuracy of the final classifier</strong>.</p>
+      <p class="fragment">
+      In this case, we use component classifiers, each of which is the “most informative” out of all possible component classifiers.
+      </p>
+      <p class="fragment">
+      So we are less concerned about reducing “noise” or increasing stability; here, we want to combine different aspects of the dataset (represented by classifiers) to reach the right decision.
+      </p>
+      </section>
+      <section id="bagging-vs.-boosting-example" class="level2">
+      <h2>Bagging vs. Boosting Example</h2>
+      <dl>
+      <dt><strong>Bagging</strong></dt>
+      <dd>Giving a patient’s file to 5 general practice doctors, and getting them to vote on the patient’s disease.
+      </dd>
+      </dl>
+      <div class="fragment">
+      <dl>
+      <dt><strong>Boosting</strong></dt>
+      <dd>Getting a pathologist, radiologist, and geneticist to deliberate and decide on the patient’s disease.
+      </dd>
+      </dl>
+      </div>
+      </section>
+      <section id="boosting-1" class="level2">
+      <h2>Boosting</h2>
+      <p>Two-category problem with three component classifiers: $C_{1}, C_{2}, C_{3}$</p>
+      <p class="fragment">
+      Each $C_{i}$ is trained on training sets $\mathcal{D}_{1}, \mathcal{D}_{2}, \mathcal{D}_{3}$.
+      </p>
+      <p class="fragment">
+      We select $\mathcal{D}_{2}$ such that half of its samples are <strong>misclassified</strong> by $C_{1}$.
+      </p>
+      <p class="fragment">
+      $\mathcal{D}_{3}$ contains samples where $C_{1}$ and $C_{2}$ disagree.
+      </p>
+      </section>
+      <section id="boosting-example" class="level2">
+      <h2>Boosting Example</h2>
+      <figure>
+      <img src="img/boosting_example.svg" alt="Training (top), Components (mid), Combined (bot)" style="width:60.0%" /><figcaption>Training (top), Components (mid), Combined (bot)</figcaption>
+      </figure>
+      </section>
+      <section id="practical-considerations" class="level2">
+      <h2>Practical Considerations</h2>
+      <p>How should we select samples for $\mathcal{D}_{1}$?</p>
+      <p class="fragment">
+      Ideally, $n_{1}\simeq n_{2}\simeq n_{3} \simeq \frac{n}{3}$.
+      </p>
+      <p class="fragment">
+      If the problem is easy, then $C_{1}$ has a very high accuracy, and boosting does not help.
+      </p>
+      <p class="fragment">
+      If the problem is hard, then $C_{1}$ performs badly and $C_{2}$ will have too many samples.
+      </p>
+      <p class="fragment">
+      Several runs of boosting are required to ensure that all of $\mathcal{D}$ is used across all component classifiers.
+      </p>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="adaptive-boosting" class="level2">
+      <h2>Adaptive Boosting</h2>
+      </section>
+      <section id="variations-on-boosting" class="level2">
+      <h2>Variations on Boosting</h2>
+      <strong>AdaBoost</strong>: A type of boosting where you design how many “weak learners” (component classifiers) you add to the system.
+      </p>
+      <p class="fragment">
+      Each component classifier is trained with data selected according to its <strong>weight</strong>:
+      </p>
+      <ul>
+      <li class="fragment">
+      A sample misclassified by $C_{i}$ is “hard” to classify: increase weight.
+      </li>
+      <li class="fragment">
+      A sample correctly classified by $C_{i}$ is “easy” to classify: decrease weight.
+      </li>
+      </ul>
+      <p class="fragment">
+      Samples with higher weights are <strong>more</strong> likely to be included in $D_{i+1}$.
+      </p>
+      <p class="fragment">
+      If the samples and labels in $\mathcal{D}$ are denoted $\mathbf{x}^{i}$ and $y_{i}$, and $W_{k}(i)$ is the $k$th discrete distribution over the training, then the algorithm is…
+      </p>
+      </section>
+      <section id="adaptive-boosting-1" class="level2">
+      <h2>Adaptive Boosting</h2>
+      <div class="txt-left">
+      <pre id="hello-world-code" style="display:hidden;">
+      \begin{algorithm}
+      \caption{AdaBoost}
+      \begin{algorithmic}
+      \INPUT Initialize \$D\$, \$k\_\{max\}\$, \$W\_\{1\}(i)=1/n\$ for \$i=1,...,n\$, \$k = 0\$
+      \REPEAT
+          \STATE \$k=k+1\$
+          \STATE Train \$C\_\{k\}\$ by sampling \$D\$ according to \$W\_\{k\}(i)\$
+          \STATE \$E\_\{k\}=\$ error of \$C\_\{k\}\$ measured on \$D\$ adjusted by \$W\_\{k\}(i)\$
+          \STATE \$a\_\{k\} = 0.5 *\$ ln[\$(1-E\_\{k\})/E\_\{k\}\$]
+          \IF{\$h\_\{k\}(x^\{i\})=y\_\{i\}\$ (correct classification)}
+              \STATE \$W\_\{k+1\} = W\_\{k\}(i) / Z\_\{k\} * e^\{-a\_\{k\}\}\$
+          \ELSE
+              \STATE \$W\_\{k+1\} = W\_\{k\}(i) / Z\_\{k\} * e^\{a\_\{k\}\}\$
+          \ENDIF
+      \UNTIL{\$k=k\_\{max\}\$}
+      \RETURN \$C\_\{k\}\$ and \$a\_\{k\}\$ for \$k=1,...,k\_\{max\}\$ (i.e. the
+      ensemble and weights)
+      \end{algorithmic}
+      \end{algorithm}
+      </pre>
+      </div>
+      </section>
+      <section id="explanation-of-adaboost-algorithm" class="level2">
+      <h2>Explanation of AdaBoost Algorithm</h2>
+      <p>$E_{k}$ is the error with respect to $W_{k}(i)$; this means that $0&lt;E_{k}&lt;1$.</p>
+      <p>Thus $\alpha_{k}=\frac{1}{2}\ln{\left[(1-E_{k})/E_{k}\right]}$ ranges from:</p>
+      <div class="txt-left">
+      <ul>
+      <li class="fragment">
+      $-\infty$ when $E_{k}=1.0$ to
+      </li>
+      <li class="fragment">
+      $0$ when $E_{k}=0.5$ to
+      </li>
+      <li class="fragment">
+      $\infty$ when $E_{k}=0.0$
+      </li>
+      </ul>
+      </div>
+      </section>
+      <section id="explanation-of-adaboost-algorithm-1" class="level2">
+      <h2>Explanation of AdaBoost Algorithm</h2>
+      <p>If a component classifier has <strong>low error</strong>, then $\alpha_{k}$ is <strong>high</strong> (positive).</p>
+      <ul>
+      <li><strong>Incorrect</strong> samples are adjusted by a <strong>high</strong> amount ($e^{\alpha}$).</li>
+      <li><strong>Correct</strong> samples are adjusted by a <strong>low amount</strong> ($e^{-\alpha}$).</li>
+      </ul>
+      <p class="fragment">
+      Translation: If the classifier is good, then errors are rare and we should try to add them to the training set.
+      </p>
+      </section>
+      <section id="explanation-of-adaboost-algorithm-2" class="level2">
+      <h2>Explanation of AdaBoost Algorithm</h2>
+      <p>If a component classifier has <strong>high error</strong>, then $\alpha_{k}$ is <strong>low</strong> (negative).</p>
+      <ul>
+      <li><strong>Incorrect</strong> samples are adjusted by a <strong>low</strong> amount ($e^{\alpha}$).</li>
+      <li><strong>Correct</strong> samples are adjusted by a <strong>high</strong> amount ($e^{-\alpha}$).</li>
+      </ul>
+      <p class="fragment">
+      Translation: If the classifier is bad, the correct samples are more valuable, so they are weighted more.
+      </p>
+      </section>
+      <section id="alphas-and-adjustments" class="level2">
+      <h2>Alphas and Adjustments</h2>
+      <p><img src="img/adaboost_correct.svg" style="width:80.0%" /></p>
+      </section>
+      <section id="output-of-adaboost-and-its-error" class="level2">
+      <h2>Output of AdaBoost and Its Error</h2>
+      <p>The final classification of a point $\mathbf{x}$ is based on a weighted sum of the outputs:</p>
+      <p>$ g(\mathbf{x})=\left[\sum_{k=1}^{k_{max}}\alpha_{k}h_{k}(\mathbf{x})\right]$</p>
+      <p class="fragment">
+      The magnitude of $g(\mathbf{x})$ is the result of the different weights assigned to the component classifiers (and their signs), while the classification result is simply the sign of $g(\mathbf{x})$.
+      </p>
+      <p class="fragment">
+      How should we set our stopping criteria? That is, how many component classifiers should we collect ($k_{max}$)?
+      </p>
+      </section>
+      <section id="adaboost-error" class="level2">
+      <h2>AdaBoost Error</h2>
+      <p>The training error for $C_{k}$ can be written as $E_{k}=1/2-G_{k}$ for some $G_{k}&gt;0$ (since we’re using a distribution to modulate our training error).</p>
+      <p class="fragment">
+      Then the ensemble error is simply the product:
+      </p>
+      <p class="fragment">
+      $ E=_{k=1}^{k_{max}}\left[2\sqrt{E_{k}(1-E_{k})}\right]=_{k=1}^{k_{max}}\sqrt{1-4G_{k}^{2}}$
+      </p>
+      <p class="fragment">
+      Thus if we keep increasing $k_{max}$, by adding more component classifiers, our error on the training set should be arbitrarily low!
+      </p>
+      </section>
+      <section id="alphas-and-adjustments-1" class="level2">
+      <h2>Alphas and Adjustments</h2>
+      <figure>
+      <img src="img/adaboost_error.svg" alt="Individual learners (grey), ensemble training (black), and ensemble testing (red)." style="width:80.0%" /><figcaption>Individual learners (grey), ensemble training (black), and ensemble testing (red).</figcaption>
+      </figure>
+      </section>
+      <section id="wait-arbitrarily-low" class="level2">
+      <h2>Wait… “Arbitrarily Low”?</h2>
+      <p>“Arbitrarily low” usually means over-training.</p>
+      <p class="fragment">
+      However, this doesn’t happen often with AdaBoost.
+      </p>
+      <ul>
+      <li class="fragment">
+      We rarely get arbitrarily low error on <strong>testing</strong> data, so generalization usually isn’t perfect.
+      </li>
+      <li class="fragment">
+      Our component classifiers <strong>must do better than chance</strong>!
+      </li>
+      <li class="fragment">
+      Our component classifiers <strong>must be (relatively) independent</strong>!
+      </li>
+      </ul>
+      <p class="fragment">
+      You can’t set $k_{max}$ arbitrarily high with all of these conditions.
+      </p>
+      <p class="fragment">
+      Nonetheless, AdaBoost is a very powerful algorithm that has been used and modified in a number of different applications.
+      </p>
+      </section>
+      <section id="adaboost-example-sklearn-dataset" class="level2">
+      <h2>Adaboost Example: Sklearn Dataset</h2>
+      <p><img src="img/adaboost_sklearn_exdata.svg" style="width:50.0%" /></p>
+      </section>
+      <section id="adaboost-example-sklearn-dataset-1" class="level2">
+      <h2>Adaboost Example: Sklearn Dataset</h2>
+      <p><img src="img/adaboost_sklearn_example.svg" style="width:100.0%" /></p>
+      </section>
+      <section id="adaboost-example-fna-dataset" class="level2">
+      <h2>Adaboost Example: FNA Dataset</h2>
+      <p><img src="img/adaboost_sklearn_fnadata.svg" style="width:50.0%" /></p>
+      </section>
+      <section id="adaboost-example-fna-dataset-1" class="level2">
+      <h2>Adaboost Example: FNA Dataset</h2>
+      <p><img src="img/adaboost_sklearn_fna.svg" style="width:100.0%" /></p>
+      </section>
+      </section>
+      <section id="section-3" class="level1">
+      <h1></h1>
+      <section id="active-learning" class="level2">
+      <h2>Active Learning</h2>
+      </section>
+      <section id="learning-with-queries-active-learning" class="level2">
+      <h2>Learning with Queries / Active Learning</h2>
+      <p>A lot of data is partially-labeled or expensive to label.</p>
+      <p class="fragment">
+      We want to maximize label <strong>effectiveness</strong> – thus we must choose which of the unlabeled samples is <strong>most informative</strong>.
+      </p>
+      <p class="fragment">
+      This is called “learning with queries”, “active learning”, “interactive learning”, or “cost-based learning”.
+      </p>
+      </section>
+      <section id="active-learning-types" class="level2">
+      <h2>Active Learning Types</h2>
+      <p>Two main types of Active Learning:</p>
+      <div class="fragment">
+      <dl>
+      <dt><strong>Confidence-based</strong></dt>
+      <dd>A pattern is informative if two discriminant functions are nearly equal: $g_{i}(\mathbf{x})\approx g_{j}(\mathbf{x})$.
+      </dd>
+      </dl>
+      </div>
+      <div class="fragment">
+      <dl>
+      <dt><strong>Voting-based</strong></dt>
+      <dd>A pattern is informative if component classifiers “disagree” on the class.
+      </dd>
+      </dl>
+      </div>
+      </section>
+      <section id="alphas-and-adjustments-2" class="level2">
+      <h2>Alphas and Adjustments</h2>
+      <p><img src="img/active_learning.svg" style="width:50.0%" /></p>
+      </section>
+      </section>
+      <section id="section-4" class="level1">
+      <h1></h1>
+      <section id="combining-classifiers" class="level2">
+      <h2>Combining Classifiers</h2>
+      </section>
+      <section id="creating-component-classifiers" class="level2">
+      <h2>Creating Component Classifiers</h2>
+      <p>AdaBoost provides a way of combining classifiers, but there are others!</p>
+      <p class="fragment">
+      These are <strong>mixture-of-expert</strong> models, ensemble, modular, or pooled classifiers.
+      </p>
+      <p class="fragment">
+      Assume each output is produced by a <strong>mixture model</strong> of $k$ component classifiers.
+      </p>
+      </section>
+      <section id="testing-and-training-learning-graphs" class="level2">
+      <h2>Testing and Training Learning Graphs</h2>
+      <figure>
+      <img src="img/component_classifiers.svg" alt="Architecture of the mixture-of-experts model." style="width:40.0%" /><figcaption>Architecture of the mixture-of-experts model.</figcaption>
+      </figure>
+      <p>Each model has a parameter set $\boldsymbol{\theta}_{i}$.</p>
+      <p>Each estimate of the category membership for a sample $\mathbf{x}$ is $g_{ir}(\mathbf{x})=P(\omega_{r}|\mathbf{x},\boldsymbol{\theta}_{i}**$.</p>
+      </section>
+      <section id="designing-a-component-classifier" class="level2">
+      <h2>Designing a Component Classifier</h2>
+      <p>How do we choose $k$?</p>
+      <ul>
+      <li class="fragment">
+      Use prior knowledge about the system
+      </li>
+      <li class="fragment">
+      Use cross-validation to empirically estimate
+      </li>
+      <li class="fragment">
+      Just over-estimate
+      </li>
+      </ul>
+      </section>
+      </section>
+      <section id="section-5" class="level1">
+      <h1></h1>
+      <section id="classifier-evaluation" class="level2">
+      <h2>Classifier Evaluation</h2>
+      </section>
+      <section id="how-did-you-do" class="level2">
+      <h2>How Did You Do?</h2>
+      <p>When presenting a classifier, the most basic question is:</p>
+      <p class="fragment">
+      <strong>How good is it?</strong>
+      </p>
+      <p class="fragment">
+      There are several ways to answer this question…
+      </p>
+      </section>
+      <section id="errors-in-classification" class="level2">
+      <h2>Errors in Classification</h2>
+      <p>Several classifiers (e.g. Bayes) gives a probability: $p(\omega_{i}|\mathbf{x})$.</p>
+      <p class="fragment">
+      We then <strong>threshold</strong> that probability, based on our risk assessment. This gives us a “hard” classification label.
+      </p>
+      </section>
+      <section id="errors-in-classification-1" class="level2">
+      <h2>Errors in Classification</h2>
+      <iframe frameborder="0" seamless="seamless" scrolling="no" src="plots/pdf_cdf.html">
+      </iframe>
+      </section>
+      <section id="confusion-matrix" class="level2">
+      <h2>Confusion Matrix</h2>
+      <p>Assume we have two possible classification outputs (Positive or Negative), and each of those can be right or wrong. This gives us the following table, known as a <strong>Confusion Matrix</strong>.</p>
+      <table>
+      <thead>
+      <tr class="header">
+      <th></th>
+      <th><strong>Class: Positive</strong></th>
+      <th><strong>Class: Negative</strong></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr class="odd">
+      <td><strong>Predict: Positive</strong></td>
+      <td>True Positive</td>
+      <td>False Positive</td>
+      </tr>
+      <tr class="even">
+      <td><strong>Predict: Negative</strong></td>
+      <td>False Negative</td>
+      <td>True Negative</td>
+      </tr>
+      </tbody>
+      </table>
+      </section>
+      <section id="evaluation-metrics" class="level2">
+      <h2>Evaluation Metrics</h2>
+      <p>From the confusion matrix, you can calculate a lot of <strong>performance metrics</strong>:</p>
+      <div class="fragment">
+      <p>Accuracy: $\frac{TP+TN}{TP+FP+TN+FN}$</p>
+      </div>
+      <div class="fragment">
+      <p>Precision (Positive Predictive Value, PPV): $\frac{TP}{TP + FP}$</p>
+      </div>
+      <div class="fragment">
+      <p>Sensitivity (True Positive Rate, TPR): $\frac{TP}{TP + FN} = \frac{TP}{P}$</p>
+      </div>
+      <div class="fragment">
+      <p>Specificity (True Negative Rate, TNR): $\frac{TN}{TN + FP} = \frac{TN}{N}$</p>
+      </div>
+      <div class="fragment">
+      <p>Negative Predictive Value (NPV): $\frac{TN}{TN + FN}$</p>
+      </div>
+      <div class="fragment">
+      <p>F1 Score: $\frac{2TP}{2TP + FP + FN}$</p>
+      </div>
+      </section>
+      <section id="sensitivity-and-specificity" class="level2">
+      <h2>Sensitivity and Specificity</h2>
+      <p>How can we quantify the <strong>certainty</strong> of a probabilistic classifier?</p>
+      <p class="fragment">
+      By setting our probability threshold, we can maximize sensitivity OR specificity:
+      </p>
+      <div class="txt-left fragment">
+      <dl>
+      <dt><strong>High Sensitivity:</strong></dt>
+      <dd>TP is close to P (all positive samples)
+      </dd>
+      <dd>You correctly identified all positive samples
+      </dd>
+      <dd>Maximize by <strong>calling everything positive</strong>
+      </dd>
+      </dl>
+      </div>
+      <div class="txt-left fragment">
+      <dl>
+      <dt><strong>High Specificity:</strong></dt>
+      <dd>TN is close to N (all negative samples)
+      </dd>
+      <dd>You correctly identified all negative samples
+      </dd>
+      <dd>Maximize by <strong>calling everything negative</strong>
+      </dd>
+      </dl>
+      </div>
+      </section>
+      <section id="receiver-operating-characteristic-curves" class="level2">
+      <h2>Receiver Operating Characteristic Curves</h2>
+      <p>Clearly we need a way to take the probability of classification into account.</p>
+      <p class="fragment">
+      The <strong>Receiver Operating Characteristics (ROC)</strong> curve is a plot of the True Positive Rate (Sensitivity) against the False Positive Rate (1 - Specificity).
+      </p>
+      <p class="fragment">
+      The <strong>Area Under the (ROC) Curve</strong> (AUC) is a measurement of how well the classifier performs in terms of the tradeoff between the two.
+      </p>
+      </section>
+      <section id="roc-example" class="level2">
+      <h2>ROC Example</h2>
+      <figure>
+      <img src="img/roc_ver2.png" alt="ROC Curve Examples" style="width:50.0%" /><figcaption>ROC Curve Examples</figcaption>
+      </figure>
+      </section>
+      </section>
+      <section id="section-6" class="level1">
+      <h1></h1>
+      <section id="bias-and-variance" class="level2">
+      <h2>Bias and Variance</h2>
+      </section>
+      <section id="determining-bias-and-variance" class="level2">
+      <h2>Determining Bias and Variance</h2>
+      <p>Bias and variance are unavoidable; it is necessary to compensate for them.</p>
+      <p class="fragment">
+      We do this through <strong>resampling</strong>, e.g. in cross-validation.
+      </p>
+      <p class="fragment">
+      The goal of these techniques is to determine the <strong>generalization performance</strong>.
+      </p>
+      </section>
+      <section id="training-vs.-testing" class="level2">
+      <h2>Training vs. Testing</h2>
+      <p>In the simplest form, split $\mathcal{D}$ into two parts: a <strong>training</strong> and <strong>testing</strong> set.</p>
+      <p class="fragment">
+      Training set is used to create the classifier (estimate parameters, set cut-points, etc.)
+      </p>
+      <p class="fragment">
+      <strong>After</strong> training is done, evaluate performance on the test set.
+      </p>
+      </section>
+      <section id="training-vs.-testing-1" class="level2">
+      <h2>Training vs. Testing</h2>
+      <p>You must be careful about training on your test set! This includes:</p>
+      <ul>
+      <li class="fragment">
+      Using your testing data to create model parameters directly; or
+      </li>
+      <li class="fragment">
+      Training to minimize test error on a <strong>single</strong> test set.
+      </li>
+      </ul>
+      </section>
+      <section id="training-vs.-validation-vs.-testing" class="level2">
+      <h2>Training vs. Validation vs. Testing</h2>
+      <p>If you have a lot of data you can use a <strong>validation</strong> set, which is used <strong>while</strong> you’re training.</p>
+      <p class="fragment">
+      This way, you can be sure that you don’t even look at your testing data until you are completely done creating your classifier.
+      </p>
+      </section>
+      <section id="validation-error-vs.-training-error" class="level2">
+      <h2>Validation Error vs. Training Error</h2>
+      <p><img src="img/validation_error.svg" style="width:80.0%" /></p>
+      </section>
+      <section id="cross-validation" class="level2">
+      <h2>Cross-Validation</h2>
+      <p><strong>Cross-validation</strong> is useful if your training $\mathcal{D}$ has variance, outliers, or noise.</p>
+      <p class="fragment">
+      You want to measure how your classifier changes based on which samples it trains on.
+      </p>
+      <ul>
+      <li class="fragment">
+      <strong>High Variance</strong> means that your classifier changes a lot depending on the training data, which means your model may be <strong>overfitting</strong>.
+      </li>
+      <li class="fragment">
+      <strong>Low Variance</strong> means that your classifier doesn’t change much, which is good as long as you ALSO have low bias.
+      </li>
+      </ul>
+      </section>
+      <section id="k-fold-cross-validation" class="level2">
+      <h2>$k$-fold Cross-Validation</h2>
+      <p>Some considerations:</p>
+      <div class="txt-left">
+      <div class="fragment">
+      <dl>
+      <dt><strong>Class Distribution</strong></dt>
+      <dd>What should the class distribution look like for each of the $k$ subsets?
+      </dd>
+      <dd>Equal numbers of classes in each subset?
+      </dd>
+      <dd>Match the distribution of the overall dataset?
+      </dd>
+      </dl>
+      </div>
+      <div class="fragment">
+      <dl>
+      <dt><strong>Folds</strong></dt>
+      <dd>What should our $k$ be?
+      </dd>
+      <dd>High $k$ means each classifier will be trained on more samples
+      </dd>
+      <dd>Low $k$ means we get a larger testing set in each round
+      </dd>
+      </dl>
+      </div>
+      </div>
+      </section>
+      <section id="leave-one-out-cross-validation" class="level2">
+      <h2>Leave-One-Out Cross-Validation</h2>
+      <p>If we set $k = |\mathcal{D}|$, each testing subset has one sample.</p>
+      <p class="fragment">
+      We train on $|\mathcal{D}| - 1$ samples.
+      </p>
+      <p class="fragment">
+      What are the advantages of this approach? Disadvantages?
+      </p>
+      </section>
+      <section id="loo-cross-validation" class="level2">
+      <h2>LOO Cross-Validation</h2>
+      <div class="txt-left">
+      <dl>
+      <dt><strong>Advantages</strong></dt>
+      <dd>Trains on as much data as possible – useful if you don’t have much data
+      </dd>
+      <dd>Shows how the model adapts to tiny changes in training
+      </dd>
+      </dl>
+      </div>
+      <div class="txt-left">
+      <dl>
+      <dt><strong>Disadvantages</strong></dt>
+      <dd>Hard to see outliers affect the model (they are grouped with a lot of data)
+      </dd>
+      <dd>May lead to overfitting (the model doesn’t change much)
+      </dd>
+      </dl>
+      </div>
+      </section>
+      <section id="estimation-of-accuracy" class="level2">
+      <h2>Estimation of Accuracy</h2>
+      <p>When the “accuracy” of a system is 90%, how sure are we that it’s not 89% or 91% or 70% instead?</p>
+      <p class="fragment">
+      Accuracy is a statistics, so <strong>it has a distribution</strong>.
+      </p>
+      </section>
+      <section id="estimations-of-accuracy" class="level2">
+      <h2>Estimations of Accuracy</h2>
+      <p>We also want to calculate the <strong>mean</strong> and <strong>standard deviation</strong> of our performance metrics.</p>
+      <p class="fragment">
+      We can do this through multiple independent runs of cross-validation.
+      </p>
+      <p class="fragment">
+      This will give a distribution of performance values, which can be reported.
+      </p>
+      <p class="fragment">
+      Think of this as quality assurance!
+      </p>
+      </section>
+      <section id="comparing-classifiers-using-jackknife-estimates" class="level2">
+      <h2>Comparing Classifiers Using Jackknife Estimates</h2>
+      <p><img src="img/leave_one_out_estimates.svg" style="width:80.0%" /></p>
+      </section>
+      <section id="predicting-performance-from-learning-curves" class="level2">
+      <h2>Predicting Performance from Learning Curves</h2>
+      <p>In practice, $\mathcal{D}$ is far smaller than the (infinite) true dataset.</p>
+      <p class="fragment">
+      We can predict eventual accuracy using <strong>learning curves</strong>, which plot test error against the size of the training set.
+      </p>
+      <p class="fragment">
+      These are typically described by a power-law function of the form:
+      </p>
+      <p class="fragment">
+      $ E_{test} = a + \frac{b}{n^{\prime\alpha}} $
+      </p>
+      <p class="fragment">
+      $ E_{train} = a - \frac{c}{n^{\prime\beta}} $
+      </p>
+      <p class="fragment">
+      Here, $a$ is the error with a theoretically infinite sample size; ideally, it is equal to the Bayes error (optimum).
+      </p>
+      </section>
+      <section id="learning-rate-graph" class="level2">
+      <h2>Learning Rate Graph</h2>
+      <p><img src="img/learning_rate.svg" style="width:80.0%" /></p>
+      </section>
+      <section id="testing-and-training-learning-graphs-1" class="level2">
+      <h2>Testing and Training Learning Graphs</h2>
+      <p><img src="img/learning_rate_02.svg" style="width:80.0%" /></p>
+      </section>
+      </section>
+      <section id="section-7" class="level1">
+      <h1></h1>
+      <section id="parting-words" class="level2">
+      <h2>Parting Words</h2>
+      </section>
+      <section id="classifier-evaluation-is-important" class="level2">
+      <h2>Classifier Evaluation is Important!</h2>
+      <p>A lot of papers focus on “benchmark” datasets and evaluating new classifiers against others using a standard set of metrics.</p>
+      <p class="fragment">
+      “Is your method better than state-of-the-art (SOTA)?”
+      </p>
+      <p class="fragment">
+      <strong>Error is not the only consideration!</strong> In some cases, reducing costs / time / resources may be just as important.
+      </p>
+      </section>
+      <section id="train-test-splits" class="level2">
+      <h2>Train / Test Splits</h2>
+      <p>Bias, variance, and over-training must be accounted for.</p>
+      <p class="fragment">
+      Creating train / validation / testing splits is basic, standard practice for machine learning work.
+      </p>
+      </section>
+      </section>
+      <section id="section-8" class="level1">
+      <h1></h1>
+      <section id="next-class" class="level2">
+      <h2>Next Class</h2>
+      </section>
+      <section id="linear-discriminants" class="level2">
+      <h2>Linear Discriminants</h2>
+      <p>We will return to a basic classification techniques: <strong>Linear Discriminants</strong>.</p>
+      <p class="fragment">
+      These are useful when your data is linearly separable, and is an introduction to more complex methods like <strong>support vector machines</strong>.
+      </p>
+      <p class="fragment">
+      These also form the basis for <strong>neural networks</strong>, which we will discuss in the second half of the course.
+      </p>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <!-- Pseudocode scripts -->
+    <script>
+     pseudocode.renderElement(document.getElementById("hello-world-code"));
+    </script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        fragments: true,
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
