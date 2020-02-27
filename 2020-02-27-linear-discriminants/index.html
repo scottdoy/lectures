@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LINEAR DISCRIMINANTS (Pt. 1)</title>
+
+    <meta name="description" content="LINEAR DISCRIMINANTS (Pt. 1)">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Custom Addons: TikzJax -->
+    <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css">
+    <script src="http://tikzjax.com/v1/tikzjax.js"></script>
+    <!-- Custom Addons: pseudocode.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">LINEAR DISCRIMINANTS (Pt. 1)</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="recap" class="level2">
+      <h2>Recap</h2>
+      </section>
+      <section id="recap-discriminant-functions" class="level2">
+      <h2>Recap: Discriminant Functions</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/linear_discriminant.svg" style="width:80.0%" /></p>
+      </div>
+      <div>
+      <p>$\mathbf{x}$ is assigned to $\omega_{i}$ if:</p>
+      <p>$ g_{i}(\mathbf{x}) &gt; g_{i}(\mathbf{x}) \text{ for all } j\neq i$</p>
+      <p class="fragment">
+      Forms of discriminant functions:
+      </p>
+      <div class="fragment">
+      <p>\begin{align} g_{i}(\mathbf{x}) &amp;= - R(\alpha_{i}|\mathbf{x})\\ g_{i}(\mathbf{x}) &amp;= P(\omega_{i}|\mathbf{x})\\ g_{i}(\mathbf{x}) &amp;= \ln{p(\mathbf{x}|\omega_{i})} + \ln{P(\omega_{i})}\\ \end{align}</p>
+      </div>
+      </div>
+      </div>
+      </section>
+      <section id="recap-discriminant-functions-1" class="level2">
+      <h2>Recap: Discriminant Functions</h2>
+      <p>If we assume that $p(\mathbf{x}|\omega_{i})\sim N(\boldsymbol{\mu}_{i},\boldsymbol{\Sigma}_{i})$, then we can plug the multivariate normal (Gaussian) equation into the first term above, and we have:</p>
+      <p>\begin{align} g_{i}(\mathbf{x}) &amp;= \ln{p(\mathbf{x}|\omega_{i})} + \ln{P(\omega_{i})} \\ &amp;= \ln{ \left[ \frac{1}{ (2\pi)^{\frac{d}{2}} |\boldsymbol{\Sigma}|^{ \frac{1}{2} } } \exp{ \left[ -\frac{1}{2} (\mathbf{x} - \boldsymbol{\mu})^{T} \boldsymbol{\Sigma}^{-1} (\mathbf{x} - \boldsymbol{\mu}) \right] } \right]} + \ln{P(\omega_{i})} \\ &amp;= -\frac{1}{2}(\mathbf{x}-\boldsymbol{\mu}_{i})^{T}\boldsymbol{\Sigma}_{i}^{-1}(\mathbf{x}-\boldsymbol{\mu}_{i}) - \frac{d}{2}\ln{2\pi} - \frac{1}{2}\ln{|\boldsymbol{\Sigma}_{i}}| + \ln{P(\omega_{i})} \\ \end{align}</p>
+      </section>
+      <section id="recap-uncorrelated-equal-variance-features" class="level2">
+      <h2>Recap: Uncorrelated, Equal-Variance Features</h2>
+      <p>If the features are all uncorrelated AND have equal variances, then $\boldsymbol{\Sigma}_{i} = \sigma^{2}\mathbf{I}$. That means we can simplify $|\boldsymbol{\Sigma}_{i}|=\sigma^{2d}$ and $\boldsymbol{\Sigma}_{i}^{-1} = (\frac{1}{\sigma^{2}})\mathbf{I}$:</p>
+      <p>\begin{align} g_{i}(\mathbf{x}) &amp;= -\frac{1}{2}(\mathbf{x}-\boldsymbol{\mu}_{i})^{T} \boldsymbol{\Sigma}_{i}^{-1} (\mathbf{x}-\boldsymbol{\mu}_{i}) &amp;- \frac{d}{2}\ln{2\pi} &amp;- \frac{1}{2}\ln{ |\boldsymbol{\Sigma}_{i}|} &amp;+ \ln{P(\omega_{i})}\\ \\ &amp;= -\frac{ (\mathbf{x}-\boldsymbol{\mu}_{i})^{T} (\mathbf{x} - _{i}) }{ 2 \sigma^{2}} &amp;- \frac{d}{2}\ln{2\pi} &amp;- \frac{1}{2}\ln{\sigma^{2d}}&amp;+ \ln{P(\omega_{i})}\\ \\ &amp;= -\frac{1}{2\sigma^{2}} \left[ \mathbf{x}^{T}\mathbf{x} - 2\boldsymbol{\mu}_{i}^{T}\mathbf{x} + _{i}^{T}\boldsymbol{\mu}_{i} \right] &amp;- \frac{d}{2}\ln{2\pi} &amp;- \frac{1}{2}\ln{\sigma^{2d}} &amp;+ \ln{P(\omega_{i})}\\ \end{align}</p>
+      </section>
+      <section id="recap-uncorrelated-equal-variance-features-1" class="level2">
+      <h2>Recap: Uncorrelated, Equal-Variance Features</h2>
+      <p>We remove terms that don’t depend on the class (everything with an $i$ in it) to get:</p>
+      <p>\begin{align} g_{i}(\mathbf{x}) &amp;= -\frac{1}{2\sigma^{2}} \left[ \mathbf{x}^{T}\mathbf{x} - 2\boldsymbol{\mu}_{i}^{T}\mathbf{x} + \boldsymbol{\mu}_{i}^{T}\boldsymbol{\mu}_{i} \right] - \frac{d}{2}\ln{2\pi} - \frac{1}{2}\ln{\sigma^{2d}} + \ln{P(\omega_{i})} \\ &amp;= -\frac{1}{2\sigma^{2}} \left[ - 2\boldsymbol{\mu}_{i}^{T}\mathbf{x} + \boldsymbol{\mu}_{i}^{T}\boldsymbol{\mu}_{i} \right] + \ln{P(\omega_{i})} \\ &amp;= \frac{1}{\sigma^{2}}\boldsymbol{\mu_{i}}^{T} \mathbf{x} - \frac{1}{2\sigma^{2}}\boldsymbol{\mu}_{i}^{T}\boldsymbol{\mu}_{i} + \ln{P(\omega_{i})} \\ &amp;= \mathbf{w}_{i}^{T} \mathbf{x} + w_{i0} \\ \end{align}</p>
+      </section>
+      <section id="recap-discriminants-where-boldsymbolsigma_i-sigma2mathbfi" class="level2">
+      <h2>Recap: Discriminants Where $\boldsymbol{\Sigma}_{i} = \sigma^{2}\mathbf{I}$</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/disc_func_equal_var.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/disc_func_equal_var_2d.svg" style="width:80.0%" /></p>
+      </div>
+      </div>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="two-class-discriminants" class="level2">
+      <h2>Two-Class Discriminants</h2>
+      </section>
+      <section id="linear-discriminant-functions" class="level2">
+      <h2>Linear Discriminant Functions</h2>
+      <p>In general, a linear discriminant function is one for which:</p>
+      <p>$ g(\mathbf{x}) = \mathbf{w}^{T}\mathbf{x} + w_{0} $</p>
+      <p>In this expression, $\mathbf{w}$ is the <strong>weight vector</strong> and $w_{0}$ is the <strong>bias</strong>.</p>
+      <p>(In this case, “bias” is not an error, it is just a systemic adjustment.)</p>
+      <p>Let’s focus on the two-category case for now.</p>
+      </section>
+      <section id="linear-discriminant-functions-1" class="level2">
+      <h2>Linear Discriminant Functions</h2>
+      <figure>
+      <img src="img/discfunc.svg" alt="Linear Discriminant Function $g(\mathbf{x}) = \mathbf{w}^{T}\mathbf{x} + w_{0}$" style="width:80.0%" /><figcaption>Linear Discriminant Function $g(\mathbf{x}) = \mathbf{w}^{T}\mathbf{x} + w_{0}$</figcaption>
+      </figure>
+      </section>
+      <section id="defining-the-decision-surface" class="level2">
+      <h2>Defining the Decision Surface</h2>
+      <p>$ g(\mathbf{x}) = \mathbf{w}^{T}\mathbf{x} + w_{0} $</p>
+      <p>Recall the two-class decision rule regarding discriminants:</p>
+      <dl>
+      <dt><strong>Decision Rule: Binary Discriminants</strong></dt>
+      <dd>If $g(\mathbf{x})&gt;0$, decide $\omega_{1}$; otherwise decide $\omega_{2}$.
+      </dd>
+      </dl>
+      <p>In other words, if the <strong>inner product</strong> $\mathbf{w}^{T}\mathbf{x} &gt; -w_{0}$, decide $\omega_{1}$.</p>
+      </section>
+      <section id="defining-the-decision-surface-1" class="level2">
+      <h2>Defining the Decision Surface</h2>
+      <p>The <strong>decision surface</strong> is given by $g(\mathbf{x}) = 0$. If $\mathbf{x}_{1}$ and $\mathbf{x}_{2}$ are both on this surface, then:</p>
+      <p>$ \mathbf{w}^{T}\mathbf{x}_{1} + w_{0} = \mathbf{w}^{T}\mathbf{x}_{2} + w_{0} $</p>
+      <p>$ \mathbf{w}^{T}(\mathbf{x}_{1} - \mathbf{x}_{2}) = 0 $</p>
+      <p>What does this look like graphically? Let’s look at a 3D example…</p>
+      </section>
+      <section id="visualizing-decision-surfaces" class="level2">
+      <h2>Visualizing Decision Surfaces</h2>
+      <figure>
+      <img src="img/discplane.png" alt="Discriminant in a Flat Plane" style="width:40.0%" /><figcaption>Discriminant in a Flat Plane</figcaption>
+      </figure>
+      </section>
+      <section id="signed-distance-to-the-decision-hyperplane" class="level2">
+      <h2>Signed Distance to the Decision Hyperplane</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/discplane.png" alt="Discriminant in a Flat Plane" style="width:70.0%" /><figcaption>Discriminant in a Flat Plane</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Thus, $\mathbf{w}$ is normal to any vector <strong>lying in</strong> $H$, which splits the decision space into two regions, $\mathcal{R}_{1}$ (which is on the “positive” side of $H$) and $\mathcal{R}_{2}$ (on the “negative side”).</p>
+      </div>
+      </div>
+      </section>
+      <section id="signed-distance-to-the-decision-hyperplane-1" class="level2">
+      <h2>Signed Distance to the Decision Hyperplane</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/discplane.png" alt="Discriminant in a Flat Plane" style="width:70.0%" /><figcaption>Discriminant in a Flat Plane</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>We can calculate a distance from any vector $\mathbf{x}$ to the hyperplane:</p>
+      <p>$ \mathbf{x} = \mathbf{x}_{p} + r \frac{\mathbf{w}}{||\mathbf{w}||},$</p>
+      <p>where $\mathbf{x}_{p}$ is the normal projection of $\mathbf{x}$ onto $H$, and $r$ is the straight-line distance between $\mathbf{x}$ and $H$.</p>
+      </div>
+      </div>
+      </section>
+      <section id="signed-distance-to-the-decision-hyperplane-2" class="level2">
+      <h2>Signed Distance to the Decision Hyperplane</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/discplane.png" alt="Discriminant in a Flat Plane" style="width:70.0%" /><figcaption>Discriminant in a Flat Plane</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Since $\mathbf{x}_{p}$ lies on the hyperplane (since it’s been projected onto it), then $g(\mathbf{x}_{p}) = 0$ and:</p>
+      <p>$ g(\mathbf{x}) = \mathbf{w}^{T}\mathbf{x} + w_{0} = r||\mathbf{w}||$</p>
+      <p>Therefore, $r = \frac{g(\mathbf{x})}{||\mathbf{w}||}$ and the <strong>sign</strong> of $r$ is determined by the sign of $g(\mathbf{x})$.</p>
+      <p>This means that $r$ can be negative if $\mathbf{x}$ belongs to $\omega_{2}$ and $g(\mathbf{x}) &lt; 0$. Thus it is a <strong>signed distance</strong>.</p>
+      </div>
+      </div>
+      </section>
+      <section id="orientation-of-the-hyperplane-to-the-origin" class="level2">
+      <h2>Orientation of the Hyperplane to the Origin</h2>
+      <p>If $\mathbf{x} = (0, \ldots, 0)^{T}$ (ie. we’re at the origin), then:</p>
+      <p>$ g(\mathbf{x}) = \mathbf{w}^{T}\mathbf{x} + w_{0} = w_{0} $</p>
+      <p>In this case, the value of $g(\mathbf{x})$ is the <strong>intercept</strong>. In that case:</p>
+      <p>$ r = \frac{g(\mathbf{x})}{||\mathbf{w}||} = \frac{w_{0}}{||\mathbf{w}||} $</p>
+      <p>If $w_{0} &gt; 0$, then $r &gt; 0$ and the origin is on the positive side of $H$, i.e. in $\mathcal{R}_{1}$.</p>
+      <p>If $w_{0} = 0$, then $g(\mathbf{x}) = \mathbf{w}^{T}\mathbf{x} + w_{0} = \mathbf{w}^{T}\mathbf{x}$, and $H$ passes through the origin.</p>
+      </section>
+      <section id="two-category-summary" class="level2">
+      <h2>Two-Category Summary</h2>
+      <p>Here are the takeaway points for the two-class case:</p>
+      <ul>
+      <li>The linear discriminant divides the feature space by a decision surface $H$.</li>
+      <li>The orientation of $H$ (its <strong>slope</strong>) is dictated by the weight vector $\mathbf{w}$.</li>
+      <li>The location of the surface (its <strong>intercept</strong>) is dictated by the bias term $w_{0}$.</li>
+      <li>The value of the discriminant function $g(\mathbf{x})$ is the signed distance from $\mathbf{x}$ to $H$.</li>
+      <li>The sign of $g(\mathbf{x})$ determines the feature space region (and thus the class) assigned to $\mathbf{x}$.</li>
+      </ul>
+      </section>
+      <section id="extensions-to-multiple-classes" class="level2">
+      <h2>Extensions to Multiple Classes</h2>
+      <p>That’s all well and good, but what about extensions to the multicategory space?</p>
+      <p>For that, we have to go back to an earlier lecture on discriminant functions.</p>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="multicategory-discriminant-functions" class="level2">
+      <h2>Multicategory Discriminant Functions</h2>
+      </section>
+      <section id="extensions-from-2-to-c-class-problems" class="level2">
+      <h2>Extensions from 2 to $c$ Class Problems</h2>
+      <p>Another benefit of linear discriminants is that they extend seamlessly to multi-class situations.</p>
+      <p>To begin with, let’s say we have a formula that divides our feature space into two regions, as we saw in the two-class case.</p>
+      <p>How could we use this to carve up our feature space into multiple class regions?</p>
+      <p>Let’s start with <strong>one-versus-all</strong> classification: create $c$ discriminant functions, each with its own hyperplane that divides the space such that $g_{i}(\mathbf{x})$ delineates $\omega_{i}$ from all other classes.</p>
+      </section>
+      <section id="ambiguous-regions" class="level2">
+      <h2>Ambiguous Regions</h2>
+      <figure>
+      <img src="img/target_nontarget_ambiguous_regions.svg" alt="Multiclass Discriminants Yield Ambiguous Regions" style="width:80.0%" /><figcaption>Multiclass Discriminants Yield Ambiguous Regions</figcaption>
+      </figure>
+      </section>
+      <section id="extensions-to-multiclass-problems" class="level2">
+      <h2>Extensions to Multiclass Problems</h2>
+      <p>That doesn’t work…</p>
+      <p>What if we tried <strong>one-versus-one</strong> classification: create a bunch of hyperplanes, denoted $H_{ij}$ where $i,j\in\{1,2,\ldots,c\}, i\neq j$.</p>
+      <p>This will give us a total of $c(c-1)/2$ hyperplanes, which divide the space into a series of binary regions, where each plane separates a pair of classes.</p>
+      </section>
+      <section id="target-vs.-non-target-discriminants" class="level2">
+      <h2>Target vs. Non-Target Discriminants</h2>
+      <figure>
+      <img src="img/pairwise_ambiguous_regions.svg" alt="Multiclass Discriminants Yield Ambiguous Regions" style="width:80.0%" /><figcaption>Multiclass Discriminants Yield Ambiguous Regions</figcaption>
+      </figure>
+      </section>
+      <section id="solution-linear-machines-for-multiclass-regions" class="level2">
+      <h2>Solution: Linear Machines for Multiclass Regions</h2>
+      <p>Still no good… What are we doing wrong?</p>
+      <p>The problem here is that we are using the wrong tool for the job: we cannot unambiguously divide the space into pairs of 2 regions. That strategy works fine in the binary case (where there are only 2 regions to worry about), but fails to generate unique solutions in the multiclass case.</p>
+      <p>This is where linear discriminants – also called <strong>linear machines</strong> – are able to pick up the slack.</p>
+      </section>
+      <section id="linear-machine-definition" class="level2">
+      <h2>Linear Machine Definition</h2>
+      <p>$ g_{i}(\mathbf{x}) = \mathbf{w}_{i}^{T}\mathbf{x} + w_{i0} $</p>
+      <p>This divides the feature space up into $c$ decision regions, where $g_{i}(\mathbf{x})$ is the largest discriminant if $\mathbf{x}$ is in the region $\mathcal{R}_{i}$. We also now have a series of weight vectors $\mathbf{w}_{i}$, one for each class.</p>
+      <p>If $g_{i}(\mathbf{x}) = g_{j}(\mathbf{x})$, then it means the vector $\mathbf{x}$ lies on a portion of hyperplane $H_{ij}$ which separates $\mathcal{R}_{i}$ and $\mathcal{R}_{j}$.</p>
+      <p>The benefit of this is that <strong>we are not necessarily creating planes that cut across the entire feature space</strong>.</p>
+      </section>
+      <section id="linear-machines-create-isolated-regions" class="level2">
+      <h2>Linear Machines Create Isolated Regions</h2>
+      <p>The hyperplane between classes $i$ and $j$ is defined as $g_{i}(\mathbf{x}) = g_{j}(\mathbf{x})$, which can be rewritten as:</p>
+      <p>\begin{align} \mathbf{w}_{i}^{T}\mathbf{x}+w_{i0} &amp;= \mathbf{w}_{j}^{T}\mathbf{x}+w_{j0} \\ (\mathbf{w}_{i} - \mathbf{w}_{j})^{T}\mathbf{x} + (w_{i0} - w_{j0}) &amp;= 0 \\ \end{align}</p>
+      <p>Just as before in the two-class case, we can see that $\mathbf{w}_{i} - \mathbf{w}_{j}$ is normal to the hyperplane $H_{ij}$ and the signed distance from $\mathbf{x}$ to $H_{ij}$ is $(g_{i}(\mathbf{x}) - g_{j}(\mathbf{x}))/||\mathbf{w}_{i} - \mathbf{w}_{j}||$.</p>
+      <p>Key point: Hyperplanes are not binary, since instead of positive or negative value, we have one of several possible values being the maximum.</p>
+      <p>How does THIS look?</p>
+      </section>
+      <section id="linear-machines-in-multiclass-case" class="level2">
+      <h2>Linear Machines in Multiclass Case</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/linear_machines_01.svg" alt="Linear Machines (3 Classes)" style="width:70.0%" /><figcaption>Linear Machines (3 Classes)</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/linear_machines_02.svg" alt="Linear Machines (5 Classes)" style="width:70.0%" /><figcaption>Linear Machines (5 Classes)</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="convexity-of-linear-machines" class="level2">
+      <h2>Convexity of Linear Machines</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/linear_machines_02.svg" alt="Linear Machines (5 Classes)" style="width:100.0%" /><figcaption>Linear Machines (5 Classes)</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>The decision regions are <strong>convex</strong>: If two points are in the same region, i.e. $\mathbf{x}_{1}\in\mathcal{R}_{i}$ and $\mathbf{x}_{2}\in\mathcal{R}_{i}$, then:</p>
+      <p>$ \lambda\mathbf{x}_{1}+(1-\lambda)\mathbf{x}_{2} \in \mathcal{R}_{i} \text{ for } 0 \geq \lambda \geq 1.$</p>
+      <p>In other words, all points between $\mathbf{x}_{1}$ and $\mathbf{x}_{2}$ are also in $\mathcal{R}_{i}$. This limits the complexity of the classifier, which is always a good thing.</p>
+      </div>
+      </div>
+      </section>
+      <section id="limitations-of-linear-machines" class="level2">
+      <h2>Limitations of Linear Machines</h2>
+      <p>Linear machines are most suitable for problems with <strong>unimodal distributions</strong> $p(\mathbf{x}|\omega_{i})$.</p>
+      <p>We also like problems where a straight line divides region $\mathcal{R}_{i}$ from region $\mathcal{R}_{j}$, and that we see each region appear in one “blob” in the feature space.</p>
+      <p>But this isn’t always true! We’ve already seen discontinuous regions appear in previous problems. So how can we model those?</p>
+      </section>
+      </section>
+      <section id="section-3" class="level1">
+      <h1></h1>
+      <section id="general-linear-discriminants" class="level2">
+      <h2>General Linear Discriminants</h2>
+      </section>
+      <section id="quadratic-discriminant-function" class="level2">
+      <h2>Quadratic Discriminant Function</h2>
+      <p>So far, we’ve been discussing linear discriminants.</p>
+      <p>This means that we assume that there’s a straight line dividing $\mathcal{R}_{1}$ from $\mathcal{R}_{2}$ and so on.</p>
+      <p>But is this always the case?</p>
+      </section>
+      <section id="nonlinear-decision-regions" class="level2">
+      <h2>Nonlinear Decision Regions</h2>
+      <figure>
+      <img src="img/decision_threshold_a.svg" alt="How do we use linear discriminants for this kind of function?" style="width:80.0%" /><figcaption>How do we use linear discriminants for this kind of function?</figcaption>
+      </figure>
+      </section>
+      <section id="quadratic-discriminant-function-1" class="level2">
+      <h2>Quadratic Discriminant Function</h2>
+      <p>We can write $g(\mathbf{x})$ as the sum of the $d$ components of the vector:</p>
+      <p>$ g(\mathbf{x}) = w_{0} + \mathbf{w}^{T}\mathbf{x} = w_{0} + \sum_{i=1}^{d} w_{i}x_{i} $</p>
+      <p>In a non-continuous case, we may want to model <strong>nonlinear</strong> interactions between dimensions. To do this, we add a term that combines <strong>products of pairs of components</strong>:</p>
+      <p>$ g(\mathbf{x}) = w_{0} + \sum_{i=1}^{d}w_{i}x_{i} + \sum_{i=1}^{d}\sum_{j=1}^{d}w_{ij}x_{i}x_{j} $</p>
+      </section>
+      <section id="quadratic-discriminant-function-2" class="level2">
+      <h2>Quadratic Discriminant Function</h2>
+      <p>$ g(\mathbf{x}) = w_{0} + \sum_{i=1}^{d}w_{i}x_{i} + \sum_{i=1}^{d}\sum_{j=1}^{d}w_{ij}x_{i}x_{j} $</p>
+      <p>Now the weight vector $\mathbf{w}$ is a weight <strong>matrix</strong>, $\mathbf{W}$, which is also symmetric: since $x_{i}x_{j} = x_{j}x_{i}$, we can assume that $w_{ij} = w_{ji}$.</p>
+      <p>We are no longer restricted to hyperplanes!</p>
+      <p>The above equation is a second-order equation, resulting in a <strong>hyperquadratic</strong>.</p>
+      </section>
+      <section id="polynomial-discriminant-functions" class="level2">
+      <h2>Polynomial Discriminant Functions</h2>
+      <p>What about higher-order terms, like $\sum_{i=1}^{d} \sum_{j=1}^{d}\sum_{k=1}^{d} w_{ijk} x_{i} x_{j} x_{k}$?</p>
+      <p>These are essentially series expansions of an arbitrary $g(\mathbf{x})$, so we can just say:</p>
+      <p>\begin{align} g(\mathbf{x}) &amp;= \sum_{i=1}^{\widehat{d}} a_{i}y_{i}(\mathbf{x}) \\ g(\mathbf{x}) &amp;= \mathbf{a}^{T}\mathbf{y} \\ \end{align}</p>
+      <p>where $\mathbf{a}^{T}$ is a $\widehat{d}$-dimensional weight vector and the functions $y_{i}$ are arbitrary functions of $\mathbf{x}$.</p>
+      <p>Essentially we are <strong>projecting</strong> $\mathbf{x}$ into a higher-dimensional space, from $d$ to $\widehat{d}$.</p>
+      </section>
+      <section id="polynomial-discriminant-functions-1" class="level2">
+      <h2>Polynomial Discriminant Functions</h2>
+      <p>But… Why are we doing this?</p>
+      <p>In some cases, you may want to have a <strong>nonlinear</strong> or non-contiguous decision space – for example, you may have a situation where $\mathcal{R}_{2}$ should be “inside” a larger region $\mathcal{R}_{1}$.</p>
+      <p>However, these are supposed to be “linear” machines, because the math behind them requires that the hyperplanes be linear (can be approximated with a straight line).</p>
+      <p><strong>So we cheat!</strong> We can choose both $\widehat{d}$ and the functions $y_{i}(\mathbf{x})$ to approximate any discriminant function, so we can pick one which is <strong>nonlinear</strong> in $\mathbf{x}$ but is <strong>linear</strong> in $\mathbf{y}$.</p>
+      <p>Now seems like a good time for an example.</p>
+      </section>
+      <section id="diagram-of-polynomial-discriminant-function" class="level2">
+      <h2>Diagram of Polynomial Discriminant Function</h2>
+      <figure>
+      <img src="img/polynomial_disc_func.svg" alt="Polynomial Discriminant Function" style="width:80.0%" /><figcaption>Polynomial Discriminant Function</figcaption>
+      </figure>
+      </section>
+      <section id="calculation-of-a-polynomial-discriminant-function" class="level2">
+      <h2>Calculation of a Polynomial Discriminant Function</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/polynomial_disc_func.svg" alt="Polynomial Discriminant Function" style="width:100.0%" /><figcaption>Polynomial Discriminant Function</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Our discriminant function has the form:</p>
+      <p>$g(x) = a_{1} + a_{2}x + a_{3}x^{2}$</p>
+      <p>The discriminant function is characterized by:</p>
+      <p>$\mathbf{y} = (1, x, x^{2})^{T}$</p>
+      <p>which projects the 1D data from $x$ onto the 3D curve in $\mathbf{y}$<strong>-space</strong>.</p>
+      </div>
+      </div>
+      </section>
+      <section id="calculation-of-a-polynomial-discriminant-function-1" class="level2">
+      <h2>Calculation of a Polynomial Discriminant Function</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/polynomial_disc_func.svg" alt="Polynomial Discriminant Function" style="width:100.0%" /><figcaption>Polynomial Discriminant Function</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>The plane $\widehat{H}$ corresponds to:</p>
+      <p>$ g(\mathbf{x}) = \mathbf{a}^{T}\mathbf{y} = 0 $</p>
+      <p>dividing $\mathbf{y}$-space into $\widehat{\mathcal{R}}_{1}$ and $\widehat{\mathcal{R}}_{2}$.</p>
+      <p>This in turn divides the corresponding $\mathbf{x}$-space into arbitrary regions $\mathcal{R}_{1}$ and $\mathcal{R}_{2}$.</p>
+      </div>
+      </div>
+      </section>
+      <section id="calculation-of-a-polynomial-discriminant-function-2" class="level2">
+      <h2>Calculation of a Polynomial Discriminant Function</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/polynomial_disc_func.svg" alt="Polynomial Discriminant Function" style="width:100.0%" /><figcaption>Polynomial Discriminant Function</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>In this figure, $\widehat{H}$ corresponds to $\mathbf{a} = (-1, 1, 2)^{T}$, and so the resulting discriminant function resolves to:</p>
+      <p>$ g(x) = -1 + x + 2x^{2} $</p>
+      <p>So $g(x)&gt;0$ if $x &lt; -1$ OR if $x &gt; 0.5$.</p>
+      <p>Obviously we can create very complex decision regions in low-dimensional space using these high-dimensional transforms!</p>
+      </div>
+      </div>
+      </section>
+      <section id="more-complex-polynomial-functions" class="level2">
+      <h2>More Complex Polynomial Functions</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/polynomial_complex_disc_func.png" alt="Complex Discriminant Function" style="width:100.0%" /><figcaption>Complex Discriminant Function</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Here we have another case where:</p>
+      <p>$\mathbf{y} = (x_{1}, x_{2}, \alpha x_{1}x_{2})^{T}$</p>
+      <p>The mapping is again from a 2D to a 3D space, but now the extra dimension is proportional to $x_{1}x_{2}$.</p>
+      <p>This represents a hypersurface instead of a curve in 3D.</p>
+      <p>Note that the discriminant (and the hyperplane $\widehat{H}$) is nonlinear in $\mathbf{x}$-space but still linear in $\mathbf{y}$-space.</p>
+      </div>
+      </div>
+      </section>
+      <section id="remember-the-curse-of-dimensionality" class="level2">
+      <h2>Remember the Curse of Dimensionality</h2>
+      <p>So when we go from $\mathbf{x}$-space to $\mathbf{y}$-space, we are projecting <strong>up</strong> in dimensionality, from $d$ to $\widehat{d}$. This is often easier said than done.</p>
+      <p>For example, a complete discriminant function requires $\widehat{d} = (d + 1) (d + 2) / 2$ terms. So if $d=50$, then $\widehat{d} = 1,326$!</p>
+      <p>Each of those dimensions has an associated component in the weight vector $\mathbf{a}$ which must be determined from training.</p>
+      <p>Generally speaking, we need to have at least as many samples (and typically many more!) as we have dimensions.</p>
+      <p>This leads to a large burden on the training set, and a huge computational cost.</p>
+      </section>
+      </section>
+      <section id="section-4" class="level1">
+      <h1></h1>
+      <section id="augmented-vectors" class="level2">
+      <h2>Augmented Vectors</h2>
+      </section>
+      <section id="getting-rid-of-bias-terms" class="level2">
+      <h2>Getting Rid of Bias Terms</h2>
+      <p>The mapping trick has a few advantages even if we aren’t trying to build a nonlinear discriminant in $\mathbf{x}$-space.</p>
+      <p>We can include the bias term in the discriminant function by setting $x_{0} = 1$:</p>
+      <p>$ g(\mathbf{x}) = w_{0} + \sum_{i=1}^{d}w_{i}x_{i} = \sum_{i=0}^{d}w_{i}x_{i} $</p>
+      <p>Basically we “absorb” the bias term $w_{0}$ into the weight vector, and then add a dimension to $\mathbf{x}$, so we start the summation from $0$ instead of $1$.</p>
+      </section>
+      <section id="augmented-vectors-1" class="level2">
+      <h2>Augmented Vectors</h2>
+      <p>This gives us the following mappings, which we call <strong>augmented vectors</strong>:</p>
+      <p>$ \mathbf{y}= \begin{bmatrix} 1\\ x_{1}\\ \vdots\\ x_{d} \end{bmatrix} = \begin{bmatrix} 1\\ \mathbf{x} \end{bmatrix} \qquad \mathbf{a}= \begin{bmatrix} w_{0}\\ w_{1}\\ \vdots\\ w_{d} \end{bmatrix} = \begin{bmatrix} w_{0}\\ \mathbf{w} \end{bmatrix}$</p>
+      </section>
+      <section id="augmented-vectors-2" class="level2">
+      <h2>Augmented Vectors</h2>
+      <p>So our new discriminant is in the form $g(\mathbf{x}) = \mathbf{a}^{T}\mathbf{y}$, as it was before.</p>
+      <p>The $d$-dimensional $\mathbf{x}$-space is now projected into $d+1$ dimensional $\mathbf{y}$-space.</p>
+      <p>This <strong>preserves the distance relationships</strong> of samples in $d+1$ space.</p>
+      <p>The $\mathbf{y}$ vectors exist in $d$-dimensional subspace (the $\mathbf{x}$-space).</p>
+      <p>We reduced the problem of finding a weight vector $\mathbf{w}$ AND a bias weight $w_{0}$ to finding just a single weight vector $\mathbf{a}$.</p>
+      <p>This is actually useful! We’ll see this later in neural networks as well.</p>
+      </section>
+      </section>
+      <section id="section-5" class="level1">
+      <h1></h1>
+      <section id="linearly-separable-cases" class="level2">
+      <h2>Linearly Separable Cases</h2>
+      </section>
+      <section id="linearly-separable-cases-1" class="level2">
+      <h2>Linearly Separable Cases</h2>
+      <p>Let’s recap: We have our linear discriminant function, $g(\mathbf{x}) = \mathbf{a}^{T}\mathbf{y}$. We also have a set of $n$ training samples, $\mathbf{y}, \ldots, \mathbf{y}_{n}$ labeled either as $\omega_{1}$ or $\omega_{2}$.</p>
+      <p>A sample is correctly classified if:</p>
+      <p>$ (\mathbf{a}^{T}\mathbf{y}_{i} &gt; 0 \textrm{ and } \mathbf{y}_{i} \textrm{ is labeled } \omega_{1}) \textrm{ or } (\mathbf{a}^{T}\mathbf{y}_{i} &lt; 0 \textrm{ and } \mathbf{y}_{i} \textrm{ is labeled } \omega_{2}) $</p>
+      <p>Our task, then, is to learn the weight vector $\mathbf{a}$ that maximizes our classifier’s performance.</p>
+      <p>Just like any vector, the weight vector $\mathbf{a}$ specifies a point in <strong>weight space</strong>.</p>
+      <p>Let’s assume we know that we can classify these samples perfectly (we have good, robust features with very little error). In this case, the samples are said to be <strong>linearly separable</strong>.</p>
+      </section>
+      <section id="separating-vector" class="level2">
+      <h2>Separating Vector</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/augmented_feature_space.svg" alt="Hyperplanes in Weight Space" style="width:80.0%" /><figcaption>Hyperplanes in Weight Space</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>For a given sample $\mathbf{y}_{i}$, the equation $\mathbf{a}^{T}\mathbf{y}_{i} = 0$ defines a hyperplane through the origin of weight space, with $\mathbf{y}_{i}$ as a normal vector.</p>
+      <p>The location of the optimal solution vector is “constrained” by each training sample.</p>
+      <p>The solution vector lies within the intersection of these half-planes.</p>
+      </div>
+      </div>
+      </section>
+      <section id="normalization" class="level2">
+      <h2>Normalization</h2>
+      <p>It is useful to consider that if we knew which samples belong to $\omega_{1}$ or $\omega_{2}$ (i.e. during training), then the actual sign of $\mathbf{a}^{T}\mathbf{y}_{i}$ doesn’t matter.</p>
+      <p>We just find a vector $\mathbf{a}$ such that $\mathbf{a}^{T}\mathbf{y}_{i}&gt;0$ for all samples, and flip the signs of those that belong to $\omega_{2}$.</p>
+      <p>We call this flip in sign “normalization” (not to be confused with “regularization”).</p>
+      <p>Thus we’re looking for a weight vector $\mathbf{a}$ that is on the positive side of all possible hyperplanes defined by the training samples.</p>
+      </section>
+      <section id="pre-normalization" class="level2">
+      <h2>Pre-Normalization</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/pre_normalized.svg" alt="Pre-Normalized Space" style="width:100.0%" /><figcaption>Pre-Normalized Space</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>The red dotted line is one of the possible separating hyperplanes.</p>
+      <p>The solution vector is normal (and positive) to the hyperplane.</p>
+      <p>The grey region denotes the region of possible solution vectors, which we call the <strong>solution space</strong>.</p>
+      <p>Note that each of the possible solutions is orthogonal to one of $\mathbf{y}_{i}$.</p>
+      </div>
+      </div>
+      </section>
+      <section id="post-normalization" class="level2">
+      <h2>Post-Normalization</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/post_normalized.svg" alt="Post-Normalized Space" style="width:100.0%" /><figcaption>Post-Normalized Space</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Following “normalization”, the sign of the cases labeled $\omega_{2}$ is flipped.</p>
+      <p>Now we have a solution that corresponds to the discriminant function $g(\mathbf{x}) = \mathbf{a}^{T}\mathbf{y}$.</p>
+      <p>Again, using what we have so far, the solution vector $\mathbf{a}$ is not unique – any vector in the “solution region” is valid.</p>
+      </div>
+      </div>
+      </section>
+      <section id="weight-space-vs.-feature-space" class="level2">
+      <h2>Weight Space vs. Feature Space</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/solution_space.svg" alt="Weight-Space" style="width:80.0%" /><figcaption>Weight-Space</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/pre_normalized.svg" alt="Feature-Space" style="width:80.0%" /><figcaption>Feature-Space</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="selecting-optimal-solutions" class="level2">
+      <h2>Selecting Optimal Solutions</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/solution_space.svg" alt="Potential Solutions in Grey" style="width:80.0%" /><figcaption>Potential Solutions in Grey</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Which of these solutions is “best”?</p>
+      <p>We can specify that we want our chosen solution vector to be the one that <strong>maximizes the minimum distance</strong> from samples to the separating hyperplane.</p>
+      </div>
+      </div>
+      </section>
+      <section id="selecting-optimal-solutions-1" class="level2">
+      <h2>Selecting Optimal Solutions</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/solution_space_margin.svg" alt="Potential Solutions in Grey" style="width:80.0%" /><figcaption>Potential Solutions in Grey</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Thus, we want to obtain a solution vector for which:</p>
+      <p>$\mathbf{a}^{T}\mathbf{y}_{i}\geq b \text{ for all } i$</p>
+      <p>where $b&gt;0$.</p>
+      <p>This is stronger than saying we want $\mathbf{a}^{T}\mathbf{y}_{i}\geq 0$, since now we have some <strong>margin</strong> that we’re using to “insulate” the decision region with a distance of $\frac{b}{||\mathbf{y}_{i}||}$.</p>
+      </div>
+      </div>
+      </section>
+      <section id="introducing-a-margin-constraint" class="level2">
+      <h2>Introducing a Margin Constraint</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/solution_space.svg" alt="Potential Solutions in Grey" style="width:80.0%" /><figcaption>Potential Solutions in Grey</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/solution_space_margin.svg" alt="Margin Provides “Padding”" style="width:80.0%" /><figcaption>Margin Provides “Padding”</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="we-still-need-mathbfa" class="level2">
+      <h2>We Still Need $\mathbf{a}$!</h2>
+      <p>This is all well and good, but we <strong>still</strong> haven’t said how we should go about actually finding $\mathbf{a}$! We’ve just defined the criteria we’ll use to say what a “good” candidate for $\mathbf{a}$ looks like.</p>
+      <p>To actually get a vector, and to have a method that’s generalizable, we can’t find a closed-form solution. We have to use numerical optimization techniques.</p>
+      </section>
+      </section>
+      <section id="section-6" class="level1">
+      <h1></h1>
+      <section id="numerical-optimization" class="level2">
+      <h2>Numerical Optimization</h2>
+      </section>
+      <section id="how-should-we-find-mathbfa" class="level2">
+      <h2>How Should We Find $\mathbf{a}$?</h2>
+      <p>We need to find a solution to the set of linear inequalities $\mathbf{a}^{T}\mathbf{y}_{i} &gt; 0$ (or $\mathbf{a}^{T}\mathbf{y}_{i} \geq b$).</p>
+      <p>We can define a criterion function $J(\mathbf{a})$ that spits out a number which is minimized when $\mathbf{a}$ is an optimal solution vector.</p>
+      <p>This is a <strong>scalar function optimization </strong> or <strong>numerical optimization</strong> problem.</p>
+      </section>
+      <section id="numerical-optimization-1" class="level2">
+      <h2>Numerical Optimization</h2>
+      <p>The basic strategy behind numerical optimization is:</p>
+      <ol type="1">
+      <li><p>You have a cost function ($J(\mathbf{a})$) you want to minimize.</p></li>
+      <li><p>You have a (random?) set of parameters that define $\mathbf{a}$.</p></li>
+      <li><p>On iteration 1, calculate the cost $J(\mathbf{a})$ for your initial conditions.</p></li>
+      <li><p>On the next iteration, “nudge” your parameters and see how $J(\mathbf{a})$ changes.</p>
+      <ul>
+      <li>If the cost goes up, go back and try a different “nudge”.</li>
+      <li>If the cost goes down, keep “nudging” in the same direction.</li>
+      <li>If the cost is the same, stay where you are.</li>
+      </ul></li>
+      <li><p>Repeat Step 4 until you reach convergence, where your cost function is barely changing.</p></li>
+      </ol>
+      </section>
+      <section id="numerical-optimization-demonstration" class="level2">
+      <h2>Numerical Optimization Demonstration</h2>
+      <p>Some great examples of numerical optimization can be found here:</p>
+      <dl>
+      <dt><em>An Interactive Tutorial on Numerical Optimization</em>:</dt>
+      <dd><a href="http://www.benfrederickson.com/numerical-optimization/">http://www.benfrederickson.com/numerical-optimization/</a>
+      </dd>
+      </dl>
+      </section>
+      <section id="gradient-descent" class="level2">
+      <h2>Gradient Descent</h2>
+      <p>A simple approach is to use <strong>gradient descent</strong>: start with a random weight vector, $\mathbf{a}_{1}$, and find a better one iteratively using:</p>
+      <p>$ \mathbf{a}_{k+1} = \mathbf{a}_{k}-\eta_{k}\Delta J(\mathbf{a}_{k}) $</p>
+      <p>where $\eta_{k}$ is the <strong>learning rate</strong>, i.e. how far you “jump down” the gradient at iteration $k$, and $\Delta J(\mathbf{a}_{k})$ is the change in the cost.</p>
+      <p>Hopefully (!) this will converge to an optimal $J(\mathbf{a})$.</p>
+      </section>
+      <section id="basic-gradient-descent" class="level2">
+      <h2>Basic Gradient Descent</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/gradient_descent.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      Set $k=0$ and initialize $\mathbf{a}, \theta, \eta_{k}(\cdot)$
+      <ol>
+      <li class="fragment">
+      $k \leftarrow k+1$
+      </li>
+      <li class="fragment">
+      $\mathbf{a} \leftarrow \eta_{k}\Delta J(\mathbf{a})$
+      </li>
+      <li class="fragment">
+      Repeat 1-2 until $|\eta_{k}\Delta J(\mathbf{a})| &lt; \theta$
+      </li>
+      </ol>
+      </div>
+      </div>
+      </section>
+      <section id="questions-to-consider-for-gradient-descent" class="level2">
+      <h2>Questions to Consider for Gradient Descent</h2>
+      <p>Once you dig into the details, there are a number of questions:</p>
+      <ol type="1">
+      <li>How far should we “nudge” our parameter set? (Setting the learning rate)</li>
+      <li>What form should our optimization function be?</li>
+      <li>How do we avoid getting stuck in local minima?</li>
+      <li>When should we stop “nudging”? (Identifying convergence)</li>
+      <li>How computationally complex is our algorithm?</li>
+      </ol>
+      </section>
+      </section>
+      <section id="section-7" class="level1">
+      <h1></h1>
+      <section id="setting-the-learning-rate" class="level2">
+      <h2>Setting the Learning Rate</h2>
+      </section>
+      <section id="setting-the-learning-rate-1" class="level2">
+      <h2>Setting the Learning Rate</h2>
+      <p>We need to specify the learning rate $\eta$ such that it is reasonably fast (i.e. not too small) but also will not overshoot (i.e. not too big).</p>
+      <p>I’ll spare you the math, but using a second-order expansion around $\mathbf{a}_{k}$ and some second partial derivatives, we can get:</p>
+      <p>$ \eta_{k} = \frac{|\Delta J|^{2}}{\Delta J^{T}\mathbf{H}\Delta J} $</p>
+      <p>where $\mathbf{H}$ is the <strong>Hessian matrix</strong>, which is the matrix of second partial derivatives of $J$.</p>
+      <p>If the criterion function is quadratic everywhere, then $\eta_{k}$ is the same for all $k$.</p>
+      </section>
+      <section id="setting-the-learning-rate-not-trivial" class="level2">
+      <h2>Setting the Learning Rate: Not Trivial!</h2>
+      <figure>
+      <img src="img/lecunpaper.png" alt="Setting the Learning Rate (NeurIPS 1992)" style="width:50.0%" /><figcaption>Setting the Learning Rate (NeurIPS 1992)</figcaption>
+      </figure>
+      <p>Link: <a href="http://www.bcl.hamilton.ie/~barak/papers/nips92-lecun-nofigs.pdf">http://www.bcl.hamilton.ie/~barak/papers/nips92-lecun-nofigs.pdf</a></p>
+      </section>
+      </section>
+      <section id="section-8" class="level1">
+      <h1></h1>
+      <section id="summary" class="level2">
+      <h2>Summary</h2>
+      </section>
+      <section id="discriminants-in-low-and-high-dimensional-space" class="level2">
+      <h2>Discriminants in Low and High Dimensional Space</h2>
+      <p>Linear discriminants divide space up into straight lines (hence the name), but in real life sometimes data doesn’t exactly follow straight lines.</p>
+      <p>Having multiple regions or classes means we need more <strong>descriptive</strong> methods to model the feature space divisions.</p>
+      <p>By projecting data from $d$ to $\widehat{d}$ dimensions, we can build <strong>linear</strong> discriminants in $\widehat{d}$ which are <strong>nonlinear</strong> in $d$.</p>
+      <p>This trick is used a few different ways, in both Support Vector Machines and Neural Networks.</p>
+      </section>
+      <section id="overall-idea" class="level2">
+      <h2>Overall Idea</h2>
+      <p>Where do we put our discriminating hyperplane? We use numerical optimization:</p>
+      <ol type="1">
+      <li>You have a cost function you want to minimize ($J(\mathbf{a})$).</li>
+      <li>You have a set of parameters ($\mathbf{a}$) to start out with.</li>
+      <li>On iteration 1, test the parameters and calculate the cost ($J(\mathbf{a})$).</li>
+      <li>On the next iteration, ``nudge’’ your parameter set and see how the cost changes.</li>
+      <li>Repeat until convergence, where your cost function is barely changing.</li>
+      </ol>
+      </section>
+      <section id="linear-discriminants" class="level2">
+      <h2>Linear Discriminants</h2>
+      <p>Linear discriminants provide a preview of a lot of different concepts:</p>
+      <ul>
+      <li>Designing an optimally-spearating hyperplane</li>
+      <li>Identifying the minimum distance between training points and clusters</li>
+      <li>Projecting back and forth between different spaces</li>
+      </ul>
+      <p>We will see these concepts again and again, particularly when we discuss clustering and Support Vector Machines.</p>
+      <p>You can analyze your data using these concepts <strong>without</strong> performing classification!</p>
+      </section>
+      </section>
+      <section id="section-9" class="level1">
+      <h1></h1>
+      <section id="next-class" class="level2">
+      <h2>Next Class</h2>
+      </section>
+      <section id="next-class-1" class="level2">
+      <h2>Next Class</h2>
+      <p>This is obviously a big topic, so we’ll have one more lecture on this.</p>
+      <p>We will cover:</p>
+      <ul>
+      <li>Different forms of the criterion / cost function</li>
+      <li>How to “nudge” the parameters to improve the cost function</li>
+      <li>When to stop optimizing, identifying convergence</li>
+      </ul>
+      </section>
+      <section id="next-class-2" class="level2">
+      <h2>Next Class</h2>
+      <p>We will discuss ways to decide on the “optimal” hyperplane, which may not perfectly separate out the samples from each class.</p>
+      <p>We will also start to talk about Support Vector Machines.</p>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <!-- Pseudocode scripts -->
+    <script>
+     pseudocode.renderElement(document.getElementById("hello-world-code"));
+    </script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+          fragments: true,
+          math: {
+					    mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+					    config: 'TeX-AMS_HTML-full'
+          },
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
