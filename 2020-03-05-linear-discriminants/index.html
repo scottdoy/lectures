@@ -1,0 +1,1504 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LINEAR DISCRIMINANTS (Pt. 2)</title>
+
+    <meta name="description" content="LINEAR DISCRIMINANTS (Pt. 2)">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Custom Addons: TikzJax -->
+    <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css">
+    <script src="http://tikzjax.com/v1/tikzjax.js"></script>
+    <!-- Custom Addons: pseudocode.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">LINEAR DISCRIMINANTS (Pt. 2)</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="recap" class="level2">
+      <h2>Recap</h2>
+      </section>
+      <section id="recap-linear-machines" class="level2">
+      <h2>Recap: Linear Machines</h2>
+      <p>General form of a linear machine:</p>
+      <p>$ g_{i}(\mathbf{x}) = \mathbf{w}_{i}^{T}\mathbf{x} + w_{i0} $</p>
+      </section>
+      <section id="geometric-interpretation-of-linear-machine" class="level2">
+      <h2>Geometric Interpretation of Linear Machine</h2>
+      <figure>
+      <img src="img/discplane.png" alt="Discriminant in a Flat Plane" style="width:40.0%" /><figcaption>Discriminant in a Flat Plane</figcaption>
+      </figure>
+      </section>
+      <section id="higher-dimensional-representations" class="level2">
+      <h2>Higher-dimensional Representations</h2>
+      <p>We can generalize this to a higher-dimensional space by a change of variables:</p>
+      <p>\begin{align} g(\mathbf{x}) &amp;= \sum_{i=1}^{\widehat{d}} a_{i}y_{i}(\mathbf{x}) \\ g(\mathbf{x}) &amp;= \mathbf{a}^{T}\mathbf{y} \\ \end{align}</p>
+      <p>where $\mathbf{a}^{T}$ is a $\widehat{d}$-dimensional weight and $y_{i}$ are arbitrary functions of $\mathbf{x}$.</p>
+      </section>
+      <section id="sidebar-where-did-the-bias-term-go" class="level2">
+      <h2>Sidebar: Where Did the Bias Term Go?</h2>
+      <p>We can include the bias term in the discriminant function by setting $x_{0} = 1$:</p>
+      <p>$ g(\mathbf{x}) = w_{0} + \sum_{i=1}^{d}w_{i}x_{i} = \sum_{i=0}^{d}w_{i}x_{i} $</p>
+      <p>Basically we “absorb” the bias term $w_{0}$ into the weight vector, and then add a dimension to $\mathbf{x}$, so we start the summation from $0$ instead of $1$.</p>
+      </section>
+      <section id="sidebar-augmented-vectors" class="level2">
+      <h2>Sidebar: Augmented Vectors</h2>
+      <p>This gives us the following mappings, which we call <strong>augmented vectors</strong>:</p>
+      <p>$ \mathbf{y}= \begin{bmatrix} 1\\ x_{1}\\ \vdots\\ x_{d} \end{bmatrix} = \begin{bmatrix} 1\\ \mathbf{x} \end{bmatrix} \qquad \mathbf{a}= \begin{bmatrix} w_{0}\\ w_{1}\\ \vdots\\ w_{d} \end{bmatrix} = \begin{bmatrix} w_{0}\\ \mathbf{w} \end{bmatrix}$</p>
+      <p>We reduced the problem of finding a weight vector $\mathbf{w}$ AND a bias weight $w_{0}$ to finding just a single weight vector $\mathbf{a}$.</p>
+      </section>
+      <section id="recap-calculation-of-a-polynomial-discriminant-function" class="level2">
+      <h2>Recap: Calculation of a Polynomial Discriminant Function</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/polynomial_disc_func.svg" alt="Polynomial Discriminant Function" style="width:100.0%" /><figcaption>Polynomial Discriminant Function</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Our discriminant function has the form:</p>
+      <p>$g(x) = a_{1} + a_{2}x + a_{3}x^{2}$</p>
+      <p>The discriminant function is characterized by:</p>
+      <p>$\mathbf{y} = (1, x, x^{2})^{T}$</p>
+      <p>which projects the 1D data from $x$ onto the 3D curve in $\mathbf{y}$-space.</p>
+      </div>
+      </div>
+      </section>
+      <section id="recap-how-should-we-find-mathbfa" class="level2">
+      <h2>Recap: How Should We Find $\mathbf{a}$?</h2>
+      <p>We need to find a solution to the set of linear inequalities $\mathbf{a}^{T}\mathbf{y}_{i} &gt; 0$ (or $\mathbf{a}^{T}\mathbf{y}_{i} \geq b$).</p>
+      <p>We can define a criterion function $J(\mathbf{a})$ that spits out a number which is minimized when $\mathbf{a}$ is an optimal solution vector.</p>
+      <p>This is a <strong>scalar function optimization</strong> or <strong>numerical optimization</strong> problem.</p>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="linearly-separable-cases" class="level2">
+      <h2>Linearly Separable Cases</h2>
+      </section>
+      <section id="how-do-we-find-mathbfa" class="level2">
+      <h2>How Do We Find $\mathbf{a}$?</h2>
+      <p>To set up numerical optimization, we need to define our criterion function.</p>
+      <p class="fragment">
+      To define our criterion function, let’s consider an ideal dataset of <strong>linearly separable</strong> training samples.
+      </p>
+      </section>
+      <section id="linearly-separable-cases-1" class="level2">
+      <h2>Linearly Separable Cases</h2>
+      <p>Linear discriminant function: $g(\mathbf{x}) = \mathbf{a}^{T}\mathbf{y}$.</p>
+      <p class="fragment">
+      Set of $n$ training samples: $\mathbf{y}, \ldots, \mathbf{y}_{n}$ labeled either as $\omega_{1}$ or $\omega_{2}$.
+      </p>
+      <p class="fragment">
+      In the binary class case, a sample is correctly classified if:
+      </p>
+      <p class="fragment">
+      $ (\mathbf{a}^{T}\mathbf{y}_{i} &gt; 0 \textrm{ and } \mathbf{y}_{i} \textrm{ is labeled } \omega_{1}) \textrm{ or } (\mathbf{a}^{T}\mathbf{y}_{i} &lt; 0 \textrm{ and } \mathbf{y}_{i} \textrm{ is labeled } \omega_{2}) $
+      </p>
+      <p class="fragment">
+      We need to find the weight vector $\mathbf{a}$ that maximizes our classifier’s performance.
+      </p>
+      <p class="fragment">
+      If training samples are <strong>linearly separable</strong>, the best classifier is perfect: ALL samples should be correctly classified.
+      </p>
+      </section>
+      <section id="weight-vector" class="level2">
+      <h2>Weight Vector</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/augmented_feature_space.svg" alt="Hyperplanes in Weight Space" style="width:80.0%" /><figcaption>Hyperplanes in Weight Space</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Weight vector $\mathbf{a}$ specifies a point in <strong>weight space</strong>, the space of all possible weight vectors.</p>
+      <p class="fragment">
+      For a sample $\mathbf{y}_{i}$, the equation $\mathbf{a}^{T}\mathbf{y}_{i} = 0$ defines a hyperplane through the origin of weight space, with $\mathbf{y}_{i}$ as a normal vector.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="weight-vector-1" class="level2">
+      <h2>Weight Vector</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/augmented_feature_space.svg" alt="Hyperplanes in Weight Space" style="width:80.0%" /><figcaption>Hyperplanes in Weight Space</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>The optimal solution vector is “constrained” by each training sample.</p>
+      <p class="fragment">
+      The solution vector lies within the intersection of these half-planes.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="normalization" class="level2">
+      <h2>Normalization</h2>
+      <p>There’s a trick to finding the optimal weight vector, called <strong>normalization</strong>.</p>
+      <p class="fragment">
+      It’s mathematically easier to find a weight vector where $\mathbf{a}^{T}\mathbf{y}_{i} &gt; 0$ for <strong>all</strong> samples.
+      </p>
+      <p class="fragment">
+      We can do this by simply flipping the signs of $\mathbf{y}$ for one of the classes.
+      </p>
+      <p class="fragment">
+      Then we looking for a weight vector $\mathbf{a}$ that is on the <em>positive</em> side of all possible hyperplanes defined by the training samples.
+      </p>
+      </section>
+      <section id="pre-normalization" class="level2">
+      <h2>Pre-Normalization</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/pre_normalized.svg" alt="Pre-Normalized Space" style="width:100.0%" /><figcaption>Pre-Normalized Space</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>The red dotted line is one of the possible separating hyperplanes.</p>
+      <p class="fragment">
+      The solution vector is normal (and positive) to the hyperplane.
+      </p>
+      <p class="fragment">
+      The grey region denotes the region of possible solution vectors, which we call the <strong>solution space</strong>.
+      </p>
+      <p class="fragment">
+      Note that each of the possible solutions is orthogonal to one of $\mathbf{y}_{i}$.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="post-normalization" class="level2">
+      <h2>Post-Normalization</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/post_normalized.svg" alt="Post-Normalized Space" style="width:100.0%" /><figcaption>Post-Normalized Space</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Following “normalization”, the sign of the cases labeled $\omega_{2}$ is flipped.</p>
+      <p class="fragment">
+      Now we have a solution that corresponds to the discriminant function $g(\mathbf{x}) = \mathbf{a}^{T}\mathbf{y}$.
+      </p>
+      <p class="fragment">
+      Again, using what we have so far, the solution vector $\mathbf{a}$ is not unique – any vector in the “solution region” is valid.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="selecting-optimal-solutions" class="level2">
+      <h2>Selecting Optimal Solutions</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/solution_space.svg" alt="Potential Solutions in Grey" style="width:80.0%" /><figcaption>Potential Solutions in Grey</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Which of these solutions is “best”?</p>
+      <p class="fragment">
+      The solution vector should <strong>maximize the minimum distance</strong> from training samples to the separating hyperplane.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="selecting-optimal-solutions-1" class="level2">
+      <h2>Selecting Optimal Solutions</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/solution_space_margin.svg" alt="Potential Solutions in Grey" style="width:80.0%" /><figcaption>Potential Solutions in Grey</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Thus, we want to obtain a solution vector for which:</p>
+      <p class="fragment">
+      $\mathbf{a}^{T}\mathbf{y}_{i}\geq b \text{ for all } i$
+      </p>
+      <p class="fragment">
+      where $b&gt;0$ is some <strong>margin</strong> factor.
+      </p>
+      <p class="fragment">
+      This is stronger than saying we want $\mathbf{a}^{T}\mathbf{y}_{i}\geq 0$, since now we have some margin that we’re using to “insulate” the decision region with a distance of $\frac{b}{||\mathbf{y}_{i}||}$.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="introducing-a-margin-constraint" class="level2">
+      <h2>Introducing a Margin Constraint</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/solution_space.svg" alt="Potential Solutions in Grey" style="width:80.0%" /><figcaption>Potential Solutions in Grey</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/solution_space_margin.svg" alt="Margin Provides “Padding”" style="width:80.0%" /><figcaption>Margin Provides “Padding”</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="we-still-need-mathbfa" class="level2">
+      <h2>We Still Need $\mathbf{a}$!</h2>
+      <p>We’ve defined the criteria for $\mathbf{a}$, but we still need to use numerical optimization to get it.</p>
+      <p class="fragment">
+      If there is not a “closed-form” solution (we can’t simply “solve for $\mathbf{a}$”), we have to use a kind of hot-and-cold approach.
+      </p>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="numerical-optimization" class="level2">
+      <h2>Numerical Optimization</h2>
+      </section>
+      <section id="numerical-optimization-1" class="level2">
+      <h2>Numerical Optimization</h2>
+      <p>The basic strategy behind numerical optimization is:</p>
+      <ol type="1">
+      <li><p>You have a cost function ($J(\mathbf{a})$) you want to minimize.</p></li>
+      <li><p>You have a (random?) set of parameters that define $\mathbf{a}$.</p></li>
+      <li><p>On iteration 1, calculate the cost $J(\mathbf{a})$ for your initial conditions.</p></li>
+      <li><p>On the next iteration, “nudge” your parameters and see how $J(\mathbf{a})$ changes.</p>
+      <ul>
+      <li>If the cost goes up, go back and try a different “nudge”.</li>
+      <li>If the cost goes down, keep “nudging” in the same direction.</li>
+      <li>If the cost is the same, stay where you are.</li>
+      </ul></li>
+      <li><p>Repeat Step 4 until you reach convergence, where your cost function is barely changing.</p></li>
+      </ol>
+      </section>
+      <section id="numerical-optimization-demonstration" class="level2">
+      <h2>Numerical Optimization Demonstration</h2>
+      <p>Some great examples of numerical optimization can be found here:</p>
+      <dl>
+      <dt><em>An Interactive Tutorial on Numerical Optimization</em>:</dt>
+      <dd><a href="http://www.benfrederickson.com/numerical-optimization/">http://www.benfrederickson.com/numerical-optimization/</a>
+      </dd>
+      </dl>
+      </section>
+      <section id="basic-gradient-descent" class="level2">
+      <h2>Basic Gradient Descent</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/gradient_descent.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      Set $k=0$ and initialize $\mathbf{a}, \theta, \eta_{k}(\cdot)$
+      <ol>
+      <li class="fragment">
+      $k \leftarrow k+1$
+      </li>
+      <li class="fragment">
+      $\mathbf{a} \leftarrow \eta_{k}\Delta J(\mathbf{a})$
+      </li>
+      <li class="fragment">
+      Repeat 1-2 until $|\eta_{k}\Delta J(\mathbf{a})| &lt; \theta$
+      </li>
+      </ol>
+      </div>
+      </div>
+      </section>
+      <section id="recap-questions-to-consider-for-gradient-descent" class="level2">
+      <h2>Recap: Questions to Consider for Gradient Descent</h2>
+      <p>Once you dig into the details, there are a number of questions:</p>
+      <ol type="1">
+      <li>How far should we “nudge” our parameter set? (Setting the learning rate)</li>
+      <li>What form should our optimization function be?</li>
+      <li>How do we avoid getting stuck in local minima?</li>
+      <li>When should we stop “nudging”? (Identifying convergence)</li>
+      <li>How computationally complex is our algorithm?</li>
+      </ol>
+      </section>
+      </section>
+      <section id="section-3" class="level1">
+      <h1></h1>
+      <section id="setting-the-learning-rate" class="level2">
+      <h2>Setting the Learning Rate</h2>
+      </section>
+      <section id="setting-the-learning-rate-1" class="level2">
+      <h2>Setting the Learning Rate</h2>
+      <p>The learning rate $\eta$ should be reasonably fast (i.e. not too small) but will not overshoot (i.e. not too big).</p>
+      <p class="fragment">
+      If you know the derivatives of your criterion function $J(\cdot)$, you can try to calculate the “optimal” learning rate:
+      </p>
+      <p class="fragment">
+      $ \eta_{k} = \frac{||\Delta J||^{2}}{\Delta J^{T}\mathbf{H}\Delta J} $
+      </p>
+      <p class="fragment">
+      where $\mathbf{H}$ is the <strong>Hessian matrix</strong>, which is the matrix of second partial derivatives of $J$.
+      </p>
+      <p class="fragment">
+      However, this is rarely so straightforward…
+      </p>
+      </section>
+      <section id="setting-the-learning-rate-not-trivial" class="level2">
+      <h2>Setting the Learning Rate: Not Trivial!</h2>
+      <figure>
+      <img src="img/lecunpaper.png" alt="Setting the Learning Rate (NeurIPS 1992)" style="width:50.0%" /><figcaption>Setting the Learning Rate (NeurIPS 1992)</figcaption>
+      </figure>
+      </section>
+      </section>
+      <section id="section-4" class="level1">
+      <h1></h1>
+      <section id="form-of-the-optimization-function" class="level2">
+      <h2>Form of the Optimization Function</h2>
+      </section>
+      <section id="choosing-a-form-for-jmathbfa-piecewise-constant-function" class="level2">
+      <h2>Choosing a Form for $J(\mathbf{a})$: Piecewise Constant Function</h2>
+      <p>What function should we create for $J(\mathbf{a})$?</p>
+      <p class="fragment">
+      Let’s say $J(\mathbf{a}; \mathbf{y}_{1},\cdots,\mathbf{y}_{n})$ be the number of misclassified samples.
+      </p>
+      <p class="fragment">
+      If $\mathbf{a}$ leads to more misclassifications, this means a higher value for $J(\mathbf{a})$. If all samples are correctly classified, then $J(\mathbf{a})=0$.
+      </p>
+      <p class="fragment">
+      However, this is difficult to optimize because it’s <strong>piecewise constant</strong>: If the number of misclassified samples doesn’t change, then $\Delta J(\mathbf{a}) = 0$, and we don’t go anywhere.
+      </p>
+      </section>
+      <section id="jmathbfa-piecewise-constant-function" class="level2">
+      <h2>$J(\mathbf{a})$: Piecewise Constant Function</h2>
+      <figure>
+      <img src="img/piecewise_constant_function.svg" alt="Piecewise Constant Function" style="width:50.0%" /><figcaption>Piecewise Constant Function</figcaption>
+      </figure>
+      </section>
+      <section id="j_pmathbfa-perceptron-criterion-function" class="level2">
+      <h2>$J_{p}(\mathbf{a})$: Perceptron Criterion Function</h2>
+      <p>Alternatively, we could use the <strong>Perceptron criterion function</strong>:</p>
+      <p class="fragment">
+      $ J_{p}(\mathbf{a}) = \sum_{\mathbf{y}\in\mathcal{Y}}(-\mathbf{a}^{T}\mathbf{y}) $
+      </p>
+      <p class="fragment">
+      where $\mathcal{Y}$ is the set of misclassifications due to $\mathbf{a}$.
+      </p>
+      <p class="fragment">
+      If $\mathcal{Y} = \emptyset$ (there are no misclassifications), then $J_{p}(\mathbf{a}) = 0$ and we’re done.
+      </p>
+      </section>
+      <section id="j_pmathbfa-perceptron-criterion-function-1" class="level2">
+      <h2>$J_{p}(\mathbf{a})$: Perceptron Criterion Function</h2>
+      <p>$ J_{p}(\mathbf{a}) = \sum_{\mathbf{y}\in\mathcal{Y}}(-\mathbf{a}^{T}\mathbf{y}) $</p>
+      <p class="fragment">
+      Remember: We want a solution vector such that $\mathbf{a}^{T}\mathbf{y}&gt;0$ for all samples.
+      </p>
+      <p class="fragment">
+      This means that $\mathbf{a}^{T}\mathbf{y} \leq 0$ only if $\mathbf{y}$ is misclassified; in other words, there are samples in $\mathcal{Y}$.
+      </p>
+      <p class="fragment">
+      During optimization, $J_{p}(\mathbf{a})$ is never negative and is only 0 when $\mathbf{a}$ is a solution vector or on the decision boundary (i.e. $\mathcal{Y}$ is empty).
+      </p>
+      <p class="fragment">
+      Geometrically, this is proportional to the sum of the distances from misclassified samples to the decision boundary.
+      </p>
+      </section>
+      <section id="j_pmathbfa-perceptron-criterion-function-2" class="level2">
+      <h2>$J_{p}(\mathbf{a})$: Perceptron Criterion Function</h2>
+      <figure>
+      <img src="img/perceptron_criterion_function.svg" alt="Perceptron Criterion Function" style="width:50.0%" /><figcaption>Perceptron Criterion Function</figcaption>
+      </figure>
+      </section>
+      <section id="updating-mathbfa-using-the-pcf" class="level2">
+      <h2>Updating $\mathbf{a}$ Using the PCF</h2>
+      <p>To find $\Delta J_{p}$, we’re calculating $\frac{\partial J_{p}}{\partial a_{j}}$ for each component in $\mathbf{a}$, so:</p>
+      <p class="fragment">
+      $ \Delta J_{p} = \sum_{\mathbf{y}\in\mathcal{Y}}(-\mathbf{y}) $
+      </p>
+      <p class="fragment">
+      So our update rule is now:
+      </p>
+      <p class="fragment">
+      $ \mathbf{a}_{k+1} = \mathbf{a}_{k} + \eta_{k}\sum_{\mathbf{y}\in\mathcal{Y}}(\mathbf{y}) $
+      </p>
+      <p class="fragment">
+      In other words: We add some multiple of the sum of the misclassified samples to the present weight vector to get the next weight vector.
+      </p>
+      <p class="fragment">
+      This is called the <strong>batch Perceptron algorithm</strong> since we can use batches of samples.
+      </p>
+      </section>
+      <section id="batch-perceptron-algorithm" class="level2">
+      <h2>Batch Perceptron Algorithm</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/batch_perceptron_algorithm.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      Set $k=0$ and initialize $\mathbf{a}, \theta, \eta_{k}(\cdot)$
+      <ol>
+      <li>
+      $k \leftarrow k+1$
+      </li>
+      <li>
+      $\mathbf{a} \leftarrow \mathbf{a} + \eta_{k}\sum_{\mathbf{y}\in\mathcal{Y}_{k}}(\mathbf{y})$
+      </li>
+      <li>
+      Repeat 1-2 until $|\eta_{k}\sum_{\mathbf{y}\in\mathcal{Y}_{k}}(\mathbf{y})| &lt; \theta$
+      </li>
+      </ol>
+      </div>
+      </div>
+      </section>
+      <section id="batch-perceptron-algorithm-1" class="level2">
+      <h2>Batch Perceptron Algorithm</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/batch_perceptron_algorithm.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <ul>
+      <li class="fragment">
+      Start with $\mathbf{a}_{k}=\mathbf{0}$: All three samples are misclassified, so you add $\mathbf{y}_{1}+\mathbf{y}_{2}+\mathbf{y}_{3}$.
+      </li>
+      <li class="fragment">
+      Then sample $\mathbf{y}_{3}$ is misclassified, so that is added.
+      </li>
+      <li class="fragment">
+      Then $\mathbf{y}_{1}$, and $\mathbf{y}_{3}$ again.
+      </li>
+      <li class="fragment">
+      After that, the vector lands in the solution region, so the process ends.
+      </li>
+      </ul>
+      </div>
+      </div>
+      </section>
+      <section id="convergence-properties" class="level2">
+      <h2>Convergence Properties</h2>
+      <p>To examine whether this process will converge, we look at a few simplifications.</p>
+      <p class="fragment">
+      Instead of building a set $\mathcal{Y}$ of all misclassified samples, let’s look at each sample in sequence and modify the weights for each individual misclassified sample.
+      </p>
+      <p class="fragment">
+      We’ll assume that learning rate $\eta_{k}$ is constant for all $k$, a.k.a. the <strong>fixed-increment</strong> case.
+      </p>
+      <p class="fragment">
+      To investigate convergence behavior, we simply cycle through the samples and keep modifying the weight until the algorithm converges.
+      </p>
+      </section>
+      <section id="representation-of-fixed-increment" class="level2">
+      <h2>Representation of Fixed-Increment</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/fixed_increment_01.svg" style="width:70.0%" /></p>
+      </div>
+      <div>
+      Set $k=0$ and initialize $\mathbf{a}$
+      <ol>
+      <li class="fragment">
+      $k \leftarrow k+1$
+      </li>
+      <li class="fragment">
+      if $\mathbf{y}^{k}\in\mathcal{Y}$ then:
+      </li>
+      <ul>
+      <li class="fragment">
+      $\mathbf{a}\leftarrow\mathbf{a} + \mathbf{y}^{k}$
+      </li>
+      </ul>
+      <li class="fragment">
+      Repeat until $|\mathcal{Y}=\emptyset$
+      </li>
+      </ol>
+      </div>
+      </div>
+      </section>
+      <section id="representation-of-fixed-increment-1" class="level2">
+      <h2>Representation of Fixed-Increment</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/fixed_increment_02.svg" style="width:70.0%" /></p>
+      </div>
+      <div>
+      Set $k=0$ and initialize $\mathbf{a}$
+      <ol>
+      <li>
+      $k \leftarrow k+1$
+      </li>
+      <li>
+      if $\mathbf{y}^{k}\in\mathcal{Y}$ then:
+      </li>
+      <ul>
+      <li>
+      $\mathbf{a}\leftarrow\mathbf{a} + \mathbf{y}^{k}$
+      </li>
+      </ul>
+      <li>
+      Repeat until $|\mathcal{Y}=\emptyset$
+      </li>
+      </ol>
+      </div>
+      </div>
+      </section>
+      <section id="representation-of-fixed-increment-2" class="level2">
+      <h2>Representation of Fixed-Increment</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/fixed_increment_03.svg" style="width:70.0%" /></p>
+      </div>
+      <div>
+      Set $k=0$ and initialize $\mathbf{a}$
+      <ol>
+      <li>
+      $k \leftarrow k+1$
+      </li>
+      <li>
+      if $\mathbf{y}^{k}\in\mathcal{Y}$ then:
+      </li>
+      <ul>
+      <li>
+      $\mathbf{a}\leftarrow\mathbf{a} + \mathbf{y}^{k}$
+      </li>
+      </ul>
+      <li>
+      Repeat until $|\mathcal{Y}=\emptyset$
+      </li>
+      </ol>
+      </div>
+      </div>
+      </section>
+      <section id="representation-of-fixed-increment-3" class="level2">
+      <h2>Representation of Fixed-Increment</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/fixed_increment_04.svg" style="width:70.0%" /></p>
+      </div>
+      <div>
+      Set $k=0$ and initialize $\mathbf{a}$
+      <ol>
+      <li>
+      $k \leftarrow k+1$
+      </li>
+      <li>
+      if $\mathbf{y}^{k}\in\mathcal{Y}$ then:
+      </li>
+      <ul>
+      <li>
+      $\mathbf{a}\leftarrow\mathbf{a} + \mathbf{y}^{k}$
+      </li>
+      </ul>
+      <li>
+      Repeat until $|\mathcal{Y}=\emptyset$
+      </li>
+      </ol>
+      </div>
+      </div>
+      </section>
+      <section id="representation-of-fixed-increment-4" class="level2">
+      <h2>Representation of Fixed-Increment</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/fixed_increment_05.svg" style="width:70.0%" /></p>
+      </div>
+      <div>
+      Set $k=0$ and initialize $\mathbf{a}$
+      <ol>
+      <li>
+      $k \leftarrow k+1$
+      </li>
+      <li>
+      if $\mathbf{y}^{k}\in\mathcal{Y}$ then:
+      </li>
+      <ul>
+      <li>
+      $\mathbf{a}\leftarrow\mathbf{a} + \mathbf{y}^{k}$
+      </li>
+      </ul>
+      <li>
+      Repeat until $|\mathcal{Y}=\emptyset$
+      </li>
+      </ol>
+      </div>
+      </div>
+      </section>
+      <section id="representation-of-fixed-increment-5" class="level2">
+      <h2>Representation of Fixed-Increment</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/fixed_increment_06.svg" style="width:70.0%" /></p>
+      </div>
+      <div>
+      Set $k=0$ and initialize $\mathbf{a}$
+      <ol>
+      <li>
+      $k \leftarrow k+1$
+      </li>
+      <li>
+      if $\mathbf{y}^{k}\in\mathcal{Y}$ then:
+      </li>
+      <ul>
+      <li>
+      $\mathbf{a}\leftarrow\mathbf{a} + \mathbf{y}^{k}$
+      </li>
+      </ul>
+      <li>
+      Repeat until $|\mathcal{Y}=\emptyset$
+      </li>
+      </ol>
+      </div>
+      </div>
+      </section>
+      <section id="representation-of-fixed-increment-6" class="level2">
+      <h2>Representation of Fixed-Increment</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/fixed_increment_07.svg" style="width:70.0%" /></p>
+      </div>
+      <div>
+      Set $k=0$ and initialize $\mathbf{a}$
+      <ol>
+      <li>
+      $k \leftarrow k+1$
+      </li>
+      <li>
+      if $\mathbf{y}^{k}\in\mathcal{Y}$ then:
+      </li>
+      <ul>
+      <li>
+      $\mathbf{a}\leftarrow\mathbf{a} + \mathbf{y}^{k}$
+      </li>
+      </ul>
+      <li>
+      Repeat until $|\mathcal{Y}=\emptyset$
+      </li>
+      </ol>
+      </div>
+      </div>
+      </section>
+      <section id="representation-of-fixed-increment-7" class="level2">
+      <h2>Representation of Fixed-Increment</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/fixed_increment_08.svg" style="width:70.0%" /></p>
+      </div>
+      <div>
+      Set $k=0$ and initialize $\mathbf{a}$
+      <ol>
+      <li>
+      $k \leftarrow k+1$
+      </li>
+      <li>
+      if $\mathbf{y}^{k}\in\mathcal{Y}$ then:
+      </li>
+      <ul>
+      <li>
+      $\mathbf{a}\leftarrow\mathbf{a} + \mathbf{y}^{k}$
+      </li>
+      </ul>
+      <li>
+      Repeat until $|\mathcal{Y}=\emptyset$
+      </li>
+      </ol>
+      </div>
+      </div>
+      </section>
+      <section id="representation-of-fixed-increment-8" class="level2">
+      <h2>Representation of Fixed-Increment</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/fixed_increment_09.svg" style="width:70.0%" /></p>
+      </div>
+      <div>
+      Set $k=0$ and initialize $\mathbf{a}$
+      <ol>
+      <li>
+      $k \leftarrow k+1$
+      </li>
+      <li>
+      if $\mathbf{y}^{k}\in\mathcal{Y}$ then:
+      </li>
+      <ul>
+      <li>
+      $\mathbf{a}\leftarrow\mathbf{a} + \mathbf{y}^{k}$
+      </li>
+      </ul>
+      <li>
+      Repeat until $|\mathcal{Y}=\emptyset$
+      </li>
+      </ol>
+      </div>
+      </div>
+      </section>
+      <section id="fixed-increment-single-sample-perceptron" class="level2">
+      <h2>Fixed-Increment Single-Sample Perceptron</h2>
+      <p>This is a very simple approach which is guaranteed to move the hyperplane in the correct direction.</p>
+      <p class="fragment">
+      Recall that we <strong>assume the samples are linearly separable</strong>; if that is true, the system will converge.
+      </p>
+      <p class="fragment">
+      The speed with which it converges is dependent on the separation of the samples.
+      </p>
+      </section>
+      <section id="variable-increment-with-margins" class="level2">
+      <h2>Variable Increment with Margins</h2>
+      <p>We can add a <strong>variable increment</strong> $\eta_{k}$ and a <strong>margin</strong> $b$, so we obtain misclassifications whenever the hyperplane fails to exceed the margin and update a variable amount.</p>
+      <p class="fragment">
+      In this case the update rule is:
+      </p>
+      <p class="fragment">
+      $\begin{array}{cl} a_{1} &amp; \quad\text{arbitrary} \\ a_{k+1} = a_{k} + \eta_{k}\mathbf{y}^{k} &amp; \quad k\geq 1\\ \end{array}$
+      </p>
+      <p class="fragment">
+      And now $\mathbf{a}_{k}^{T}\mathbf{y}^{k}\leq b$ for all $k$.
+      </p>
+      </section>
+      <section id="variable-increment-perceptron-with-margin" class="level2">
+      <h2>Variable-Increment Perceptron with Margin</h2>
+      <div class="txt-left">
+      <p>Set $k=0$ and initialize $\mathbf{a},\theta,b,\eta(\cdot)$</p>
+      <ol>
+      <li>
+      $k \leftarrow k+1$
+      </li>
+      <li>
+      if $\mathbf{a}^{T}\mathbf{y}^{k}\leq b$ then:
+      </li>
+      <ul>
+      <li>
+      $\mathbf{a}\leftarrow\mathbf{a} + \eta_{k}\mathbf{y}^{k}$
+      </li>
+      </ul>
+      <li>
+      Repeat until $\mathbf{a}^{T}\mathbf{y}^{k}&gt;b$ for all $k$
+      </li>
+      </ol>
+      </div>
+      </section>
+      <section id="convergence" class="level2">
+      <h2>Convergence</h2>
+      <p>We know the samples are linearly separable if:</p>
+      <p>$ \eta_{k}\geq 0 $</p>
+      <p>$ \lim_{m\rightarrow\infty}\sum_{k=1}^{m}\eta_{k}=\infty $</p>
+      <p>$ \lim_{m\rightarrow\infty}\frac{\sum_{k=1}^{m}\eta_{k}^{2}}{(\sum_{k=1}^{m}\eta_{k})^{2}} = 0 $</p>
+      <p class="fragment">
+      These conditions are satisfied if $\eta_{k}$ is a positive constant OR if it decreases as $\frac{1}{k}$.
+      </p>
+      <p class="fragment">
+      Then $\mathbf{a}_{k}$ converges to a solution vector satisfying $\mathbf{a}^{T}\mathbf{y}_{i} &gt; b$ for all $i$.
+      </p>
+      </section>
+      </section>
+      <section id="section-5" class="level1">
+      <h1></h1>
+      <section id="relaxation-procedures" class="level2">
+      <h2>Relaxation Procedures</h2>
+      </section>
+      <section id="generalization-to-other-functions" class="level2">
+      <h2>Generalization to Other Functions</h2>
+      <p>We specified a Perceptron criterion to be one that is easily optimized.</p>
+      <p class="fragment">
+      What if we are dealing with a criterion function for which second-order optimization is NOT possible?
+      </p>
+      <p class="fragment">
+      Then we generalize the minimization approach via <strong>relaxation procedures</strong>.
+      </p>
+      <p class="fragment">
+      In addition to $J_{p}(\mathbf{a})$, we can define a similar criterion:
+      </p>
+      <p class="fragment">
+      $ J_{q}(\mathbf{a}) = \sum_{\mathbf{y}\in\mathcal{Y}}(\mathbf{a}^{T}\mathbf{y})^{2} $
+      </p>
+      <p class="fragment">
+      This is the <strong>squared error criterion</strong>.
+      </p>
+      </section>
+      <section id="j_qmathbfa-squared-error-criterion" class="level2">
+      <h2>$J_{q}(\mathbf{a})$: Squared Error Criterion</h2>
+      <figure>
+      <img src="img/squared_error_criterion_function.svg" alt="Squared Error Criterion" style="width:50.0%" /><figcaption>Squared Error Criterion</figcaption>
+      </figure>
+      </section>
+      <section id="perceptron-criterion-vs.-squared-error" class="level2">
+      <h2>Perceptron Criterion vs. Squared Error</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/perceptron_criterion_function.svg" alt="PCF: $J_{p}(\mathbf{a}) = \sum_{\mathbf{y}\in\mathcal{Y}}(-\mathbf{a}^{T}\mathbf{y})$" style="width:100.0%" /><figcaption>PCF: $J_{p}(\mathbf{a}) = \sum_{\mathbf{y}\in\mathcal{Y}}(-\mathbf{a}^{T}\mathbf{y})$</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/squared_error_criterion_function.svg" alt="SEC: $J_{q}(\mathbf{a}) = \sum_{\mathbf{y}\in\mathcal{Y}}(\mathbf{a}^{T}\mathbf{y})^{2}$" style="width:100.0%" /><figcaption>SEC: $J_{q}(\mathbf{a}) = \sum_{\mathbf{y}\in\mathcal{Y}}(\mathbf{a}^{T}\mathbf{y})^{2}$</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="modification-of-squared-error-criterion" class="level2">
+      <h2>Modification of Squared Error Criterion</h2>
+      <p>Both the perceptron criterion and the squared error criterion rely on misclassified samples.</p>
+      <p class="fragment">
+      The gradient of $J_{p}(\mathbf{a})$ is not smooth, while $J_{q}(\mathbf{a})$ is, providing an easier search space.
+      </p>
+      <p class="fragment">
+      However, there are still some problems:
+      </p>
+      <ul>
+      <li class="fragment">
+      It might converge to a point on the boundary, e.g. $\mathbf{a} = \mathbf{0}$ (a “degenerate” solution)
+      </li>
+      <li class="fragment">
+      The value can be dominated by the longest sample vectors (e.g. outliers).
+      </li>
+      </ul>
+      <p class="fragment">
+      To avoid these, we use a modified <strong>batch relaxation with margin</strong> criterion:
+      </p>
+      <p class="fragment">
+      $ J_{r}(\mathbf{a}) = \frac{1}{2} \sum_{\mathbf{y}\in\mathcal{Y}} \frac{(\mathbf{a}^{T}\mathbf{y}-b)^{2}}{||\mathbf{y}||^{2}} $
+      </p>
+      </section>
+      <section id="j_rmathbfa-batch-relaxation-with-margin" class="level2">
+      <h2>$J_{r}(\mathbf{a})$: Batch Relaxation with Margin</h2>
+      <figure>
+      <img src="img/batch_relaxation_margin_criterion_function.svg" alt="Batch Relaxation with Margin" style="width:50.0%" /><figcaption>Batch Relaxation with Margin</figcaption>
+      </figure>
+      </section>
+      <section id="batch-relaxation-with-margin" class="level2">
+      <h2>Batch Relaxation with Margin</h2>
+      <p>$ J_{r}(\mathbf{a}) = \frac{1}{2}\sum_{\mathbf{y}\in\mathcal{Y}}\frac{(\mathbf{a}^{T}\mathbf{y}-b)^{2}}{||\mathbf{y}||^{2}} $</p>
+      <p class="fragment">
+      In this case, $\mathcal{Y}$ is the set of samples for which $\mathbf{a}^{T}\mathbf{y} \leq b$ (they are misclassified).
+      </p>
+      <p class="fragment">
+      $J_{r}(\mathbf{a})$ is never negative, and is zero only when $\mathbf{a}^{T}\mathbf{y} &gt; b$ (all training samples are correctly classified).
+      </p>
+      </section>
+      <section id="batch-relaxation-with-margin-1" class="level2">
+      <h2>Batch Relaxation with Margin</h2>
+      <p>The gradient of $J_{r}$ is given by:</p>
+      <p>$ \Delta J_{r} = \sum_{\mathbf{y}\in\mathcal{Y}}\frac{\mathbf{a}^{T}\mathbf{y} - b}{||\mathbf{y}||^{2}}\mathbf{y}$</p>
+      <p class="fragment">
+      And the update rule is:
+      </p>
+      <p class="fragment">
+      $\begin{array}{cl} a_{1} &amp; \text{arbitrary} \\ a_{k+1} = a_{k} + \eta_{k}\sum_{\mathbf{y}\in\mathcal{Y}} \frac{b-\mathbf{a}^{T}\mathbf{y}}{||\mathbf{y}||^{2}}\mathbf{y} &amp; k\geq 1 \\ \end{array}$
+      </p>
+      </section>
+      <section id="batch-relaxation-with-margin-2" class="level2">
+      <h2>Batch Relaxation with Margin</h2>
+      <p>Each update moves $\mathbf{a}_{k}$ a fraction, $\eta$, of the distance towards the hyperplane.</p>
+      <p class="fragment">
+      The value of $\eta$ determines how fast we converge:
+      </p>
+      <ul>
+      <li class="fragment">
+      If $\eta$ is too small $(&lt;1)$, convergence will take needlessly long (under-relaxation)
+      </li>
+      <li class="fragment">
+      If $\eta$ is too large $(1&lt;\eta&lt;2)$, we will over-shoot the solution (over-relaxation)
+      </li>
+      </ul>
+      </section>
+      <section id="under--and-over-relaxation" class="level2">
+      <h2>Under- and Over-Relaxation</h2>
+      <figure>
+      <img src="img/relaxation_comparison.svg" alt="Under- vs. Over-Relaxation" style="width:70.0%" /><figcaption>Under- vs. Over-Relaxation</figcaption>
+      </figure>
+      </section>
+      </section>
+      <section id="section-6" class="level1">
+      <h1></h1>
+      <section id="minimum-squared-error" class="level2">
+      <h2>Minimum Squared Error</h2>
+      </section>
+      <section id="sample-usage-and-simplifying-equations" class="level2">
+      <h2>Sample Usage and Simplifying Equations</h2>
+      <p>So far, we have considered $\mathcal{Y}$, the set of misclassified samples.</p>
+      <p class="fragment">
+      However, we want to use ALL samples to train, not just a fraction of them!
+      </p>
+      <p class="fragment">
+      Instead of trying to find $\mathbf{a}$ such that $\mathbf{a}^{T}\mathbf{y}_{i} &gt; 0$, we will now try to make $\mathbf{a}^{T}\mathbf{y}_{i}=b_{i}$, where $b_{i}$ are arbitrary positive constants.
+      </p>
+      <p class="fragment">
+      Instead of trying to solve linear <strong>inequalities</strong>, we are now solving linear <strong>equations</strong> – which is a better-understood problem.
+      </p>
+      </section>
+      <section id="solving-linear-equations" class="level2">
+      <h2>Solving Linear Equations</h2>
+      <p>Let’s convert to matrix notation.</p>
+      <p class="fragment">
+      Let $\mathbf{Y}$ be the $n$-by-$\widehat{d}$ matrix ($\widehat{d} = d + 1$), where the $i$-th row is $\mathbf{y}_{i}^{T}$.
+      </p>
+      <p class="fragment">
+      Also, let $\mathbf{b}$ (the margin vector) be $(b_{1}, \ldots, b_{n})^{T}$.
+      </p>
+      <p class="fragment">
+      Then we want to find the weight vector $\mathbf{a}$ such that:
+      </p>
+      <p class="fragment">
+      $\begin{pmatrix} y_{10} &amp; y_{11} &amp; \cdots &amp; y_{1\widehat{d}}\\ \vdots &amp; \vdots &amp; \ddots &amp; \vdots\\ y_{n0} &amp; y_{n1} &amp; \cdots &amp; y_{n\widehat{d}} \end{pmatrix} \begin{pmatrix} a_{0}\\ a_{1}\\ \vdots\\ a_{\widehat{d}} \end{pmatrix}= \begin{pmatrix} b_{1}\\ b_{2}\\ \vdots\\ b_{n} \end{pmatrix}$
+      </p>
+      <p class="fragment">
+      $\mathbf{Y}\mathbf{a} = \mathbf{b}$
+      </p>
+      </section>
+      <section id="minimizing-error" class="level2">
+      <h2>Minimizing Error</h2>
+      <p>$ \mathbf{Y}\mathbf{a} = \mathbf{b}$</p>
+      <p class="fragment">
+      We want $\mathbf{a}$, so can’t we just divide everything by $\mathbf{Y}$?
+      </p>
+      <p class="fragment">
+      Recall that the inverse of a matrix, $\mathbf{Y}^{-1}$, can only be written for nonsingular, <strong>square</strong> matrices.
+      </p>
+      <p class="fragment">
+      But $\mathbf{Y}$ is an $n$-by-$\widehat{d}$ matrix, and $n\neq\widehat{d}$.
+      </p>
+      </section>
+      <section id="minimizing-error-1" class="level2">
+      <h2>Minimizing Error</h2>
+      <p>Since we want to solve $\mathbf{Y}\mathbf{a} = \mathbf{b}$, the optimal $\mathbf{a}$ would be the one for which $\mathbf{Ya-b=0}$.</p>
+      <p class="fragment">
+      So let’s define the <strong>error vector</strong> as:
+      </p>
+      <p class="fragment">
+      $ \mathbf{e=Ya-b}$
+      </p>
+      <p class="fragment">
+      Now we have a function we can try to minimize!
+      </p>
+      </section>
+      <section id="sum-of-squared-error-criterion-function" class="level2">
+      <h2>Sum-of-Squared-Error Criterion Function</h2>
+      <p>Thus, we have our new criterion function:</p>
+      <p class="fragment">
+      $ J_{s}(\mathbf{a}) = ||\mathbf{Ya-b}||^{2} = \sum_{i=1}^{n}(\mathbf{a}^{T}\mathbf{y}_{i}-b_{i})^{2} $
+      </p>
+      <p class="fragment">
+      This is the <strong>sum-of-squared-error</strong> criterion, which is a traditional optimization problem.
+      </p>
+      <p class="fragment">
+      As before, we find the gradient as:
+      </p>
+      <p class="fragment">
+      $ \Delta J_{s} = \sum_{i=1}^{n} 2 (\mathbf{a}^{T}\mathbf{y}_{i} - b_{i})\mathbf{y}_{i} = 2\mathbf{Y}^{T}(\mathbf{Ya-b}) $
+      </p>
+      <p class="fragment">
+      When our error function is zero, $\mathbf{e=Ya-b=0}$, which means that both our criterion and our gradient are zero.
+      </p>
+      </section>
+      <section id="sum-of-squared-error-criterion-function-1" class="level2">
+      <h2>Sum-of-Squared-Error Criterion Function</h2>
+      <p>Setting $\Delta J_{s}$ to zero yields the <strong>necessary condition</strong>:</p>
+      <p>$ \mathbf{Y}^{T}\mathbf{Ya}=\mathbf{Y}^{T}\mathbf{b} $</p>
+      <p>which replaces the original problem and allows us to find $\mathbf{a}$ much more easily.</p>
+      </section>
+      <section id="solving-for-mathbfa" class="level2">
+      <h2>Solving for $\mathbf{a}$</h2>
+      <p>Why is it easier to find $\mathbf{a}$ with $\mathbf{Y}^{T}\mathbf{Ya} = \mathbf{Y}^{T}\mathbf{b}$ versus $\mathbf{Ya=b}$?</p>
+      <p class="fragment">
+      The matrix $\mathbf{Y}^{T}\mathbf{Y}$ is square and <strong>often</strong> nonsingular.
+      </p>
+      <p class="fragment">
+      Thus, we know an inverse matrix $(\mathbf{Y}^{T}\mathbf{Y})^{-1}$ <strong>does</strong> exist, so we can solve for $\mathbf{a}$:
+      </p>
+      <p class="fragment">
+      \begin{align} \mathbf{a} &amp;= (\mathbf{Y}^{T}\mathbf{Y})^{-1}\mathbf{Y}^{T}\mathbf{b} \\ \mathbf{a} &amp;= \mathbf{Y}^{\dagger}\mathbf{b} \end{align}
+      </p>
+      <p class="fragment">
+      Here, $\mathbf{Y}^{\dagger}$ is an $n$-by-$\widehat{d}$ matrix $\mathbf{Y}^{\dagger}\equiv(\mathbf{Y}^{T}\mathbf{Y})^{-1}\mathbf{Y}^{T}$ called the <strong>pseudoinverse</strong>. If $\mathbf{Y}$ is square and nonsingular, $\mathbf{Y}^{\dagger}$ coincides with $\mathbf{Y}^{-1}$.
+      </p>
+      <p class="fragment">
+      Thus, a <strong>minimum squared error (MSE)</strong> solution exists, and $\mathbf{a} = \mathbf{Y}^{\dagger}\mathbf{b}$ is an MSE solution to $\mathbf{Ya=b}$.
+      </p>
+      </section>
+      <section id="some-properties-of-the-mse-solution" class="level2">
+      <h2>Some Properties of the MSE Solution</h2>
+      <p>The MSE solution $\mathbf{a}=\mathbf{Y}^{}\mathbf{b}$ clearly depends on the margin vector $\mathbf{b}$, which we haven’t defined yet. We can actually choose different $\mathbf{b}$ and get solutions with different properties.</p>
+      <p>Let’s look at an example…</p>
+      </section>
+      <section id="example-mse-solution" class="level2">
+      <h2>Example MSE Solution</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/mse01.png" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p>Set up our matrix $\mathbf{Y}$:</p>
+      <p>$\mathbf{Y}= \begin{pmatrix} 1 &amp; 1 &amp; 2 \\ 1 &amp; 2 &amp; 0 \\ -1 &amp; -3 &amp; -1 \\ -1 &amp; -2 &amp; -3 \end{pmatrix}$</p>
+      <p>Class labels (+1 for $\omega_{1}$, -1 for $\omega_{2}$)</p>
+      <p>Solve for the pseudoinverse:</p>
+      <p>$\mathbf{Y}^{\dagger}= \begin{pmatrix} \frac{5}{4} &amp; \frac{13}{12} &amp; \frac{3}{4} &amp; \frac{7}{12} \\ -\frac{1}{2} &amp; -\frac{1}{6} &amp; -\frac{1}{2} &amp; -\frac{1}{6} \\ 0 &amp; -\frac{1}{3} &amp; 0 &amp; -\frac{1}{3} \end{pmatrix}$</p>
+      </div>
+      </div>
+      </section>
+      <section id="example-mse-solution-1" class="level2">
+      <h2>Example MSE Solution</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/mse02.png" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p>$\mathbf{Y}^{\dagger}= \begin{pmatrix} \frac{5}{4} &amp; \frac{13}{12} &amp; \frac{3}{4} &amp; \frac{7}{12} \\ -\frac{1}{2} &amp; -\frac{1}{6} &amp; -\frac{1}{2} &amp; -\frac{1}{6} \\ 0 &amp; -\frac{1}{3} &amp; 0 &amp; -\frac{1}{3} \end{pmatrix}$</p>
+      <p>Arbitrarily, we let all margins be equal, i.e. $\mathbf{b}=(1,1,1,1)^{T}$, so our solution is:</p>
+      <p>$ \mathbf{a}=\mathbf{Y}^{}\mathbf{b}=\left(\frac{11}{3}, -\frac{4}{3}, -\frac{2}{3}\right)^{T} $</p>
+      <p>This leads to the decision boundary on the left.</p>
+      </div>
+      </div>
+      </section>
+      <section id="sometimes-we-need-something-else" class="level2">
+      <h2>Sometimes We Need Something Else</h2>
+      <p>One of the conditions for computing the pseudoinverse $\mathbf{Y}^{}$ are that the matrix $\mathbf{Y}^{T}\mathbf{Y}$ be nonsingular. If it <strong>is</strong> singular, we can’t compute the pseudoinverse.</p>
+      <p class="fragment">
+      Also, if we have a lot of training samples (which is common), then computing $\mathbf{Y}^{T}\mathbf{Y}$ is very difficult.
+      </p>
+      <p class="fragment">
+      In these cases, we can avoid the pseudoinverse by going back to gradient descent and using that to obtain our optimized criterion function $J_{s}(\mathbf{a}) = ||\mathbf{Ya-b}||^{2}$.
+      </p>
+      </section>
+      <section id="least-mean-squared-procedure" class="level2">
+      <h2>Least Mean Squared Procedure</h2>
+      <p>Recall the gradient $\Delta J_{s} = 2 \mathbf{Y}^{T}(\mathbf{Ya-b})$ and set our update rule:</p>
+      <p>$ \mathbf{a}_{k+1} = \mathbf{a}_{k} + \eta_{k}\mathbf{Y}^{T}(\mathbf{Y}\mathbf{a}_{k} - \mathbf{b}) $</p>
+      <p class="fragment">
+      We can consider samples sequentially and use the <strong>LMS rule</strong>:
+      </p>
+      <p class="fragment">
+      $ \mathbf{a}_{k+1} = \mathbf{a}_{k} + \eta_{k}(b_{k} - \mathbf{a}_{k}^{T}\mathbf{y}^{k})\mathbf{y}^{k} $
+      </p>
+      </section>
+      <section id="least-mean-squares-procedure" class="level2">
+      <h2>Least Mean Squares Procedure</h2>
+      <p>$ \mathbf{a}_{k+1} = \mathbf{a}_{k} + \eta_{k}(b_{k} - \mathbf{a}_{k}^{T}\mathbf{y}^{k})\mathbf{y}^{k} $</p>
+      <p class="fragment">
+      Compare this with the relaxation rule from before:
+      </p>
+      <p class="fragment">
+      $ \mathbf{a}_{k+1} = \mathbf{a}_{k} + \eta \frac{ b - \mathbf{a}_{k}^{T} \mathbf{y}^{k} } { ||\mathbf{y}^{k}||^{2} } \mathbf{y}^{k} $
+      </p>
+      <p class="fragment">
+      What are the differences?
+      </p>
+      <ul>
+      <li class="fragment">
+      Relaxation is an error-correction rule, so corrections will continue until all samples are classified.
+      </li>
+      <li class="fragment">
+      LMS is NOT concerned with perfect error-correction, so the hyperplane may NOT separate all the samples perfectly.
+      </li>
+      <li class="fragment">
+      Thus, LMS can be used when samples are <strong>not linearly separable</strong>.
+      </li>
+      </ul>
+      </section>
+      <section id="minimum-squared-error-vs.-least-mean-squares" class="level2">
+      <h2>Minimum Squared Error vs. Least Mean Squares</h2>
+      <figure>
+      <img src="img/lms.png" alt="Least Mean Squares Allows for Misclassifications" style="width:50.0%" /><figcaption>Least Mean Squares Allows for Misclassifications</figcaption>
+      </figure>
+      </section>
+      </section>
+      <section id="section-7" class="level1">
+      <h1></h1>
+      <section id="support-vector-machines" class="level2">
+      <h2>Support Vector Machines</h2>
+      </section>
+      <section id="high-dimensional-mapping-kernels" class="level2">
+      <h2>High-Dimensional Mapping Kernels</h2>
+      <p>Recall how we replaced $g(\mathbf{x}) = \mathbf{w}^{T}\mathbf{x} + w_{0}$ with $g(\mathbf{x}) = \mathbf{a}^{T}\mathbf{y}$, where $\mathbf{a}^{T}$ is a $\widehat{d}$-dimensional weight vector and the $\widehat{d}$ functions $y_{i}(\mathbf{x})$ are arbitrary functions of $\mathbf{x}$.</p>
+      </section>
+      <section id="projections-to-higher-dimensions" class="level2">
+      <h2>Projections to Higher Dimensions</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/polynomial_disc_func.svg" alt="Polynomial Discriminant Function" style="width:100.0%" /><figcaption>Polynomial Discriminant Function</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/polynomial_complex_disc_func.png" alt="Complex Discriminant Function" style="width:100.0%" /><figcaption>Complex Discriminant Function</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="support-vector-machine-setup" class="level2">
+      <h2>Support Vector Machine Setup</h2>
+      <p>Let’s modify the notation a bit, and say that each sample $\mathbf{x}_{k}$ is transformed to $\mathbf{y}_{k}=\varphi(\mathbf{x}_{k})$, where $\varphi(\cdot)$ is a nonlinear mapping into high dimension.</p>
+      <p class="fragment">
+      For each of the $n$ patterns, $k=1,2,\ldots,n$, we let $z_{k}=\pm 1$, where the sign indicates whether the pattern is in $\omega_{1}$ or $\omega_{2}$.
+      </p>
+      <p class="fragment">
+      The linear discriminant in this space is:
+      </p>
+      <p class="fragment">
+      $ g(\mathbf{y}) = \mathbf{a}^{T}\mathbf{y} $
+      </p>
+      <p class="fragment">
+      where the weight and transformed pattern vectors are augmented ($a_{0}=w_{0}$ and $y_{0}=1$).
+      </p>
+      </section>
+      <section id="separating-hyperplane-properties" class="level2">
+      <h2>Separating Hyperplane Properties</h2>
+      <p>A separating hyperplane ensures:</p>
+      <p>$ z_{k}g(\mathbf{y}_{k}) \geq 1, k=1,\ldots,n $</p>
+      <p class="fragment">
+      Remember: the sign of $g(\mathbf{y}_{k})$ indicates the class.
+      </p>
+      <p class="fragment">
+      For a correctly classified sample, $g(\mathbf{y}_{k})$ is positive (and $z_{k}=+1$) if $\mathbf{y}$ belongs to $\omega_{1}$, and is negative (and $z_{k}=-1$) if it belongs to $\omega_{2}$.
+      </p>
+      </section>
+      <section id="maximizing-the-margin" class="level2">
+      <h2>Maximizing the Margin</h2>
+      <p>Previously, we set the margin to be $b&gt;0$ and told our optimization functions to find any solution within that margin. Now, we want to set the hyperplane such that we <strong>maximize</strong> $b$.</p>
+      <p class="fragment">
+      Why does this make sense?
+      </p>
+      <ul>
+      <li class="fragment">
+      <strong>Generalization</strong>!
+      </li>
+      <li class="fragment">
+      Hyperplanes close to the training samples are likely to misclassify subsequent testing data.
+      </li>
+      </ul>
+      </section>
+      <section id="recall-the-graphical-situation" class="level2">
+      <h2>Recall the Graphical Situation</h2>
+      <figure>
+      <img src="img/discplane.png" alt="Discriminating Hyperplanes" style="width:40.0%" /><figcaption>Discriminating Hyperplanes</figcaption>
+      </figure>
+      </section>
+      <section id="distance-to-the-hyperplane-margin" class="level2">
+      <h2>Distance to the Hyperplane (Margin)</h2>
+      <p>$ z_{k}g(\mathbf{y}_{k}) \geq 1, k=1,\ldots,n $</p>
+      <p class="fragment">
+      The distance from the transformed pattern $\mathbf{y}$ to the hyperplane is $\frac{|g(\mathbf{y})|}{||\mathbf{a}||}$.
+      </p>
+      <p class="fragment">
+      The above equation implies:
+      </p>
+      <p class="fragment">
+      $ \frac{ z_{k} g(\mathbf{y}_{k})} {||\mathbf{a}||} \geq b $
+      </p>
+      <p class="fragment">
+      Assuming that a positive margin exists.
+      </p>
+      </section>
+      <section id="maximizing-the-margin-1" class="level2">
+      <h2>Maximizing the Margin</h2>
+      <p>$ \frac{ z_{k} g(\mathbf{y}_{k})} {||\mathbf{a}||} \geq b $</p>
+      <p class="fragment">
+      Our goal is to find the vector $\mathbf{a}$ that maximizes $b$.
+      </p>
+      <p class="fragment">
+      To avoid problems with arbitrary scaling, we add an additional constraint: $b||\mathbf{a}||=1$, thus forcing us to minimize $||\mathbf{a}||^{2}$ as we maximize $b$.
+      </p>
+      </section>
+      <section id="the-support-vector-part" class="level2">
+      <h2>The “Support Vector” Part</h2>
+      <p><strong>Support vectors</strong> are samples for which the transformed vectors $\mathbf{y}_{k}$ represent $z_{k}g(\mathbf{y}_{k}) = 1$.</p>
+      <p class="fragment">
+      Since our hyperplane satisfies $z_{k}g(\mathbf{y}_{k}) \geq 1$, the support vectors minimize the numerator above – they are closest to the hyperplane, and moreover they are all the same distance away.
+      </p>
+      <p class="fragment">
+      This also means that they are the “most interesting” from a training point of view, and most difficult to classify correctly from a testing point of view.
+      </p>
+      </section>
+      <section id="support-vector-machine-diagram" class="level2">
+      <h2>Support Vector Machine Diagram</h2>
+      <figure>
+      <img src="img/svm.svg" alt="SVM Diagram" style="width:50.0%" /><figcaption>SVM Diagram</figcaption>
+      </figure>
+      </section>
+      <section id="svm-vs.-perceptron-training" class="level2">
+      <h2>SVM vs. Perceptron Training</h2>
+      <p>Recall that when we trained the PCF, we looked at randomly misclassified samples.</p>
+      <p class="fragment">
+      In an ideal case, with SVM, we look for the <strong>worst-classified</strong> samples – the misclassified samples that are farthest away from the current hyperplane, which constitute our support vectors.
+      </p>
+      </section>
+      <section id="selecting-our-kernels" class="level2">
+      <h2>Selecting Our Kernels</h2>
+      <p>We start out training by deciding on the form of our mapping functions or <strong>kernel</strong>, $\varphi(\cdot)$.</p>
+      <p class="fragment">
+      Typically these are chosen either by the problem domain, or as arbitrary polynomials, Gaussians, etc.
+      </p>
+      <p class="fragment">
+      The dimensionality of the transformed space may be <strong>arbitrarily high</strong>, though in practice is limited by computational resources.
+      </p>
+      </section>
+      <section id="svm-training" class="level2">
+      <h2>SVM Training</h2>
+      <p>Start by recasting the minimization problem using Lagrange undetermined multipliers.</p>
+      <p class="fragment">
+      From $\frac{z_{k} g(\mathbf{y}_{k})}{||\mathbf{a}||} \geq b$, and knowing that we want to minimize $||\mathbf{a}||$:
+      </p>
+      <p class="fragment">
+      $ L(\mathbf{a}, \boldsymbol{\alpha}) = \frac{1}{2}||\mathbf{a}||^{2} - \sum_{k=1}^{n}\alpha_{k}\left[z_{k}\mathbf{a}^{T}\mathbf{y}_{k} - 1\right] $
+      </p>
+      </section>
+      <section id="svm-training-1" class="level2">
+      <h2>SVM Training</h2>
+      <p>So we seek to minimize $L(\cdot)$ with respect to $\mathbf{a}$ and maximize it with respect to the multipliers $\alpha_{k}\geq 0$.</p>
+      <p class="fragment">
+      We reformulate the problem such that we only need to maximize according to $\mathbf{a}$:
+      </p>
+      <p class="fragment">
+      $ L(\mathbf{a}) = \sum_{i=1}^{n}\alpha_{k} - \frac{1}{2}\sum_{k,j}^{n}\alpha_{k}\alpha_{j}z_{k}z_{j}\mathbf{y}_{j}^{T}\mathbf{y}_{k} $
+      </p>
+      <p class="fragment">
+      Subject to the constraints: $\sum_{k=1}^{n}z_{k}\alpha_{k} = 0, \alpha_{k}\geq 0, k=1,\ldots,n$
+      </p>
+      </section>
+      <section id="svm-example-xor" class="level2">
+      <h2>SVM Example: XOR</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/xor01.png" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p>This is the simplest problem that cannot be solved using a linear discriminant.</p>
+      <p class="fragment">
+      We can map these to a higher dimension using an expansion up to the second order:
+      </p>
+      <p class="fragment">
+      $ (1, \sqrt{2}x_{1}, \sqrt{2}x_{2}, \sqrt{2}x_{1}x_{2}, x_{1}^{2}, x_{2}^{2}) $
+      </p>
+      <p class="fragment">
+      where $\sqrt{2}$ is chosen for convenient normalization.
+      </p>
+      <p class="fragment">
+      Thus we translate each of the points to a six-dimensional space.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="svm-example-xor-1" class="level2">
+      <h2>SVM Example: XOR</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/xor02.png" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p>This is a two-dimensional representation of that projection, where we’re looking at two out of the six dimensions.</p>
+      <p class="fragment">
+      The only thing that changed is the y-axis is now the $x_{1}$ value times the $x_{2}$ value (times $\sqrt{2}$).
+      </p>
+      <ul>
+      <li class="fragment">
+      $\mathbf{y}_{1}$ was at $(1, 1)$, so $x_{1}x_{2} = 1$
+      </li>
+      <li class="fragment">
+      $\mathbf{y}_{2}$ was at $(1,-1)$, so $x_{1}x_{2} = -1$
+      </li>
+      <li class="fragment">
+      $\mathbf{y}_{3}$ was at $(-1,1)$, so $x_{1}x_{2} = -1$
+      </li>
+      <li class="fragment">
+      $\mathbf{y}_{4}$ was at $(-1,-1)$, so $x_{1}x_{2} = 1$
+      </li>
+      </ul>
+      </div>
+      </div>
+      </section>
+      <section id="svm-example-xor-2" class="level2">
+      <h2>SVM Example: XOR</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/xor03.png" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/xor04.png" style="width:100.0%" /></p>
+      </div>
+      </div>
+      </section>
+      </section>
+      <section id="section-8" class="level1">
+      <h1></h1>
+      <section id="summary" class="level2">
+      <h2>Summary</h2>
+      </section>
+      <section id="linear-discriminant-functions" class="level2">
+      <h2>Linear Discriminant Functions</h2>
+      <p>This is a huge topic, but it provides a very solid foundation for decision theory.</p>
+      <p class="fragment">
+      If your samples are linearly separable, you can very easily create a hyperplane that achieves perfect classification.
+      </p>
+      <p class="fragment">
+      Try to select your features such that you have a very good separation between your training classes - this makes classification trivial!
+      </p>
+      <p class="fragment">
+      For small problems, you can develop an analytic solution where you use the pseudoinverse to calculate your weight vectors directly.
+      </p>
+      <p class="fragment">
+      For larger problems, select an appropriate criterion function and solve using gradient descent.
+      </p>
+      </section>
+      <section id="what-was-covered" class="level2">
+      <h2>What Was Covered?</h2>
+      <p>Different cost functions to minimize:</p>
+      <ul>
+      <li>Perceptron Criterion: $J_{p}$</li>
+      <li>Squared Error Criterion: $J_{q}$</li>
+      <li>Batch Relaxation: $J_{r}$</li>
+      </ul>
+      </section>
+      <section id="what-was-covered-1" class="level2">
+      <h2>What Was Covered?</h2>
+      <p>How to “nudge” your parameter set:</p>
+      <ul>
+      <li>Iteration-based: $\eta_{k} = \frac{||\Delta J||^{2}}{\Delta J^{T}\mathbf{H}\Delta J}$</li>
+      <li>Constant: If $J$ is quadratic everywhere, then $\eta_{k}$ is the same for all $k$.</li>
+      <li>Batches: Update $\mathbf{a}$ using “batches” of misclassified samples.</li>
+      <li>Relaxation: $\eta_{k}\sum_{\mathbf{y}\in\mathcal{Y}} \frac{b-\mathbf{a}^{T}\mathbf{y}}{||\mathbf{y}||^{2}}\mathbf{y}$</li>
+      </ul>
+      </section>
+      <section id="what-was-covered-2" class="level2">
+      <h2>What Was Covered?</h2>
+      <p>When to stop your algorithm?</p>
+      <ul>
+      <li>Threshold: Stop when $\Delta J(\mathbf{a}) &lt; \theta$, where you choose $\theta$.</li>
+      <li>Batch Sample: Stop when $\mathcal{Y}=$, where $\mathcal{Y}$ is the set of misclassified samples.</li>
+      <li>Margin: Stop when $\mathbf{a}^{T}\mathbf{y}^{k} &gt; b$.</li>
+      </ul>
+      </section>
+      <section id="support-vector-machines-1" class="level2">
+      <h2>Support Vector Machines</h2>
+      <p>For complex problems, you can transform your features into a high-dimensional space and try to find a linearly separable set of dimensions for classification.</p>
+      <p class="fragment">
+      You must choose your mapping functions appropriately.
+      </p>
+      <p class="fragment">
+      If you have non-convex solution regions, you may need to choose a different classification method altogether.
+      </p>
+      </section>
+      </section>
+      <section id="section-9" class="level1">
+      <h1></h1>
+      <section id="next-class" class="level2">
+      <h2>Next Class</h2>
+      </section>
+      <section id="parameter-estimation" class="level2">
+      <h2>Parameter Estimation</h2>
+      <p>We will return to the world of Bayes and Gaussian distributions.</p>
+      <p class="fragment">
+      How do we estimate the values of the parameters we need from our training data?
+      </p>
+      <ul>
+      <li class="fragment">
+      <strong>Maximum Likelihood Parameter Estimation</strong>, which assumes the parameters are fixed quantities that we just don’t know.
+      </li>
+      <li class="fragment">
+      <strong>Bayesian Parameter Estimation</strong>, which assumes the parameters are random variables drawn from some kind of distribution.
+      </li>
+      </ul>
+      <p class="fragment">
+      You can use these methods in a large number of fields, not just for classification – this is a general statistical technique for investigating the structure of your data!
+      </p>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <!-- Pseudocode scripts -->
+    <script>
+     pseudocode.renderElement(document.getElementById("hello-world-code"));
+    </script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+          fragments: true,
+          math: {
+					    mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+					    config: 'TeX-AMS_HTML-full'
+          },
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
