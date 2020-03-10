@@ -1,0 +1,1 @@
+sed -f script 10_parameter_estimation.md > index.md

@@ -1,0 +1,1017 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PARAMETER ESTIMATION</title>
+
+    <meta name="description" content="PARAMETER ESTIMATION">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Custom Addons: TikzJax -->
+    <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css">
+    <script src="http://tikzjax.com/v1/tikzjax.js"></script>
+    <!-- Custom Addons: pseudocode.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">PARAMETER ESTIMATION</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="recap" class="level2">
+      <h2>Recap</h2>
+      </section>
+      <section id="recap-bayes-formula" class="level2">
+      <h2>Recap: Bayes Formula</h2>
+      <p>The posterior probability is:</p>
+      <p>$ P(\omega_{i} | \mathbf{x}) = \frac{p(\mathbf{x}|\omega_{i})P(\omega_{i})}{\sum_{j=1}^{c}p(\mathbf{x}|\omega_{j}) P(\omega_{j})}$</p>
+      <p class="fragment">
+      $P(\omega_{i})$: The prior probability of $\omega_{i}$
+      </p>
+      <p class="fragment">
+      $p(\mathbf{x}|\omega_{i})$: The class-conditional PDF
+      </p>
+      <p class="fragment">
+      If we know these two quantities, then we have our decision rule:
+      </p>
+      <p class="fragment">
+      If $p(\mathbf{x}|\omega_{1}) P(\omega_{1}) &gt; p(\mathbf{x}|\omega_{2})P(\omega_{2})$, decide $\omega_{1}$ otherwise, decide $\omega_{2}$
+      </p>
+      </section>
+      <section id="recap-estimation-of-bayes-quantities" class="level2">
+      <h2>Recap: Estimation of Bayes Quantities</h2>
+      <p>We are rarely given $P(\omega_{i})$ and $p(\mathbf{x}|\omega_{i})$ directly.</p>
+      <p class="fragment">
+      Instead, we collect a <strong>limited, random sampling</strong> of $\mathbf{x}$, which constitutes our <strong>training data</strong>.
+      </p>
+      <ul>
+      <li class="fragment">
+      In <strong>supervised learning</strong> our training data consists of both the values of each observation of $\mathbf{x}$ AND the corresponding class label $\omega_{i}, i\in\{1,\ldots,c\}$.
+      </li>
+      <li class="fragment">
+      In <strong>unsupervised learning</strong> we just have the values for $\mathbf{x}$, but no class labels.
+      </li>
+      </ul>
+      <p class="fragment">
+      Training data is how we estimate $P(\omega_{i})$ and $p(\mathbf{x}|\omega_{i})$.
+      </p>
+      </section>
+      <section id="recap-figuring-out-numbers-pomega_i-pmathbfxomega_i" class="level2">
+      <h2>Recap: Figuring out Numbers: $P(\omega_{i})$, $p(\mathbf{x}|\omega_{i})$</h2>
+      <div class="l-double">
+      <div>
+      <iframe frameborder="0" seamless="seamless" scrolling="no" src="plots/texture_mean.html">
+      </iframe>
+      </div>
+      <div>
+      <p>We can estimate $P(\omega_{i})$ simply as the proportion of our training data with the class label $\omega_{i}$.</p>
+      <p class="fragment">
+      Estimating $p(\mathbf{x}|\omega_{i})$ is much more difficult:
+      </p>
+      <ul>
+      <li class="fragment">
+      Few samples for each class
+      </li>
+      <li class="fragment">
+      $\mathbf{x}$ may be high-dimensional
+      </li>
+      </ul>
+      <p class="fragment">
+      If we can <strong>make assumptions about the form of</strong> $p(\mathbf{x}|\omega_{i})$, things are much easier.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="recap-normal-densities" class="level2">
+      <h2>Recap: Normal Densities</h2>
+      <p><img src="img/normal_std.svg" style="width:80.0%" /></p>
+      </section>
+      <section id="recap-normal-densities-1" class="level2">
+      <h2>Recap: Normal Densities</h2>
+      <p>The normal distribution is written as:</p>
+      <p>$ p(x) \sim N(\mu,\sigma^{2}) = \frac{1}{\sqrt{2}\sigma}\exp{\left[-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^{2}\right]}$</p>
+      <p class="fragment">
+      Its <strong>parameters</strong>, the mean and variance, are defined as:
+      </p>
+      <p class="fragment">
+      \begin{align} \mu\equiv \mathcal{E}\left[x\right] &amp;= \int_{-\infty}^{\infty}(x)p(x)dx \\ \sigma^{2}\equiv \mathcal{E}\left[(x-\mu)^{2}\right]&amp;=\int_{-\infty}^{\infty}(x-\mu)^{2}p(x)dx\\ \end{align}
+      </p>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="parameter-estimation" class="level2">
+      <h2>Parameter Estimation</h2>
+      </section>
+      <section id="benefits-of-parameter-estimation" class="level2">
+      <h2>Benefits of Parameter Estimation</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/disc_func_equal_var_2d.svg" alt="Discriminant Function" style="width:80.0%" /><figcaption>Discriminant Function</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>We reduce the problem from estimating:</p>
+      <ul>
+      <li>An unknown function $p(\mathbf{x}|\omega_{i})$ (difficult)</li>
+      <li>Unknown parameters $\boldsymbol{\mu}_{i}$ and $\boldsymbol{\Sigma}_{i}$ (easier)</li>
+      </ul>
+      </div>
+      </div>
+      </section>
+      <section id="benefits-of-parameter-estimation-1" class="level2">
+      <h2>Benefits of Parameter Estimation</h2>
+      <p>In general, we write a set of parameters as $\boldsymbol{\theta}_{i}$, where $i\in\{1,\ldots,c\}$ refers to the class.</p>
+      <p class="fragment">
+      If $p(\mathbf{x}|\omega_{i}) \sim N(\boldsymbol{\mu}_{i},_{i})$, then $\boldsymbol{\theta}_{i}=(\boldsymbol{\mu}_{i}, \boldsymbol{\Sigma}_{i})$.
+      </p>
+      <p class="fragment">
+      Note that “parameters” can refer to <strong>any</strong> set of parameters for a statistical model, including the values governing how classifiers behave.
+      </p>
+      <p class="fragment">
+      How do we find the parameters of these distributions?
+      </p>
+      </section>
+      <section id="two-approaches-to-estimation-mle-vs.-bay" class="level2">
+      <h2>Two Approaches to Estimation: MLE vs. BAY</h2>
+      <div class="l-double">
+      <div>
+      <p><strong>Maximum Likelihood Estimation (MLE)</strong></p>
+      <ul>
+      <li class="fragment">
+      $\boldsymbol{\theta}_{i}$ is a set of fixed, unknown quantities that we are trying to discover.
+      </li>
+      <li class="fragment">
+      The estimated values are those that maximize the probability of observing our training data.
+      </li>
+      </ul>
+      </div>
+      <div>
+      <p><strong>Bayesian Estimation (BAY)</strong></p>
+      <ul>
+      <li class="fragment">
+      $\boldsymbol{\theta}_{i}$ is a set of random variables, each with a known prior distribution.
+      </li>
+      <li class="fragment">
+      Training data observations turn these priors into posterior densities.
+      </li>
+      <li class="fragment">
+      More training “sharpens” the density near the true values of the parameters – this is known as <strong>Bayesian Learning</strong>
+      </li>
+      </ul>
+      </div>
+      </div>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="maximum-likelihood-estimation" class="level2">
+      <h2>Maximum Likelihood Estimation</h2>
+      </section>
+      <section id="mle-principle" class="level2">
+      <h2>MLE: Principle</h2>
+      <p>Suppose we have $c$ sets of training data for each class: $\mathcal{D}_{1},\ldots,\mathcal{D}_{c}$</p>
+      <p class="fragment">
+      Each sample in $\mathcal{D}_{i}$ is drawn independently according to probability law $p(\mathbf{x}|\omega_{i})$.
+      </p>
+      <p class="fragment">
+      These samples are <strong>independent and identically distributed</strong> (i.i.d.) random variables.
+      </p>
+      <p class="fragment">
+      We’re assuming that $p(\mathbf{x}|\omega_{i})$ has some known parametric form (e.g. it’s a Gaussian), which means it’s defined by the parameter set $\boldsymbol{\theta}_{i}$.
+      </p>
+      <p class="fragment">
+      Therefore we write $p(\mathbf{x}|\omega_{i})$ as $p(\mathbf{x}|\omega_{i}, \boldsymbol{\theta}_{i})$, where we have a different $\boldsymbol{\theta}$ (parameter set) for each class.
+      </p>
+      <p class="fragment">
+      We can treat each class independently by assuming that samples in $\mathcal{D}_{i}$ give no information about $\boldsymbol{\theta}_{j}$ if $i\neq j$.
+      </p>
+      </section>
+      <section id="calculating-the-optimal-boldsymboltheta" class="level2">
+      <h2>Calculating the Optimal $\boldsymbol{\theta}$</h2>
+      <p>So we now have $c$ problems, stated thusly:</p>
+      <div class="fragment">
+      <blockquote>
+      <p>Use a set of training data $\mathcal{D}$ drawn independently from the probability density $p(\mathbf{x}|\boldsymbol{\theta})$ to estimate the unknown parameter vector $\boldsymbol{\theta}$.</p>
+      </blockquote>
+      </div>
+      <p class="fragment">
+      Once we find the parameter values, we use those to model our distribution, and then we can use that to create our PDFs.
+      </p>
+      </section>
+      <section id="likelihood-of-the-parameter-set" class="level2">
+      <h2>Likelihood of the Parameter Set</h2>
+      <p>Suppose $\mathcal{D} = \{\mathbf{x}_{1}, \ldots, \mathbf{x}_{n}\}$.</p>
+      <p class="fragment">
+      Since these samples are i.i.d., we can write:
+      </p>
+      <p class="fragment">
+      $ p(\mathcal{D}|\boldsymbol{\theta}) = \prod_{k=1}^{n}p(\mathbf{x}_{k}|\boldsymbol{\theta})$
+      </p>
+      <p class="fragment">
+      This is the <strong>likelihood</strong> of observing a particular $\mathcal{D}$ given parameter values $\boldsymbol{\theta}$.
+      </p>
+      <p class="fragment">
+      This is equivalent to the product of the likelihoods of observing <strong>each individual sample</strong> $\mathbf{x}_{k}$ in the training set, given the parameter values $\boldsymbol{\theta}$.
+      </p>
+      </section>
+      <section id="calculating-the-optimal-boldsymboltheta-1" class="level2">
+      <h2>Calculating the Optimal $\boldsymbol{\theta}$</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/estimated_gaussian.svg" alt="Estimated Gaussians" style="width:100.0%" /><figcaption>Estimated Gaussians</figcaption>
+      </figure>
+      </div>
+      <div>
+      <ul>
+      <li>Each line represents the estimated $p(\mathbf{x}_{k}|\boldsymbol{\theta})$ for some training data (red).</li>
+      <li>Each data point “suggests” a Gaussian with a mean centered on the data point.</li>
+      <li>All “suggested” Gaussians have the same variance (“identically distributed”).</li>
+      </ul>
+      </div>
+      </div>
+      </section>
+      <section id="calculating-the-optimal-boldsymboltheta-2" class="level2">
+      <h2>Calculating the Optimal $\boldsymbol{\theta}$</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/parameter_combined_gaussian.svg" alt="Parameter Likelihood" style="width:100.0%" /><figcaption>Parameter Likelihood</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>This is the combined likelihood:</p>
+      <p>$p(\mathcal{D}|\boldsymbol{\theta}) = \prod_{k=1}^{n} p(\mathbf{x}_{k}|\boldsymbol{\theta})$</p>
+      <p class="fragment">
+      This is a function of $\boldsymbol{\theta}$, not $x$.
+      </p>
+      <p class="fragment">
+      The <strong>maximum-likelihood estimate</strong> of $\boldsymbol{\theta}$ is the value $\widehat{\theta}$ that maximizes the likelihood of producing the observed $\mathcal{D}$.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="finding-the-mle-estimate-of-boldsymboltheta" class="level2">
+      <h2>Finding the MLE Estimate of $\boldsymbol{\theta}$</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/estimated_gaussian.svg" alt="Estimated Gaussians" style="width:90.0%" /><figcaption>Estimated Gaussians</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/parameter_combined_gaussian.svg" alt="Parameter Likelihood" style="width:90.0%" /><figcaption>Parameter Likelihood</figcaption>
+      </figure>
+      </div>
+      </div>
+      <p>Whenever we want to maximize something, we set the gradient to $0$.</p>
+      <p>If $\boldsymbol{\theta} = (\theta_{1}\ldots,\theta_{p})^{t}$, then the gradient operator is:</p>
+      <p>$\boldsymbol{\nabla}_{\boldsymbol{\theta}}\equiv \begin{bmatrix} \frac{\partial}{\partial\theta_{1}}\\ \vdots\\ \frac{\partial}{\partial\theta_{p}} \end{bmatrix}$</p>
+      </section>
+      <section id="calculating-the-optimal-boldsymboltheta-3" class="level2">
+      <h2>Calculating the Optimal $\boldsymbol{\theta}$</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/estimated_gaussian.svg" alt="Estimated Gaussians" style="width:90.0%" /><figcaption>Estimated Gaussians</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/parameter_log_likelihood.svg" alt="Log Likelihood" style="width:90.0%" /><figcaption>Log Likelihood</figcaption>
+      </figure>
+      </div>
+      </div>
+      <p>Let’s make things easier by converting to <strong>log-likelihoods</strong>:</p>
+      <p>$ l(\boldsymbol{\theta}) \equiv \ln{p(\mathcal{D}|\boldsymbol{\theta})} = \sum_{k=1}^{n}\ln{p(\mathbf{x}_{k}|\boldsymbol{\theta})} $</p>
+      <p>We need the value of $\boldsymbol{\theta}$ such that: $\widehat{\boldsymbol{\theta}}=\textrm{arg max}_{\boldsymbol{\theta}}\left[l(\boldsymbol{\theta})\right]$</p>
+      </section>
+      <section id="calculating-the-optimal-boldsymboltheta-4" class="level2">
+      <h2>Calculating the Optimal $\boldsymbol{\theta}$</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/estimated_gaussian.svg" alt="Estimated Gaussians" style="width:90.0%" /><figcaption>Estimated Gaussians</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/parameter_log_likelihood.svg" alt="Log Likelihood" style="width:90.0%" /><figcaption>Log Likelihood</figcaption>
+      </figure>
+      </div>
+      </div>
+      <p>Set the gradient of $l$ to zero:</p>
+      <p>$ \boldsymbol{\nabla}_{\boldsymbol{\theta}} l = \sum_{k=1}^{n}\boldsymbol{\nabla}_{\boldsymbol{\theta}}\ln{p(\mathbf{x}_{k}|\boldsymbol{\theta})} = \mathbf{0}$</p>
+      <p class="fragment">
+      This is a system of equations, one for each partial derivative.
+      </p>
+      </section>
+      <section id="calculating-the-optimal-boldsymboltheta-5" class="level2">
+      <h2>Calculating the Optimal $\boldsymbol{\theta}$</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/estimated_gaussian.svg" alt="Estimated Gaussians" style="width:90.0%" /><figcaption>Estimated Gaussians</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/parameter_log_likelihood.svg" alt="Log Likelihood" style="width:90.0%" /><figcaption>Log Likelihood</figcaption>
+      </figure>
+      </div>
+      </div>
+      <p>As with all gradient methods, you need to make sure the solution is a <strong>global maximum</strong> and not a minimum, local solution, or inflection point.</p>
+      <p class="fragment">
+      $\widehat{\boldsymbol{\theta}}$ is only an <strong>estimate</strong>; to get the <strong>true</strong> value, we’d have to collect $n=\infty$ training points.
+      </p>
+      </section>
+      </section>
+      <section id="section-3" class="level1">
+      <h1></h1>
+      <section id="gaussian-cases" class="level2">
+      <h2>Gaussian Cases</h2>
+      </section>
+      <section id="motivation-for-gaussian-cases" class="level2">
+      <h2>Motivation for Gaussian Cases</h2>
+      <p>Central Limit Theorem: as $n\rightarrow\infty$, if the underlying distribution has a well-defined expected value and variance, the arithmetic mean of the collected samples will be normally distributed.</p>
+      <p class="fragment">
+      If you have a large $n$, it’s a good guess for the parametric distribution.
+      </p>
+      <p class="fragment">
+      Let’s examine the Gaussian cases under a few conditions, just like we did with linear discriminants, with the goal of estimating $\boldsymbol{\theta}=(\boldsymbol{\mu}, \boldsymbol{\Sigma})$.
+      </p>
+      <p class="fragment">
+      <strong>Note</strong>: Some of the results in this section may seem obvious; however, this is to illustrate the mathematical justification for what comes naturally. (You’ll see what I mean…)
+      </p>
+      </section>
+      <section id="case-1-known-boldsymbolsigma-unknown-boldsymbolmu" class="level2">
+      <h2>Case 1: Known $\boldsymbol{\Sigma}$, Unknown $\boldsymbol{\mu}$</h2>
+      <p>Let’s say you already know the variance of a random variable. How would you estimate the mean? (What is the average radius of a nucleus?)</p>
+      <p class="fragment">
+      Restated: Given a random nucleus, what do we <strong>expect</strong> its radius to be?
+      </p>
+      <ul>
+      <li class="fragment">
+      Our random variable is <strong>radius</strong>.
+      </li>
+      <li class="fragment">
+      You collect many measurements (training data) and calculate the expected value from that.
+      </li>
+      <li class="fragment">
+      We assume the expected value is normally distributed…
+      </li>
+      <li class="fragment">
+      … so you would calculate the <strong>arithmetic mean</strong>.
+      </li>
+      </ul>
+      <p class="fragment">
+      <strong>Why does this give us the optimal estimate of $\boldsymbol{\theta}$?</strong>
+      </p>
+      </section>
+      <section id="case-1-known-boldsymbolsigma-unknown-boldsymbolmu-1" class="level2">
+      <h2>Case 1: Known $\boldsymbol{\Sigma}$, Unknown $\boldsymbol{\mu}$</h2>
+      <p>Consider a single sample $\mathbf{x}_{k}$. We are <strong>assuming</strong> we have the covariance and need to find $\boldsymbol{\mu}$.</p>
+      <p class="fragment">
+      If $p(\mathbf{x}_{k}|\boldsymbol{\mu})$ is normally distributed, and we are using the log-likelihood, we can write:
+      </p>
+      <p class="fragment">
+      $ l(\boldsymbol{\mu}) = \ln{p(\mathbf{x}_{k}|\boldsymbol{\mu})} = -\frac{1}{2}\ln{\left[(2\pi)^{d}|\boldsymbol{\Sigma}|\right]} - \frac{1}{2}(\mathbf{x}_{k} - \boldsymbol{\mu})^{T}\boldsymbol{\Sigma}^{-1}(\mathbf{x}_{k} - \boldsymbol{\mu}) $
+      </p>
+      <p class="fragment">
+      Our gradient function, then, is the derivative of that with respect to $\boldsymbol{\mu}$:
+      </p>
+      <p class="fragment">
+      $ \boldsymbol{\nabla}_{\boldsymbol{\mu}}\ln{p(\mathbf{x}_{k}|\boldsymbol{\mu})} = \boldsymbol{\Sigma}^{-1}(\mathbf{x}_{k} - \boldsymbol{\mu}) $
+      </p>
+      </section>
+      <section id="case-1-known-boldsymbolsigma-unknown-boldsymbolmu-2" class="level2">
+      <h2>Case 1: Known $\boldsymbol{\Sigma}$, Unknown $\boldsymbol{\mu}$</h2>
+      <p>$ \boldsymbol{\nabla}_{\boldsymbol{\mu}} \ln{p(\mathbf{x}_{k}|\boldsymbol{\mu})} = \boldsymbol{\Sigma}^{-1}(\mathbf{x}_{k} - \boldsymbol{\mu}) $</p>
+      <p class="fragment">
+      Once again, we find our optimal mean $\widehat{\boldsymbol{\mu}}$ by setting this equal to zero:
+      </p>
+      <p class="fragment">
+      \begin{align} \sum_{k=1}^{n}\boldsymbol{\Sigma}^{-1}(\mathbf{x}_{k} - \widehat{\boldsymbol{\mu}}) &amp;= \mathbf{0} \\ \sum_{k=1}^{n}(\mathbf{x}_{k}) - \sum_{k=1}^{n}(\widehat{\boldsymbol{\mu}}) &amp;= \mathbf{0}\\ \sum_{k=1}^{n}(\mathbf{x}_{k}) - n\widehat{\boldsymbol{\mu}} &amp;= \mathbf{0}\\ \widehat{\boldsymbol{\mu}} &amp;= \frac{1}{n}\sum_{k=1}^{n}\mathbf{x}_{k} \end{align}
+      </p>
+      </section>
+      <section id="case-2-unknown-boldsymbolsigma-and-boldsymbolmu" class="level2">
+      <h2>Case 2: Unknown $\boldsymbol{\Sigma}$ and $\boldsymbol{\mu}$</h2>
+      <p>More often, you won’t know anything about the distribution ahead of time, so you’ll need to estimate both $\boldsymbol{\Sigma}$ and $\boldsymbol{\mu}$.</p>
+      <p class="fragment">
+      Let’s start with the univariate case, so $\boldsymbol{\theta}=(\mu,\sigma^{2})$.
+      </p>
+      </section>
+      <section id="case-2-unknown-boldsymbolsigma-and-boldsymbolmu-1" class="level2">
+      <h2>Case 2: Unknown $\boldsymbol{\Sigma}$ and $\boldsymbol{\mu}$</h2>
+      <p>Here the log-likelihood of a single point $x_{k}$ is:</p>
+      <p class="fragment">
+      $ \ln{p(x_{k}|\boldsymbol{\theta})} = - \frac{1}{2} \ln{\left[2\sigma^{2}\right]} - \frac{1}{2\sigma^{2}} (x_{k} - \mu)^{2} $
+      </p>
+      <p class="fragment">
+      And the derivative is:
+      </p>
+      <p class="fragment">
+      $ \boldsymbol{\nabla}_{\boldsymbol{\theta}} \ln{ p(x_{k}|\boldsymbol{\theta}) } = \begin{bmatrix} \frac{\partial}{\partial\mu} \ln{p(x_{k}|\boldsymbol{\theta})}\\ \frac{\partial}{\partial\sigma} \ln{p(x_{k}|\boldsymbol{\theta})} \end{bmatrix} = \begin{bmatrix} \frac{1}{\sigma^{2}} (x_{k} - \mu)\\ -\frac{1}{\sigma^{2}} + \frac{(x_{k} - \mu)^{2}}{2\sigma^{2}} \end{bmatrix}$
+      </p>
+      <p class="fragment">
+      This is a system of equations, one for each of the parameters we’re interested in. We set both of those to zero to solve for the optimal estimates.
+      </p>
+      </section>
+      <section id="case-2-unknown-boldsymbolsigma-and-boldsymbolmu-2" class="level2">
+      <h2>Case 2: Unknown $\boldsymbol{\Sigma}$ and $\boldsymbol{\mu}$</h2>
+      <p>$\begin{bmatrix} \frac{1}{\sigma^{2}} (x_{k} - \mu)\\ -\frac{1}{\sigma^{2}} + \frac{(x_{k} - \mu)^{2}}{2\sigma^{2}} \end{bmatrix}=\mathbf{0}$</p>
+      <p>\begin{align} \sum_{k=1}^{n} \frac{1}{\widehat{\sigma}^{2}} (x_{k} - \widehat{\mu}) &amp;= 0 \\ - \sum_{k=1}^{n} \frac{1}{\widehat{\sigma}^{2}} + \sum_{k=1}^{n} \frac{(x_{k} - \widehat{\mu})^{2}}{\widehat{\sigma}^{2}} &amp;= 0 \end{align}</p>
+      </section>
+      <section id="case-2-unknown-boldsymbolsigma-and-boldsymbolmu-3" class="level2">
+      <h2>Case 2: Unknown $\boldsymbol{\Sigma}$ and $\boldsymbol{\mu}$</h2>
+      <p>We rearrange a bit, and end up with:</p>
+      <p>\begin{align} \widehat{\mu} &amp;= \frac{1}{n} \sum_{k=1}^{n} x_{k} \text{(just like before)} \\ \widehat{\sigma}^{2} &amp;= \frac{1}{n} \sum_{k=1}^{n} (x_{k} - \widehat{\mu})^{2} \end{align}</p>
+      <p>Once again, $\widehat{\sigma}$ should look familiar!</p>
+      </section>
+      <section id="case-2-unknown-boldsymbolsigma-and-boldsymbolmu-4" class="level2">
+      <h2>Case 2: Unknown $\boldsymbol{\Sigma}$ and $\boldsymbol{\mu}$</h2>
+      <p>Extending to the multivariate case works the same way, with just more manipulations.</p>
+      <p>Assuming you trust me (or if not, assuming you trust the textbook), the result of these manipulations is:</p>
+      <p>$ \widehat{\boldsymbol{\mu}} = \frac{1}{n} \sum_{k=1}^{n} \mathbf{x}_{k} $</p>
+      <p>$ \widehat{\boldsymbol{\Sigma}} = \frac{1}{n} \sum_{k=1}^{n} (\mathbf{x}_{k} - \widehat{\boldsymbol{\mu}}) (\mathbf{x}_{k} - \widehat{\boldsymbol{\mu}})^{T} $</p>
+      <p>(Reminder: $(\mathbf{x}_{k} - \widehat{\boldsymbol{\mu}}) (\mathbf{x}_{k} - \widehat{\boldsymbol{\mu}})^{T}$ is a matrix.)</p>
+      </section>
+      <section id="problems-with-mle" class="level2">
+      <h2>Problems with MLE</h2>
+      <p>What can go wrong with Maximum Likelihood Estimation?</p>
+      <p class="fragment">
+      Refer back to our assumptions…
+      </p>
+      <p class="fragment">
+      <strong>Model</strong>: If the model is <strong>not</strong> correct and the samples are <strong>not</strong> normally distributed, we have to solve using a different formula and our parameters might not even be correct.
+      </p>
+      <p class="fragment">
+      <strong>Sample Size</strong>: If there are too few training samples for the Central Limit Theorem to come into play, then we may not get an accurate estimate.
+      </p>
+      <p class="fragment">
+      This is not just a problem with MLE, but a problem with ALL estimation attempts – so much so that we will look at model selection in another lecture.
+      </p>
+      </section>
+      <section id="statistical-bias-side-note" class="level2">
+      <h2>Statistical Bias (Side Note)</h2>
+      <p>The MLE for $\sigma^{2}$ is <strong>biased</strong>, meaning that it systemically underestimates the actual variance:</p>
+      <p>$ \mathcal{E} \left[ \frac{1}{2} \sum_{k=1}^{n} (x_{k} - \widehat{\mu})^{2}\right] = \frac{n-1}{n} \sigma^{2} \neq \sigma^{2} $</p>
+      <p class="fragment">
+      In other words, our estimate (on the left) is a fraction of the true variance.
+      </p>
+      <ul>
+      <li class="fragment">
+      For low $n$, this is significant: if $n=10$, then our estimate is $0.9$ of the true variance.
+      </li>
+      <li class="fragment">
+      For high $n$, the effect is small: if $n=1*10e^{6}$, our estimate is $0.9999$ of the true variance.
+      </li>
+      </ul>
+      </section>
+      <section id="statistical-bias-side-note-1" class="level2">
+      <h2>Statistical Bias (Side Note)</h2>
+      <p>This is an <strong>asymptotically unbiased</strong> estimator: it gets less biased as $n\rightarrow\infty$.</p>
+      <p>We can use an <strong>absolutely unbiased</strong> estimator called the <strong>sample covariance matrix</strong>:</p>
+      <p>$ \mathbf{C} = \frac{1}{n-1} \sum_{k=1}^{n} (\mathbf{x}_{k} - \widehat{\boldsymbol{\mu}}) (\mathbf{x}_{k} - \widehat{\boldsymbol{\mu}})^{T} $</p>
+      </section>
+      </section>
+      <section id="section-4" class="level1">
+      <h1></h1>
+      <section id="bayesian-parameter-estimation" class="level2">
+      <h2>Bayesian Parameter Estimation</h2>
+      </section>
+      <section id="intuition-for-bayes" class="level2">
+      <h2>Intuition for Bayes</h2>
+      <p>In MLE, we assumed that $\boldsymbol{\theta}$ was fixed, we just didn’t know what it was.</p>
+      <p class="fragment">
+      In BAY, we assume that $\boldsymbol{\theta}$ is a random variable, just like $\mathbf{x}$, and that training data allows us to convert the distribution of $\boldsymbol{\theta}$ into a posterior probability density.
+      </p>
+      </section>
+      <section id="intuition-for-bayes-1" class="level2">
+      <h2>Intuition for Bayes</h2>
+      <p>The results of MLE and BAY will very often be identical – so why use Bayes?</p>
+      <ul>
+      <li class="fragment">
+      It is a fundamentally different approach to the assumptions we make about our data.
+      </li>
+      <li class="fragment">
+      BAY includes additional information that helps if we don’t know the true model.
+      </li>
+      <li class="fragment">
+      BAY also explicitly incorporates the idea of uncertainty into the methods - we are not saying “This IS the value,” we say “This value is drawn from THIS distribution.”
+      </li>
+      </ul>
+      </section>
+      <section id="class-conditional-densities" class="level2">
+      <h2>Class-Conditional Densities</h2>
+      <p>$ P(\omega_{i}|\mathbf{x}) = \frac{p(\mathbf{x}|\omega_{i}) P(\omega_{i})}{\sum_{j=1}^{c} p(\mathbf{x}|\omega_{j}) P(\omega_{j})} $</p>
+      <p class="fragment">
+      Recall the main components of Bayesian Classification:
+      </p>
+      <p class="fragment">
+      $P(\omega_{i}|\mathbf{x})$: <strong>Posterior probability</strong>, what we want to obtain.
+      </p>
+      <p class="fragment">
+      $p(\mathbf{x}|\omega_{i})$: <strong>Class-conditional Density</strong>, what we get from our training data values.
+      </p>
+      <p class="fragment">
+      $P(\omega_{i})$: <strong>Prior Probability</strong>, what we get from the fraction of each class in our training.
+      </p>
+      <p class="fragment">
+      How do we obtain these quantities? We estimate them using as much information as we can about the problem – our <strong>prior knowledge</strong>, and our <strong>training data</strong>.
+      </p>
+      </section>
+      <section id="assumptions-and-notational-changes" class="level2">
+      <h2>Assumptions and Notational Changes</h2>
+      <p>We can rewrite Bayes to show its dependence on the training set $\mathcal{D}$:</p>
+      <p>$ P(\omega_{i}|\mathbf{x},\mathcal{D}) = \frac{ p(\mathbf{x}|\omega_{i},\mathcal{D}) P(\omega_{i}|\mathcal{D}) }{ \sum_{j=1}^{c}p(\mathbf{x}|\omega_{j},\mathcal{D}) P(\omega_{j}|\mathcal{D}) } $</p>
+      <p class="fragment">
+      Assume prior probabilities are known ahead of time OR can be calculated (fraction of $\mathcal{D}$ belonging to each class); thus $P(\omega_{i}) = P(\omega_{i}|\mathcal{D})$.
+      </p>
+      </section>
+      <section id="assumptions-and-notational-changes-1" class="level2">
+      <h2>Assumptions and Notational Changes</h2>
+      <p>As we did before, we break up the training set into $c$ class-based subsets, $\mathcal{D}_{1},\ldots,\mathcal{D}_{c}$.</p>
+      <p class="fragment">
+      Again, the samples in $\mathcal{D}_{i}$ have no useful information about $p(\mathbf{x}|\omega_{j},\mathcal{D})$ if $i\neq j$.
+      </p>
+      <p class="fragment">
+      Therefore we can handle each class as an independent estimation problem:
+      </p>
+      <div class="fragment">
+      <blockquote>
+      <p>Use a set of training data $\mathcal{D}$ drawn independently according to the fixed but unknown probability distribution $p(\mathbf{x})$ to determine $p(\mathbf{x}|\mathcal{D})$.</p>
+      </blockquote>
+      </div>
+      <p class="fragment">
+      In other words, we’re trying to determine the probability of observing a feature vector given the set of training we’ve already observed.
+      </p>
+      </section>
+      <section id="parameter-distribution" class="level2">
+      <h2>Parameter Distribution</h2>
+      <p>We’re assuming that even though we don’t know $p(\mathbf{x})$, it has a parametric form. So again, we are estimating the parameter vector $\boldsymbol{\theta}$.</p>
+      <p class="fragment">
+      This is expressed by saying that the function $p(\mathbf{x}|\boldsymbol{\theta})$ is “completely known”.
+      </p>
+      <p class="fragment">
+      Information about $\boldsymbol{\theta}$ <strong>without observing the samples</strong> (i.e. prior) is contained in a <strong>known</strong> density $p(\boldsymbol{\theta})$.
+      </p>
+      <p class="fragment">
+      <strong>After</strong> we observe the training set, this gets converted to a <strong>posterior</strong> density $p(\boldsymbol{\theta}|\mathcal{D})$, which is hopefully peaked around the true value of $\boldsymbol{\theta}$.
+      </p>
+      </section>
+      <section id="parameter-distribution-1" class="level2">
+      <h2>Parameter Distribution</h2>
+      <p>So we’ve connected $p(\mathbf{x})$ (what we want) to $\boldsymbol{\theta}$ (the parameter vector) by $p(\mathbf{x}|\boldsymbol{\theta})$, and we’ve connected the parameter vector to the training set by $p(\boldsymbol{\theta}|\mathcal{D})$.</p>
+      <p class="fragment">
+      In this way we can estimate $p(\mathbf{x})$ by calculating $p(\mathbf{x}|\mathcal{D})$, and we do THAT by integrating the <strong>joint density</strong> $p(\mathbf{x}, \boldsymbol{\theta} | \mathcal{D})$ over the entire parameter space for $\boldsymbol{\theta}$:
+      </p>
+      <p class="fragment">
+      \begin{align} p(\mathbf{x} | \mathcal{D}) &amp;= \int p(\mathbf{x}, \boldsymbol{\theta} | \mathcal{D}) d\boldsymbol{\theta} \\ p(\mathbf{x} | \mathcal{D}) &amp;= \int p(\mathbf{x} | \boldsymbol{\theta}, \mathcal{D}) p(\boldsymbol{\theta} | \mathcal{D}) d\boldsymbol{\theta} \end{align}
+      </p>
+      <p class="fragment">
+      Since $\mathbf{x}$ and $\mathcal{D}$ are independent, we can drop the $\mathcal{D}$ in the first term, and write:
+      </p>
+      <p class="fragment">
+      $ p(\mathbf{x} | \mathcal{D}) = \int p(\mathbf{x} | \boldsymbol{\theta}) p(\boldsymbol{\theta} | \mathcal{D}) d\boldsymbol{\theta} $
+      </p>
+      </section>
+      <section id="parameter-distribution-2" class="level2">
+      <h2>Parameter Distribution</h2>
+      <p>$ p(\mathbf{x} | \mathcal{D}) = \int p(\mathbf{x} | \boldsymbol{\theta}) p(\boldsymbol{\theta} | \mathcal{D}) d\boldsymbol{\theta} $</p>
+      <p class="fragment">
+      This equation links the class-conditional density $p(\mathbf{x} | \mathcal{D})$ to the posterior density for the parameter vector, $p(\boldsymbol{\theta} | \mathcal{D})$, and to the likelihood $p(\mathbf{x} | \boldsymbol{\theta})$.
+      </p>
+      <p class="fragment">
+      If $p(\boldsymbol{\theta} | \mathcal{D})$ peaks sharply around a specific value $\widehat{\boldsymbol{\theta}}$, then the above equation becomes:
+      </p>
+      <p class="fragment">
+      $ p(\mathbf{x}|\mathcal{D}) \approx p(\mathbf{x} | \widehat{\boldsymbol{\theta}})$
+      </p>
+      <p class="fragment">
+      As the number of samples increases, we will see this “peakiness” increase as well.
+      </p>
+      </section>
+      <section id="how-is-sample-size-related-to-parameter-estimates" class="level2">
+      <h2>How Is Sample Size Related to Parameter Estimates?</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/parameter_mu_estimate.svg" alt="Parameter Estimate (1D)" style="width:80.0%" /><figcaption>Parameter Estimate (1D)</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/parameter_mu_estimate_2d.svg" alt="Parameter Estimate (2D)" style="width:60.0%" /><figcaption>Parameter Estimate (2D)</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      </section>
+      <section id="section-5" class="level1">
+      <h1></h1>
+      <section id="bayesian-parameter-estimation-general-case" class="level2">
+      <h2>Bayesian Parameter Estimation: General Case</h2>
+      </section>
+      <section id="bay-general-theory" class="level2">
+      <h2>BAY: General Theory</h2>
+      <p>The summary of the basic assumptions for BAY estimation are as follows:</p>
+      <ul>
+      <li class="fragment">
+      The <strong>form</strong> of the density $p(\mathbf{x} | \boldsymbol{\theta})$ is assumed to be known, but the <strong>value</strong> of $\boldsymbol{\theta}$ is not.
+      </li>
+      <li class="fragment">
+      Our initial knowledge about $\boldsymbol{\theta}$ is contained in a <strong>known</strong> prior $p(\boldsymbol{\theta})$.
+      </li>
+      <li class="fragment">
+      The rest of our knowledge about $\boldsymbol{\theta}$ is contained in a set $\mathcal{D}$ of training samples drawn independently according to the unknown probability density $p(\mathbf{x})$.
+      </li>
+      </ul>
+      </section>
+      <section id="bay-general-theory-1" class="level2">
+      <h2>BAY: General Theory</h2>
+      <p>We want to compute the posterior density $p(\boldsymbol{\theta} | \mathcal{D})$, because that lets us find $p(\mathbf{x} | \mathcal{D})$.</p>
+      <p class="fragment">
+      By Bayes formula we have:
+      </p>
+      <p class="fragment">
+      $ p(\boldsymbol{\theta} | \mathcal{D}) = \frac{p(\mathcal{D} | \boldsymbol{\theta}) p(\boldsymbol{\theta})} { \int p(\mathcal{D} | \boldsymbol{\theta}) p(\boldsymbol{\theta}) d\boldsymbol{\theta}} $
+      </p>
+      <p class="fragment">
+      Since the samples themselves are <strong>independent</strong> (we assume), we can also write:
+      </p>
+      <p class="fragment">
+      $ p(\mathcal{D} | \boldsymbol{\theta}) = \prod_{k=1}^{n} p(\mathbf{x}_{k} | \boldsymbol{\theta}) $
+      </p>
+      </section>
+      <section id="bay-general-theory-2" class="level2">
+      <h2>BAY: General Theory</h2>
+      <p>\begin{align} p(\mathbf{x} | \mathcal{D}) &amp;= \int p(\mathbf{x} | \boldsymbol{\theta}) p(\boldsymbol{\theta} | \mathcal{D}) d\boldsymbol{\theta} \\ p(\boldsymbol{\theta} | \mathcal{D}) &amp;= \frac{p(\mathcal{D} | \boldsymbol{\theta}) p(\boldsymbol{\theta})} { \int p(\mathcal{D} | \boldsymbol{\theta}) p(\boldsymbol{\theta}) d\boldsymbol{\theta}} \end{align}</p>
+      <p class="fragment">
+      Suppose that $p(\mathcal{D} | \boldsymbol{\theta})$ reaches a sharp peak when $\boldsymbol{\theta} = \widehat{\boldsymbol{\theta}}$.
+      </p>
+      <p class="fragment">
+      Assuming $p(\boldsymbol{\theta})$ is not zero at $\widehat{\boldsymbol{\theta}}$, then $p(\boldsymbol{\theta} | \mathcal{D})$ also peaks around that point.
+      </p>
+      <p class="fragment">
+      Thus, $p(\mathbf{x} | \mathcal{D}) \approx p(\mathbf{x} | \widehat{\boldsymbol{\theta}})$, which is what we get using MLE.
+      </p>
+      <p class="fragment">
+      However, the Bayesian equations encode much more information about the problem – including <strong>uncertainty</strong> in the estimates – versus MLE.
+      </p>
+      </section>
+      </section>
+      <section id="section-6" class="level1">
+      <h1></h1>
+      <section id="bayesian-parameter-estimation-gaussian-case" class="level2">
+      <h2>Bayesian Parameter Estimation: Gaussian Case</h2>
+      </section>
+      <section id="preview-of-gaussian-bay" class="level2">
+      <h2>Preview of Gaussian BAY</h2>
+      <p>This section may be a little confusing. All we’re saying is the following:</p>
+      <ol>
+      <li class="fragment">
+      The distribution from which our samples are drawn is normal: $p(x) \sim N(\mu,\sigma^{2})$.
+      </li>
+      <li class="fragment">
+      The parameters that control that distribution, namely $\mu$ and $\sigma^{2}$, are ALSO drawn from their OWN normal distribution: $p(\mu) \sim N(\mu_{0}, \sigma_{0}^{2})$.
+      </li>
+      <li class="fragment">
+      In MLE, we calculated the gradient of the sample distribution, set it to zero, and solved for the parameters – then, by looking at the training samples, we just plug in the values to obtain the estimates for $\mu$ and $\sigma^{2}$.
+      </li>
+      <li class="fragment">
+      In BAY, we use Bayes law to see the relationship between the distributions of the samples and the distributions of the parameters, and then solve for the latter.
+      </li>
+      </ol>
+      </section>
+      <section id="univariate-case-known-sigma2" class="level2">
+      <h2>Univariate Case: Known $\sigma^{2}$</h2>
+      <p>Assume that $p(x | \mu) \sim N(\mu, \sigma^{2})$ and we have a known $\sigma^{2}$.</p>
+      <p class="fragment">
+      We also know the density $p(\mu)$, which contains any prior knowledge about $\mu$ – specifically, we know that it too is Gaussian: $p(\mu) \sim N(\mu_{0}, \sigma_{0}^{2})$.
+      </p>
+      <p class="fragment">
+      In this setup, $\mu_{0}$ is our “best guess” as to the value of $\mu$, and $\sigma_{0}^{2}$ represents the variance or “uncertainty” about our guess.
+      </p>
+      <p class="fragment">
+      Now we have to start drawing values of $\mu$ from $p(\mu)$, where each value completely determines the density for $x$. THEN, we take a bunch of samples of $x$, $\mathcal{D} = \{x_{1}, \ldots, x_{n}\}$, which are governed by that density.
+      </p>
+      </section>
+      <section id="bayes-law-yet-again" class="level2">
+      <h2>Bayes Law (Yet Again)</h2>
+      <p>\begin{align} p(\mu | \mathcal{D}) &amp;= \frac{ p(\mathcal{D} | \mu) p(\mu) }{ \int p(\mathcal{D} | \mu) p(\mu) d\mu} \\ p(\mathbf{x}) &amp;= \prod_{i=1}^{d}\frac{1}{\sqrt{2}\sigma_{i}}\exp{\left[-\frac{1}{2}\left(\frac{x_{i}-\mu_{i}}{\sigma_{i}}\right)^{2}\right]} \\ p(\mu | \mathcal{D}) &amp;= \alpha \prod_{k=1}^{n} p(x_{k} | \mu) p(\mu) \end{align}</p>
+      <p>(Where $\alpha$ is a normalization factor that depends just on $\mathcal{D}$.)</p>
+      <p>So think about this carefully: Our prior guess about $\mu$ is directly influenced by our observed training samples $x_{k}$.</p>
+      </section>
+      <section id="bayes-law-still-going" class="level2">
+      <h2>Bayes Law (Still Going)</h2>
+      <p>$p(\mu | \mathcal{D}) = \alpha \prod_{k=1}^{n} p(x_{k} | \mu) p(\mu) $</p>
+      <p class="fragment">
+      Since we know that both $p(x_{k} | \mu) \sim N(\mu, \sigma^{2})$ and $p(\mu) \sim N(\mu_{0}, \sigma_{0}^{2})$, we can rewrite the above equation as:
+      </p>
+      <p class="fragment">
+      $ p(\mu | \mathcal{D}) = \alpha \prod_{k=1}^{n} \frac{ 1 }{ \sqrt{2} \sigma_{~} } \exp{ \left[ -\frac{1}{2} \left( \frac{ x_{k} - \mu_{~} }{ \sigma_{~} } \right)^{2} \right] } \frac{ 1 }{ \sqrt{2} \sigma_{0} } \exp{ \left[ -\frac{1}{2} \left( \frac{ \mu - \mu_{0} }{ \sigma_{0} } \right)^{2} \right] } $
+      </p>
+      </section>
+      <section id="warning-lotsa-math" class="level2">
+      <h2>Warning: Lotsa Math</h2>
+      <p>\begin{align} p(\mu | \mathcal{D}) &amp;= \alpha \prod_{k=1}^{n} \frac{ 1 }{ \sqrt{2} \sigma_{~} } \exp{ \left[ -\frac{1}{2} \left( \frac{ x_{k} - \mu_{~} }{ \sigma_{~} } \right)^{2} \right] } \frac{ 1 }{ \sqrt{2} \sigma_{0} } \exp{ \left[ -\frac{1}{2} \left( \frac{ \mu - \mu_{0} }{ \sigma_{0} } \right)^{2} \right] } \\ p(\mu | \mathcal{D}) &amp;= \alpha^{\prime} \exp{ \left[ -\frac{1}{2} \left( \sum_{k=1}^{n} \left( \frac{ \mu - x_{k}}{ \sigma } \right)^{2} + \left( \frac{ \mu - \mu_{0} }{ \sigma_{0} } \right)^{2} \right) \right] } \\ p(\mu | \mathcal{D}) &amp;= \alpha^{\prime\prime} \exp{ \left[ -\frac{1}{2} \left[ \left( \frac{n}{\sigma^{2}} + \frac{1}{\sigma_{0}^{2}} \right) \mu^{2} - 2 \left( \frac{1}{\sigma^{2}} \sum_{k=1}^{n} x_{k} + \frac{\mu_{0}}{\sigma_{0}^{2}} \right) \mu \right] \right] } \end{align}</p>
+      <p>Factors independent of $\mu$ are collected into the constants $\alpha$, $\alpha^{\prime}$, and $\alpha^{\prime\prime}$.</p>
+      <p class="fragment">
+      The takeaway message from this derivation is that $p(\mu | \mathcal{D})$ is an exponential function of a quadratic function of $\mu$. In other words, $p(\mu | \mathcal{D})$ is a <strong>normal density</strong>.
+      </p>
+      </section>
+      <section id="what-does-that-mean" class="level2">
+      <h2>What Does That Mean?</h2>
+      <p>As we increase our training set size, $p(\mu | \mathcal{D})$ will always be normal.</p>
+      <p class="fragment">
+      $p(\mu | \mathcal{D})$ is called a <strong>reproducing density</strong>, meaning it reproduces the same form as the sampling is increased.
+      </p>
+      <p class="fragment">
+      $p(\mu)$ is a <strong>conjugate prior</strong>, meaning that it has the same form as the associated prior.
+      </p>
+      <p class="fragment">
+      If we write the parameters as $p(\mu | \mathcal{D}) \sim N(\mu_{n}, \sigma_{n}^{2})$, then we can simplify.
+      </p>
+      </section>
+      <section id="simplifying" class="level2">
+      <h2>Simplifying</h2>
+      <p>$ p(\mu | \mathcal{D}) = \alpha^{\prime\prime} \exp{ \left[ -\frac{1}{2} \left[ \left( \frac{n}{\sigma^{2}} + \frac{1}{\sigma_{0}^{2}} \right) \mu^{2} - 2 \left( \frac{1}{\sigma^{2}} \sum_{k=1}^{n} x_{k} + \frac{\mu_{0}}{\sigma_{0}^{2}} \right) \mu \right] \right] } $</p>
+      <div class="fragment">
+      <p>Let:</p>
+      <p>\begin{align} \frac{ 1 }{ \sigma_{n}^{2} } &amp;= \frac{ n }{ \sigma^{2} } + \frac{ 1 }{ \sigma_{0}^{2} }\\ \frac{\mu_{n}}{\sigma_{n}^{2}} &amp;= \frac{n}{\sigma^{2}}\widehat{\mu_{n}} + \frac{ \mu_{0} }{ \sigma_{0}^{2} } \end{align}</p>
+      <p>where $\widehat{\mu_{n}}$ is the sample mean, $\frac{ 1 }{ n } \sum_{k=1}^{n} x_{k}$.</p>
+      </div>
+      <div class="fragment">
+      <p>Thus:</p>
+      <p>$ p(\mu | \mathcal{D}) = \frac{ 1 }{ \sqrt{2} \sigma_{n} } \exp{\left[ -\frac{1}{2} \left( \frac{ \mu - \mu_{n} }{ \sigma_{n} } \right)^{2} \right]} $</p>
+      </div>
+      </section>
+      <section id="keep-solving" class="level2">
+      <h2>Keep Solving</h2>
+      <p>Solving for $\mu_{n}$ and $\sigma_{n}^{2}$ yields:</p>
+      <p>\begin{align} \mu_{n} &amp;= \left( \frac{ n\sigma_{0}^{2} }{ n\sigma_{0}^{2} + \sigma^{2} } \right) \widehat{\mu_{n}} + \frac{ \sigma^{2} }{ n\sigma_{0}^{2} + \sigma^{2} }\mu_{0} \\ \sigma_{n}^{2} &amp;= \frac{ \sigma_{0}^{2} \sigma^{2} }{ n\sigma_{0}^{2} + \sigma^{2} } \end{align}</p>
+      <p class="fragment">
+      Okay! So… what? We’re trying to estimate the parameters of our sample distribution, and those parameters have their OWN distributions, e.g. $p(\mu | \mathcal{D})$.
+      </p>
+      <p class="fragment">
+      The above equations show how the “parameters of the parameters” are related to the sample count $n$ and the mean and variance of the training samples.
+      </p>
+      <p class="fragment">
+      After $n$ samples, $\mu_{n}$ is our best guess for $\mu$, and $\sigma_{n}^{2}$ is our uncertainty.
+      </p>
+      </section>
+      <section id="more-samples-is-always-better-pretty-much" class="level2">
+      <h2>More Samples is Always Better (Pretty Much)</h2>
+      <p>$ \sigma_{n}^{2} = \frac{ \sigma_{0}^{2}\sigma^{2} }{ n\sigma_{0}^{2} + \sigma^{2} } $</p>
+      <p>If this is our “uncertainty”, what happens as $n\rightarrow\infty$?</p>
+      <p class="fragment">
+      <strong>Our uncertainty goes towards zero!</strong> More samples means less uncertainty about our guess.
+      </p>
+      </section>
+      <section id="more-samples-is-always-better-pretty-much-1" class="level2">
+      <h2>More Samples is Always Better (Pretty Much)</h2>
+      <p>$ \mu_{n} = \left( \frac{ n\sigma_{0}^{2} }{ n\sigma_{0}^{2} + \sigma^{2} } \right) \widehat{\mu_{n}} + \frac{ \sigma^{2} }{ n\sigma_{0}^{2} + \sigma^{2} } \mu_{0} $</p>
+      <p>If this is our “best guess”, what happens as $n\rightarrow\infty$?</p>
+      <p class="fragment">
+      It is a linear combination of $\widehat{\mu_{n}}$ (the sample mean) and $\mu_{0}$ (our best <strong>prior</strong> guess for $\mu$).
+      </p>
+      <p class="fragment">
+      As long as $\sigma_{0}^{2} \neq 0$, then $\mu_{n}$ approaches the sample mean as $n\rightarrow\infty$.
+      </p>
+      </section>
+      <section id="putting-it-all-together" class="level2">
+      <h2>Putting it All Together</h2>
+      <p>Our goal all along has been to obtain the probability of observing a sample value given the training set (associated with a particular class).</p>
+      <p class="fragment">
+      The message is our class-conditional probability is normally distributed:
+      </p>
+      <p class="fragment">
+      $ p(x | \mathcal{D}) \sim N(\mu_{n}, \sigma^{2} + \sigma_{n}^{2}) $
+      </p>
+      <p class="fragment">
+      In other words, we treat the “conditional mean” $\mu_{n}$ as if it was the mean of the class-conditional distribution, and the known variance is adjusted to account for the fact that there is some additional uncertainty about the value of the true mean.
+      </p>
+      </section>
+      <section id="okay-sure" class="level2">
+      <h2>… Okay, Sure!</h2>
+      <p>If you didn’t follow any of the math (and aren’t planning on it), here are the main takeaway points:</p>
+      <ul>
+      <li class="fragment">
+      The samples $x$ are assumed to come from $N(\mu,\sigma^{2})$.
+      </li>
+      <li class="fragment">
+      The mean is our “best guess” for a probable value, while the variance is our “uncertainty”.
+      </li>
+      <li class="fragment">
+      In Bayesian parameter estimation, we assume that these parameters ALSO come from a normal distribution, with their own means and variances.
+      </li>
+      <li class="fragment">
+      By collecting training samples, we can improve our guess by reducing the amount of uncertainty involved in our estimate.
+      </li>
+      <li class="fragment">
+      When the size of the training set is very high, Bayesian parameter estimation will give similar results to Maximum Likelihood Estimation.
+      </li>
+      </ul>
+      </section>
+      </section>
+      <section id="section-7" class="level1">
+      <h1></h1>
+      <section id="parting-words" class="level2">
+      <h2>Parting Words</h2>
+      </section>
+      <section id="methods-overview-mle-vs.-bay" class="level2">
+      <h2>Methods Overview: MLE vs. BAY</h2>
+      <div class="l-double">
+      <div>
+      <p><strong>Maximum Likelihood Estimation (MLE)</strong></p>
+      <ul>
+      <li>$\boldsymbol{\theta}_{i}$ is a set of fixed, unknown quantities that we are trying to discover.</li>
+      <li>The estimated values are those that maximize the probability of observing our training data.</li>
+      </ul>
+      </div>
+      <div>
+      <p><strong>Bayesian Estimation (BAY)</strong></p>
+      <ul>
+      <li>$\boldsymbol{\theta}_{i}$ is a set of random variables, each with a known prior distribution.</li>
+      <li>Training data observations turn these priors into posterior densities.</li>
+      <li>More training “sharpens” the density near the true values of the parameters – this is known as <strong>Bayesian Learning</strong></li>
+      </ul>
+      </div>
+      </div>
+      </section>
+      <section id="mle-vs.-bay" class="level2">
+      <h2>MLE vs. BAY</h2>
+      <p>As always, no single algorithm will have all the properties you want.</p>
+      <p class="fragment">
+      MLE makes some assumptions on the data and has some specific considerations:
+      </p>
+      <ol>
+      <li class="fragment">
+      <strong>Efficiency</strong>: MLE uses differential calculus, BAY uses multidimensional integration.
+      </li>
+      <li class="fragment">
+      <strong>Interpretability</strong>: MLE gives a <strong>single</strong> parameter set, BAY gives a <strong>distribution</strong>.
+      </li>
+      <li class="fragment">
+      <strong>Model Confidence</strong>: Incorrect assumptions about the underlying distribution will cause MLE to give a bad estimate.
+      </li>
+      <li class="fragment">
+      <strong>Bias</strong>: Use MLE if you are okay with using an unbiased estimate of the variance. BAY explicitly encodes the bias-variance tradeoff through the uncertainty in its estimates.
+      </li>
+      </ol>
+      </section>
+      <section id="mle-vs.-bay-1" class="level2">
+      <h2>MLE vs. BAY</h2>
+      <p>Breaking down into direct comparisons:</p>
+      <ul>
+      <li class="fragment">
+      <strong>Computational Efficiency</strong>: MLE is simpler, using differential calculus, while BAY uses multidimensional integration which might be complicated.
+      </li>
+      <li class="fragment">
+      <strong>Interpretability</strong>: MLE results in single straight answers, while BAY gives a distribution. Thus MLE might be easier to interpret, but BAY incorporates more information.
+      </li>
+      <li class="fragment">
+      <strong>Model Confidence</strong>: If you are wrong in your model assumption, MLE will give a bad estimate, while BAY explicitly encodes for uncertainty.
+      </li>
+      <li class="fragment">
+      <strong>Bias-Variance</strong>: MLE allows you to manually correcting for bias-variance, while BAY explicitly encodes the bias-variance tradeoff through the uncertainty in its estimates.
+      </li>
+      <li class="fragment">
+      <strong>Overall</strong>: MLE is simpler, BAY uses more information.
+      </li>
+      </ul>
+      </section>
+      <section id="bayesian-specifics" class="level2">
+      <h2>Bayesian Specifics</h2>
+      <p>These techniques for parameter estimation require a clear understanding of prior assumptions and a good use of existing data.</p>
+      <p class="fragment">
+      If your estimates seem to be performing worse than they should be, check both: Make sure the assumptions are valid (statistical analysis), and that your data are clean (plotting and quality control).
+      </p>
+      <p class="fragment">
+      We will cover additional topics in the chapter (component analysis, dimensionality reduction, and Markov models) in some lectures after Spring Break.
+      </p>
+      </section>
+      </section>
+      <section id="section-8" class="level1">
+      <h1></h1>
+      <section id="next-class" class="level2">
+      <h2>Next Class</h2>
+      </section>
+      <section id="next-class-nonparametric-techniques" class="level2">
+      <h2>Next Class: Nonparametric Techniques</h2>
+      <p>We keep assuming we “know” our distributions, e.g. that they are Gaussian, Uniform, etc… but do we?</p>
+      <p>If the underlying distribution seems too complicated (high-dimensional, multi-modal), then we may need to throw away our precious Gaussians and look for something else.</p>
+      <p>There is a whole class of non-parametric techniques for density estimation, and a few methods – e.g. nearest-neighbor rules – that bypass underlying densities completely.</p>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <!-- Pseudocode scripts -->
+    <script>
+     pseudocode.renderElement(document.getElementById("hello-world-code"));
+    </script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+          fragments: true,
+          math: {
+					    mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+					    config: 'TeX-AMS_HTML-full'
+          },
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
