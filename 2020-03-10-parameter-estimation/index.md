@@ -125,7 +125,7 @@ In general, we write a set of parameters as \$\\boldsymbol{\\theta}\_{i}\$, wher
 
 <p class="fragment">
 If \$p(\\mathbf{x}|\\omega\_{i}) \\sim
-N(\\boldsymbol{\\mu}\_{i},\boldsymbol{\\Sigma}\_{i})\$, then
+N(\\boldsymbol{\\mu}\_{i},\\boldsymbol{\\Sigma}\_{i})\$, then
 \$\\boldsymbol{\\theta}\_{i}=(\\boldsymbol{\\mu}\_{i}, \\boldsymbol{\\Sigma}\_{i})\$.
 </p>
 
