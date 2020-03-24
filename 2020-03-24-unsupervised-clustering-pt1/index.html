@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Unsupervised Clustering (Pt. 1)</title>
+
+    <meta name="description" content="Unsupervised Clustering (Pt. 1)">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Custom Addons: TikzJax -->
+    <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css">
+    <script src="http://tikzjax.com/v1/tikzjax.js"></script>
+    <!-- Custom Addons: pseudocode.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">Unsupervised Clustering (Pt. 1)</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="recap-last-lectures" class="level2">
+      <h2>Recap Last Lectures</h2>
+      </section>
+      <section id="recap-nature-of-training-samples" class="level2">
+      <h2>Recap: Nature of Training Samples</h2>
+      <p>A training set $\mathcal{D}$ is a <strong>limited random sampling</strong> of the feature space.</p>
+      <div class="fragment">
+      <dl>
+      <dt><strong>Supervised Learning</strong></dt>
+      <dd>$\mathcal{D} = \{\mathbf{x}_{i}, y_{i}\}$, where $y_{i} \in \{\omega_{1}, \omega_{2}, \ldots, \omega_{c}\}$ is the $i$-th class label.
+      </dd>
+      </dl>
+      </div>
+      <div class="fragment">
+      <dl>
+      <dt><strong>Unsupervised Learning</strong></dt>
+      <dd>$\mathcal{D} = \{\mathbf{x}_{i}\}$, where we just have the values for $\mathbf{x}$, but no class label.
+      </dd>
+      </dl>
+      </div>
+      </section>
+      <section id="recap-supervised-classification" class="level2">
+      <h2>Recap: Supervised Classification</h2>
+      <p>We’ve seen several approaches to classification using class labels:</p>
+      <ul>
+      <li class="fragment">
+      <strong>Bayes:</strong> Use $\mathcal{D}$ to predict $p(\omega_{i}|\mathbf{x})$
+      </li>
+      <li class="fragment">
+      <strong>Decision Tree:</strong> Split $\mathcal{D}$ using optimal feature thresholds
+      </li>
+      <li class="fragment">
+      <strong>Linear Discriminants / SVMs:</strong> Build a set of functions $g_{i}(\mathbf{x})$ such that the predicted label is $\hat{y} = \omega_{j}$, where $j=\textrm{arg max}_{i}\left[g_{i}(\mathbf{x})\right]$
+      </li>
+      <li class="fragment">
+      <strong>$k$-Nearest Neighbor:</strong> Predicted label $\hat{y}$ is the most-common label of the $k$-nearest neighbors of $\mathbf{x}$ according to the feature space
+      </li>
+      </ul>
+      </section>
+      <section id="recap-parametric-methods" class="level2">
+      <h2>Recap: Parametric Methods</h2>
+      <p>$\mathcal{D}$ may come from an underlying <strong>parameterized</strong> distribution:</p>
+      <ul>
+      <li class="fragment">
+      <strong>Normal:</strong> $\mathbf{\theta} = (\mu, \Sigma)$ (mean, covariance / variance)
+      </li>
+      <li class="fragment">
+      <strong>Log-normal:</strong> $\mathbf{\theta} = (\sigma, \mu)$ (shape, log-scale)
+      </li>
+      <li class="fragment">
+      <strong>Binomial:</strong> $\mathbf{\theta} = (n,p)$ (trials, success probability)
+      </li>
+      <li class="fragment">
+      <strong>Gamma:</strong> $\mathbf{\theta} = (k,\theta)$ or $(\alpha, \beta)$ or $(k,\mu)$ (shape, scale/rate/mean)
+      </li>
+      <li class="fragment">
+      <strong>Weibull:</strong> $\mathbf{\theta} = (k,\lambda,\theta)$ (shape, scale, location)
+      </li>
+      <li class="fragment">
+      <strong>Poisson:</strong> $\mathbf{\theta} = (\lambda)$ (mean / variance)
+      </li>
+      </ul>
+      </section>
+      <section id="recap-parametric-methods-1" class="level2">
+      <h2>Recap: Parametric Methods</h2>
+      <iframe frameborder="0" seamless="seamless" scrolling="no" src="plots/radius_mean.html">
+      </iframe>
+      </section>
+      <section id="recap-choosing-your-distribution" class="level2">
+      <h2>Recap: Choosing your Distribution</h2>
+      <p>Each of these has its own form!</p>
+      <p class="fragment">
+      Choose the one that:
+      </p>
+      <ul>
+      <li class="fragment">
+      Describes your data
+      </li>
+      <li class="fragment">
+      Has the fewest parameters
+      </li>
+      <li class="fragment">
+      Makes intuitive sense, given the source of the feature
+      </li>
+      <li class="fragment">
+      (Is the Normal Distribution)
+      </li>
+      </ul>
+      </section>
+      <section id="recap-nonparametric-methods" class="level2">
+      <h2>Recap: Nonparametric methods</h2>
+      <p>What if:</p>
+      <ul>
+      <li class="fragment">
+      … we don’t know what our parametric form should be?
+      </li>
+      <li class="fragment">
+      … our samples don’t come from a single distribution?
+      </li>
+      <li class="fragment">
+      … we have way too few samples to even estimate our parameters?
+      </li>
+      </ul>
+      <p class="fragment">
+      In these cases, we need non-parametric methods.
+      </p>
+      </section>
+      <section id="recap-two-methods-for-finding-densities" class="level2">
+      <h2>Recap: Two Methods for Finding Densities</h2>
+      <figure>
+      <img src="img/convergence_both.svg" style="width:100.0%" alt="" /><figcaption>Parzen Windows (top) and $k$-Nearest Neighbors (bottom) for estimating density at a point as $N\rightarrow\infty$.</figcaption>
+      </figure>
+      </section>
+      <section id="recap-parzan-windows-width" class="level2">
+      <h2>Recap: Parzan Windows Width</h2>
+      <figure>
+      <img src="img/histwidth.svg" style="width:100.0%" alt="" /><figcaption>Effect of $h$ (width) on the “window” $\delta_{n}(\mathbf{x})$.</figcaption>
+      </figure>
+      </section>
+      <section id="recap-parzen-windows-width" class="level2">
+      <h2>Recap: Parzen Windows Width</h2>
+      <figure>
+      <img src="img/histwidth_pts.svg" style="width:100.0%" alt="" /><figcaption>Effect of $h$ (width) on the density estimates $p_{n}(\mathbf{x})$.</figcaption>
+      </figure>
+      </section>
+      <section id="recap-classification-with-parzen-windows" class="level2">
+      <h2>Recap: Classification With Parzen Windows</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/parzen_smallbin.svg" style="width:60.0%" alt="" /><figcaption>Small $h$</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/parzen_largebin.svg" style="width:60.0%" alt="" /><figcaption>Large $h$</figcaption>
+      </figure>
+      </div>
+      </div>
+      <p>Classification using Parzen Windows. If $h$ is small, we risk over-training. If $h$ is large, we will provide greater generalizability at the possible expense of accuracy.</p>
+      </section>
+      <section id="recap-classification-with-knn" class="level2">
+      <h2>Recap: Classification with $k$NN</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/knn_classifier_01.png" style="width:80.0%" /></p>
+      </div>
+      <div>
+      <p>Classification with $k$NN is so simple, it essentially “skips” the consideration of densities and just labels samples by counting the neighbors that belong to each class.</p>
+      </div>
+      </div>
+      </section>
+      <section id="recap-classification-with-knn-1" class="level2">
+      <h2>Recap: Classification with $k$NN</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/knn_classifier_voronoi.svg" style="width:80.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/knn_classifier_3d.svg" style="width:80.0%" /></p>
+      </div>
+      </div>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="clustering-mixture-densities" class="level2">
+      <h2>Clustering: Mixture Densities</h2>
+      </section>
+      <section id="clustering-introduction" class="level2">
+      <h2>Clustering Introduction</h2>
+      <p>In almost all situations, gathering class labels is <strong>hard</strong>.</p>
+      <p class="fragment">
+      We are often presented with datasets having many unlabeled samples:
+      </p>
+      <ul>
+      <li class="fragment">
+      Uploaded photos (Facebook, Google+, the NSA)
+      </li>
+      <li class="fragment">
+      Recorded telephone audio (Call centers, speech therapy, the NSA again)
+      </li>
+      <li class="fragment">
+      Recorded video segments (Security firms, video game cameras, also the NSA)
+      </li>
+      </ul>
+      <p class="fragment">
+      For some kinds of problems, you can <strong>crowd-source</strong> labeling.
+      </p>
+      </section>
+      <section id="cost-of-acquiring-labels" class="level2">
+      <h2>Cost of Acquiring Labels</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/cat02.jpg" style="height:80.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/dog.jpg" style="height:80.0%" /></p>
+      </div>
+      </div>
+      </section>
+      <section id="cost-of-acquiring-labels-1" class="level2">
+      <h2>Cost of Acquiring Labels</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/fna_91_5691_malignant.gif" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/fna_92_5311_benign.gif" style="width:100.0%" /></p>
+      </div>
+      </div>
+      </section>
+      <section id="why-use-unlabeled-data" class="level2">
+      <h2>Why Use Unlabeled Data?</h2>
+      <p>Without labels, can we learn about categories?</p>
+      <ul>
+      <li class="fragment">
+      You can cluster, and then perform “hands-on” labeling.
+      </li>
+      <li class="fragment">
+      You can get a “free” look at the data before doing labeling, to get an “unbiased” look at the structure of the feature space.
+      </li>
+      <li class="fragment">
+      You can perform “weak” supervised classification, a.k.a. <strong>semi-supervised</strong> learning
+      </li>
+      </ul>
+      </section>
+      <section id="semi-supervised-learning" class="level2">
+      <h2>Semi-Supervised Learning</h2>
+      <p>From Zhou, Z. “A Brief Introduction to Weakly Supervised Learning”:</p>
+      <ul>
+      <li class="fragment">
+      <strong>Incomplete Supervision:</strong> Only a small subset of the available data is labeled
+      </li>
+      <li class="fragment">
+      <strong>Inexact Supervision:</strong> Only coarse-level annotations are provided
+      </li>
+      <li class="fragment">
+      <strong>Inaccurate Supervision:</strong> Labels may be incorrectly assigned
+      </li>
+      </ul>
+      </section>
+      <section id="known-knowns-known-unknowns" class="level2">
+      <h2>Known Knowns, Known Unknowns</h2>
+      <p>As ever, we start with some basic assumptions:</p>
+      <ul>
+      <li class="fragment">
+      We know the number of classes, $c$.
+      </li>
+      <li class="fragment">
+      We know the priors, $P(\omega_{j})$, for $j=1,\,c$.
+      </li>
+      <li class="fragment">
+      We know the form of $p(\mathbf{x}|\omega_{j},\mathbf{\boldsymbol{\theta}}_{j})$ (e.g. Gaussian).
+      </li>
+      <li class="fragment">
+      We do NOT know the parameter vectors $\boldsymbol{\theta_{1}}, \cdots, \boldsymbol{\theta_{c}}$.
+      </li>
+      <li class="fragment">
+      We do NOT know the actual category labels for the samples.
+      </li>
+      </ul>
+      </section>
+      <section id="mixture-densities" class="level2">
+      <h2>Mixture Densities</h2>
+      <p>We can start by modeling the observed density, $p(\mathbf{x}|\boldsymbol{\theta})$, as a mixture of $c$ different class densities:</p>
+      <p class="fragment">
+      $ p(\mathbf{x}|\boldsymbol{\theta})=\sum_{j=1}^{c}p(\mathbf{x}|\omega_{j},\boldsymbol{\theta}_{j})P(\omega_{j}) $
+      </p>
+      <p class="fragment">
+      … where $\boldsymbol{\theta}=\left(\boldsymbol{\theta}_{1}, \cdots, \boldsymbol{\theta}_{c}\right)^{T}$.
+      </p>
+      <p class="fragment">
+      In this form, $p(\mathbf{x}|\boldsymbol{\theta})$ is known as a <strong>mixture density</strong>.
+      </p>
+      <p class="fragment">
+      Conditional densities $p(\mathbf{x}|\omega_{j},\boldsymbol{\theta}_{j})$ are the <strong>component densities</strong>.
+      </p>
+      <p class="fragment">
+      Priors $P(\omega_{j})$ are the <strong>mixing parameters</strong>.
+      </p>
+      </section>
+      <section id="component-densities-and-mixing-parameters" class="level2">
+      <h2>Component Densities and Mixing Parameters</h2>
+      <figure>
+      <img src="img/gaussian_mixture_fused.svg" style="width:80.0%" alt="" /><figcaption>Observed Sample Distribution</figcaption>
+      </figure>
+      </section>
+      <section id="component-densities-and-mixing-parameters-1" class="level2">
+      <h2>Component Densities and Mixing Parameters</h2>
+      <figure>
+      <img src="img/gaussian_mixture_1d.svg" style="width:80.0%" alt="" /><figcaption>Underlying Component Distributions</figcaption>
+      </figure>
+      </section>
+      <section id="identifiability-of-a-density" class="level2">
+      <h2>Identifiability of a Density</h2>
+      <p>$ p(\mathbf{x}|\boldsymbol{\theta})=\sum_{j=1}^{c}p(\mathbf{x}|\omega_{j},\boldsymbol{\theta_{j}})P(\omega_{j}) $</p>
+      <p class="fragment">
+      Our unknown is our set of parameters $\boldsymbol{\theta}$, so that’s what we want to estimate.
+      </p>
+      <p class="fragment">
+      Once we have our parameter sets, we can “un-mix” the density, figure out what classes are the largest contributors at each point of $\mathbf{x}$, and then classify new points accordingly.
+      </p>
+      <p class="fragment">
+      One valid question: if we have an infinite number of samples, and we know the underlying form of $p(\mathbf{x}|\boldsymbol{\theta})$, then is $\boldsymbol{\theta}$ unique?
+      </p>
+      <p class="fragment">
+      A density $p(\mathbf{x}|\boldsymbol{\theta})$ is <strong>identifiable</strong> if $\boldsymbol{\theta}\neq\boldsymbol{\theta}^{\prime}$ implies that there exists an $\mathbf{x}$ such that $p(\mathbf{x}|\boldsymbol{\theta})\neq p(\mathbf{x}|\boldsymbol{\theta}^{\prime})$.
+      </p>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="maximum-likelihood-estimation" class="level2">
+      <h2>Maximum Likelihood Estimation</h2>
+      </section>
+      <section id="maximum-likelihood-estimates" class="level2">
+      <h2>Maximum Likelihood Estimates</h2>
+      <p>Suppose $p(\mathbf{x}|\boldsymbol{\theta})$ gives us a set $\mathcal{D}=\{\mathbf{x}_{1},\cdots,\mathbf{x}_{n}\}$</p>
+      <p class="fragment">
+      The likelihood of observing a specific $\mathcal{D}$ is the joint density:
+      </p>
+      <p class="fragment">
+      $ p(\mathcal{D}|\boldsymbol{\theta})=\prod_{k=1}^{n}p(\mathbf{x}_{k}|\boldsymbol{\theta}) $
+      </p>
+      </section>
+      <section id="maximizing-our-dataset-probability" class="level2">
+      <h2>Maximizing our Dataset Probability</h2>
+      <p>If we’re looking to find $\hat{\boldsymbol{\theta}}$ which maximizes $p(\mathcal{D}|\boldsymbol{\theta})$, we have to do the whole log-likelihood / gradient thing:</p>
+      <p class="fragment">
+      $ l=\sum_{k=1}^{n}\ln{p(\mathbf{x}_{k}|\boldsymbol{\theta})} $
+      </p>
+      <p class="fragment">
+      $\nabla_{\boldsymbol{\theta}_{i}}l=\sum_{k=1}^{n}\frac{1}{p(\mathbf{x}_{k}|\boldsymbol{\theta})}\nabla_{\boldsymbol{\theta}_{i}}\left[\sum_{j=1}^{c}p(\mathbf{x}_{k}|\omega_{j},\boldsymbol{\theta}_{j})P(\omega_{j})\right] $
+      </p>
+      </section>
+      <section id="maximum-likelihood-estimates-1" class="level2">
+      <h2>Maximum Likelihood Estimates</h2>
+      <p>If we introduce the posterior probability, we can write in terms of the component densities:</p>
+      <p class="fragment">
+      $ P(\omega_{i}|\mathbf{x}_{k},\boldsymbol{\theta})=\frac{p(\mathbf{x}_{k}|\omega_{i},\boldsymbol{\theta}_{i})P(\omega_{i})}{p(\mathbf{x}_{k}|\boldsymbol{\theta})} $
+      </p>
+      <p class="fragment">
+      Then we can rewrite the previous derivative as:
+      </p>
+      <p class="fragment">
+      $\nabla_{\boldsymbol{\theta}_{i}}l = \sum_{k=1}^{n}P(\omega_{i}|\mathbf{x}_{k},\boldsymbol{\theta}) \nabla_{\boldsymbol{\theta}_{i}}\ln{p(\mathbf{x}_{k}|\omega_{i},\boldsymbol{\theta}_{i})} $
+      </p>
+      <p class="fragment">
+      As always, we set this to zero and solve for the class-specific parameters $\boldsymbol{\theta}_{i}$.
+      </p>
+      </section>
+      </section>
+      <section id="section-3" class="level1">
+      <h1></h1>
+      <section id="normal-mixtures-estimating-boldsymbolmu" class="level2">
+      <h2>Normal Mixtures: Estimating $\boldsymbol{\mu}$</h2>
+      </section>
+      <section id="normal-mixtures-and-additional-assumptions" class="level2">
+      <h2>Normal Mixtures and Additional Assumptions</h2>
+      <p>We’ve already assumed we know the form of the density (namely, that it’s Gaussian).</p>
+      <p class="fragment">
+      There are four parameters that we may not know:
+      </p>
+      <ul>
+      <li class="fragment">
+      $\boldsymbol{\mu}_{i}$, the multivariate mean;
+      </li>
+      <li class="fragment">
+      $\boldsymbol{\Sigma}_{i}$, the covariance matrix;
+      </li>
+      <li class="fragment">
+      $P(\omega_{i})$, the prior probability; and
+      </li>
+      <li class="fragment">
+      $c$, the total number of classes.
+      </li>
+      </ul>
+      <p class="fragment">
+      Just like linear discriminants, for simplicity we start by assuming that we know three of these: $\boldsymbol{\Sigma}_{i}$, $P(\omega_{i})$, and $c$.
+      </p>
+      </section>
+      <section id="case-1-unknown-mean-vectors" class="level2">
+      <h2>Case 1: Unknown Mean Vectors</h2>
+      <p>Once again, we take the log-likelihood of the Gaussian for simplicity:</p>
+      <p class="fragment">
+      $ \ln{p(\mathbf{x}|\omega_{i},\boldsymbol{\mu}_{i})}=-\ln{\left[(2)^{\frac{d}{2}} |\boldsymbol{\Sigma}_{i}|^{\frac{1}{2}} \right]} -\frac{1}{2}(\mathbf{x}-\boldsymbol{\mu}_{i})^{T}\boldsymbol{\Sigma}_{i}^{-1}(\mathbf{x}-\boldsymbol{\mu}_{i}) $
+      </p>
+      <p class="fragment">
+      … take the derivative…
+      </p>
+      <p class="fragment">
+      $ \nabla_{\boldsymbol{\mu}_{i}}\ln{p(\mathbf{x}|\omega_{i},\boldsymbol{\mu}_{i})}=\boldsymbol{\Sigma}_{i}^{-1}(\mathbf{x}-\boldsymbol{\mu}_{i}) $
+      </p>
+      <p class="fragment">
+      … and drop it into the old MLE equation for finding $\hat{\boldsymbol{\theta}}$, which, to refresh your memory, is:
+      </p>
+      <p class="fragment">
+      $ \sum_{k=1}^{n}P(\omega_{i}|\mathbf{x}_{k},\boldsymbol{\theta})\nabla_{\boldsymbol{\theta}_{i}}\ln{p(\mathbf{x}_{k}|\omega_{i},\boldsymbol{\theta}_{i})}=0 $
+      </p>
+      </section>
+      <section id="case-1-unknown-mean-vectors-1" class="level2">
+      <h2>Case 1: Unknown Mean Vectors</h2>
+      <p>Thus we have:</p>
+      <p class="fragment">
+      $ \sum_{k=1}^{n}P(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\mu}})\boldsymbol{\Sigma}_{i}^{-1}(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}_{i}})=0 $
+      </p>
+      <p class="fragment">
+      If we multiply by $\boldsymbol{\Sigma}_{i}$ and moving around terms, we are left with:
+      </p>
+      <p class="fragment">
+      $ \hat{\boldsymbol{\mu}}_{i} = \frac{\sum_{k=1}^{n}P(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\mu}})\mathbf{x}_{k}}{\sum_{k=1}^{n}P(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\mu}})} $
+      </p>
+      <p class="fragment">
+      <strong>In other words</strong>, $\hat{\boldsymbol{\mu}}_{i}$ is a weighted average of the samples.
+      </p>
+      <p class="fragment">
+      The weight for the $k$th sample is an estimate of how likely it is that $\mathbf{x}_{k}$ belongs to the $i$th class.
+      </p>
+      <p class="fragment">
+      Does this equation give us $\hat{\boldsymbol{\mu}}_{i}$?
+      </p>
+      </section>
+      <section id="explicit-solution-or-iterative-estimates" class="level2">
+      <h2>Explicit Solution or Iterative Estimates?</h2>
+      <p>Unfortunately, we can’t solve $\hat{\boldsymbol{\mu}}_{i}$ explicitly.</p>
+      <p class="fragment">
+      What we CAN do is perform an iterative search: Select an initial value for $\hat{\boldsymbol{\mu}}_{i}(0)$, then solve:
+      </p>
+      <p class="fragment">
+      $ \hat{\boldsymbol{\mu}}_{i}(j+1)=\frac{\sum_{k=1}^{n}P(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\mu}}(j))\mathbf{x}_{k}}{\sum_{k=1}^{n}P(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\mu}}(j))} $
+      </p>
+      <p class="fragment">
+      This is essentially a <strong>gradient ascent</strong> method, meaning that eventually we will converge to a point where $\hat{\boldsymbol{\mu}}_{i}(j+1)\approx\hat{\boldsymbol{\mu}}_{i}(j)$
+      </p>
+      <p class="fragment">
+      As with all iterative approaches, once the gradient is zero, we are only ensured that we’ve reached a <strong>local</strong> maximum.
+      </p>
+      </section>
+      <section id="example-solution-for-finding-boldsymbolmu_i" class="level2">
+      <h2>Example Solution for Finding $\boldsymbol{\mu}_{i}$</h2>
+      <p>Let’s say we have the following two-component, one-dimensional normal mixture:</p>
+      <p class="fragment">
+      $ p(x|\mu_{1},\mu_{2})=\underbrace{\frac{1}{3\sqrt{2}}\exp\left[-\frac{1}{2}(x-\mu_{1})^{2}\right]}_{\omega_{1}} +\underbrace{\frac{2}{3\sqrt{2}}\exp\left[-\frac{1}{2}(x-\mu_{2})^{2}\right]}_{\omega_{2}} $
+      </p>
+      <p class="fragment">
+      We pull a set of $k=25$ samples sequentially from this mixture.
+      </p>
+      <p class="fragment">
+      These samples are used to calculate the log-likelihood function:
+      </p>
+      <p class="fragment">
+      $ l(\mu_{1},\mu_{2})=\sum_{k=1}^{n}\ln{p(x_{k}|\mu_{1},\mu_{2})} $
+      </p>
+      </section>
+      <section id="example-solution-for-finding-boldsymbolmu_i-illustration" class="level2">
+      <h2>Example Solution for Finding $\boldsymbol{\mu}_{i}$: Illustration</h2>
+      <p><img src="img/sample_means_example_observed.svg" style="width:80.0%" /></p>
+      </section>
+      <section id="example-solution-for-finding-boldsymbolmu_i-illustration-1" class="level2">
+      <h2>Example Solution for Finding $\boldsymbol{\mu}_{i}$: Illustration</h2>
+      <p><img src="img/sample_means_example.svg" style="width:80.0%" /></p>
+      </section>
+      <section id="example-solution-for-finding-boldsymbolmu_i-illustration-2" class="level2">
+      <h2>Example Solution for Finding $\boldsymbol{\mu}_{i}$: Illustration</h2>
+      <figure>
+      <img src="img/2d_gaussian_mle_mixture.svg" style="width:80.0%" alt="" /><figcaption>2D Mixture Density</figcaption>
+      </figure>
+      </section>
+      <section id="unlabeled-densities-importance-of-sample-size" class="level2">
+      <h2>Unlabeled Densities: Importance of Sample Size</h2>
+      <p>As ever, it’s important to have a significant number of samples to estimate your parameters.</p>
+      <p>What would it look like if we had insufficient samples for this problem?</p>
+      </section>
+      <section id="unlabeled-densities-few-samples" class="level2">
+      <h2>Unlabeled Densities: Few Samples</h2>
+      <figure>
+      <img src="img/cluster_examples_few.svg" style="width:80.0%" alt="" /><figcaption>Low Number of Observations</figcaption>
+      </figure>
+      </section>
+      <section id="unlabeled-densities-more-samples" class="level2">
+      <h2>Unlabeled Densities: More Samples</h2>
+      <figure>
+      <img src="img/cluster_examples_mid.svg" style="width:80.0%" alt="" /><figcaption>Larger Number of Observations</figcaption>
+      </figure>
+      </section>
+      <section id="unlabeled-densities-lots-of-samples" class="level2">
+      <h2>Unlabeled Densities: Lots of Samples</h2>
+      <figure>
+      <img src="img/cluster_examples_many.svg" style="width:80.0%" alt="" /><figcaption>Lots of Observations</figcaption>
+      </figure>
+      </section>
+      </section>
+      <section id="section-4" class="level1">
+      <h1></h1>
+      <section id="normal-mixtures-estimating-boldsymbolsigma" class="level2">
+      <h2>Normal Mixtures: Estimating $\boldsymbol{\Sigma}$</h2>
+      </section>
+      <section id="case-2-unconstrained-covariance" class="level2">
+      <h2>Case 2: Unconstrained Covariance</h2>
+      <p>If no constraints are placed on $\boldsymbol{\Sigma}_{i}$, then we have a problem…</p>
+      <p class="fragment">
+      Let’s say our two-component mixture is given like so:
+      </p>
+      <p class="fragment">
+      $ p(x|\mu,\sigma^{2}) = \underbrace{\frac{1}{2\sqrt{2}\sigma}\exp\left[-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^{2}\right]}_{\textrm{First Component}} + \underbrace{\frac{1}{2\sqrt{2}}\exp\left[-\frac{1}{2}x^{2}\right]}_{\textrm{Second Component}} $
+      </p>
+      <p class="fragment">
+      In other words, the second component has $\mu=0$, $\sigma=1$.
+      </p>
+      <p class="fragment">
+      Now let’s set the mean of the first component to $\mu=x_{1}$. For $p(x_{1}|\mu,\sigma^{2})$, the first term’s exponential goes to 0, and so we have:
+      </p>
+      <p class="fragment">
+      $ p(x_{1} | \mu, \sigma^{2}) = \frac{1}{2\sqrt{2}\sigma} + \frac{1}{2\sqrt{2}}\exp\left[-\frac{1}{2}x_{1}^{2}\right] $
+      </p>
+      </section>
+      <section id="case-2-unconstrained-covariance-1" class="level2">
+      <h2>Case 2: Unconstrained Covariance</h2>
+      <p>For $x_{k}\neq\mu$, the first term’s exponential remains. Thus:</p>
+      <p class="fragment">
+      $ p(x_{k} | \mu,\sigma^{2}) \geq \frac{1}{2\sqrt{2}}\exp\left[-\frac{1}{2}x_{k}^{2}\right] $
+      </p>
+      <p class="fragment">
+      The joint probability for $x_{1},\cdots,x_{n}$ is the product of all of the above, so with some rearranging we have:
+      </p>
+      <p class="fragment">
+      $ p(x_{1},\cdots,x_{n} | \mu,\sigma^{2}) \geq \left[\frac{1}{\sigma}+\exp\left[-\frac{1}{2}x_{1}^{2}\right]\right]\frac{1}{(2\sqrt{2})^{n}}\exp\left[-\frac{1}{2}\sum_{k=2}^{n}x_{k}^{2}\right] $
+      </p>
+      </section>
+      <section id="all-parameters-unknown-exploding-equations-with-small-variance" class="level2">
+      <h2>All Parameters Unknown: Exploding Equations with Small Variance</h2>
+      <p>$ p(x_{1},\cdots,x_{n} | \mu,\sigma^{2}) \geq \left[\frac{1}{\sigma}+\exp\left[-\frac{1}{2}x_{1}^{2}\right]\right]\frac{1}{(2\sqrt{2})^{n}}\exp\left[-\frac{1}{2}\sum_{k=2}^{n}x_{k}^{2}\right] $</p>
+      <p class="fragment">
+      What’s wrong with this equation? Specifically, look at $\sigma$…
+      </p>
+      <p class="fragment">
+      If $\sigma$ is small, the equation explodes. That is to say, the MLE solution is <strong>singular</strong>.
+      </p>
+      </section>
+      <section id="fixing-exploding-equations" class="level2">
+      <h2>Fixing Exploding Equations</h2>
+      <p>So how do we get around this? Put some constraints on $\boldsymbol{\Sigma}_{i}$!</p>
+      <p class="fragment">
+      Recall the likelihood equation when finding $\boldsymbol{\mu}_{i}$:
+      </p>
+      <p class="fragment">
+      $ \ln{p(\mathbf{x}|\omega_{i},\boldsymbol{\mu}_{i})}=-\ln{\left[(2)^{\frac{d}{2}} |\boldsymbol{\Sigma}_{i}|^{\frac{1}{2}} \right]} -\frac{1}{2}(\mathbf{x}-\boldsymbol{\mu}_{i})^{T}\boldsymbol{\Sigma}_{i}^{-1}(\mathbf{x}-\boldsymbol{\mu}_{i}) $
+      </p>
+      <p class="fragment">
+      Just like before, we want to differentiate and set to zero, but this time we have to differentiate with respect to both $\boldsymbol{\mu}_{i}$ <strong>and</strong> $\boldsymbol{\Sigma}_{i}$.
+      </p>
+      </section>
+      <section id="solving-for-everything" class="level2">
+      <h2>Solving for Everything</h2>
+      <p>Remember the relation we had previously:</p>
+      <p class="fragment">
+      $ \sum_{k=1}^{n}\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}})\nabla_{\boldsymbol{\theta}_{i}}\ln{p(\mathbf{x}_{k}|\omega_{i},\hat{\boldsymbol{\theta}}_{i}) = 0} $
+      </p>
+      <p class="fragment">
+      I am skipping a lot of the math, but we end up with the following:
+      </p>
+      <p class="fragment">
+      \begin{align} \hat{P}(\omega_{i}) &amp;= \frac{1}{n}\sum_{k=1}^{n}\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}}) \\ \hat{\boldsymbol{\mu}_{i}} &amp;= \frac{\sum_{k=1}^{n}\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}})\mathbf{x}_{k}}{\sum_{k=1}^{n}\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}})} \\ \hat{\boldsymbol{\Sigma}_{i}} &amp;= \frac{\sum_{k=1}^{n}\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}})(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i})(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i})^{t}}{\sum_{k=1}^{n}\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}})} \end{align}
+      </p>
+      </section>
+      <section id="explanations-for-everything" class="level2">
+      <h2>Explanations for Everything</h2>
+      <p>Okay, so what do those mean?</p>
+      <table>
+      <tr>
+      <td>
+      $\hat{P}(\omega_{i}) = \frac{1}{n}\sum_{k=1}^{n}\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}})$
+      </td>
+      <td>
+      The likelihood of $\omega_{i}$ is the fraction of samples from $\omega_{i}$
+      </td>
+      </tr>
+      <tr>
+      <td>
+      $\hat{\boldsymbol{\mu}_{i}} = \frac{\sum_{k=1}^{n}\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}})\mathbf{x}_{k}}{\sum_{k=1}^{n}\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}})}$
+      </td>
+      <td>
+      $\hat{\boldsymbol{\mu}}_{i}$ is the mean of those samples in $\omega_{i}$
+      </td>
+      </tr>
+      <tr>
+      <td>
+      $\hat{\boldsymbol{\Sigma}_{i}} = \frac{\sum_{k=1}^{n}\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}})(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i})(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i})^{T}}{\sum_{k=1}^{n}\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}})}$
+      </td>
+      <td>
+      $\hat{\boldsymbol{\Sigma}}_{i}$ is the corresponding covariance matrix
+      </td>
+      </tr>
+      </table>
+      <p class="fragment">
+      If $\hat{P}(\omega_{i} | \mathbf{x}_{k}, \hat{\boldsymbol{\theta}})$ is between $0.0$ and $1.0$, then all samples play a role in the estimates (not just those belonging to $\omega_{i}$).
+      </p>
+      </section>
+      <section id="one-more-equation" class="level2">
+      <h2>One More Equation</h2>
+      <p>One final point: Above we’ve written $\sum_{k=1}^{n}\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}})$ a lot.</p>
+      <p>For each of the above three equations, we can substitute Bayes equation here:</p>
+      <p>\begin{align} \hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}}) &amp;= \frac{ p(\mathbf{x}_{k}|\omega_{i},\hat{\boldsymbol{\theta}}_{i})\hat{P}(\omega_{i}) }{ \sum_{j=1}^{c}p(\mathbf{x}_{k}|\omega_{j},\hat{\boldsymbol{\theta}}_{j})\hat{P}(\omega_{j}) }\\ &amp;= \frac{ |\boldsymbol{\hat{\Sigma}}_{i}| ^{-\frac{1}{2}} \exp\left[-\frac{1}{2}(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i})^{T}\hat{\boldsymbol{\Sigma}}_{i}^{-1}(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i})\right]\hat{P}(\omega_{i})}{ \sum_{j=1}^{c}|\hat{\boldsymbol{\Sigma}}_{j}|^{-\frac{1}{2}}\exp\left[-\frac{1}{2}(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{j})^{T}\hat{\boldsymbol{\Sigma}}_{j}^{-1}(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{j})\right] \hat{P}(\omega_{j})} \end{align}</p>
+      </section>
+      <section id="explicit-description-of-our-parameter-set" class="level2">
+      <h2>Explicit Description of Our Parameter Set</h2>
+      <p>$\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}}) = \frac{|\boldsymbol{\hat{\Sigma}}_{i}|^{-\frac{1}{2}}\exp\left[-\frac{1}{2}(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i})^{T}\hat{\boldsymbol{\Sigma}}_{i}^{-1}(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i})\right]\hat{P}(\omega_{i})}{\sum_{j=1}^{c}|\hat{\boldsymbol{\Sigma}}_{j}|^{-\frac{1}{2}}\exp\left[-\frac{1}{2}(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{j})^{T}\hat{\boldsymbol{\Sigma}}_{j}^{-1}(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{j})\right]\hat{P}(\omega_{j})}$</p>
+      <p>Much simpler, right?</p>
+      <p class="fragment">
+      This is just to illustrate that now, we DO have an explicit way to calculate each of our unknown parameters given our sample set.
+      </p>
+      </section>
+      <section id="okay-so-now-what" class="level2">
+      <h2>Okay, So Now What?</h2>
+      <p>Once again, we can take an iterative approach to solving for our parameter sets:</p>
+      <p>$ \hat{\boldsymbol{\mu}}_{i}(j+1)=\frac{\sum_{k=1}^{n}P(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\mu}}(j))\mathbf{x}_{k}}{\sum_{k=1}^{n}P(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\mu}}(j))} $</p>
+      </section>
+      </section>
+      <section id="section-5" class="level1">
+      <h1></h1>
+      <section id="k-means-clustering" class="level2">
+      <h2>$k$-Means Clustering</h2>
+      </section>
+      <section id="mahalanobis-distance" class="level2">
+      <h2>Mahalanobis Distance</h2>
+      <p>$\require{color} \hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}}) = \frac{|\boldsymbol{\hat{\Sigma}}_{i}|^{-\frac{1}{2}}\exp\left[-\frac{1}{2} \colorbox{lightblue}{$(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i})^{T}\hat{\boldsymbol{\Sigma}}_{i}^{-1}(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i})$} \right]\hat{P}(\omega_{i})}{\sum_{j=1}^{c}|\hat{\boldsymbol{\Sigma}}_{j}|^{-\frac{1}{2}}\exp\left[-\frac{1}{2}(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{j})^{T}\hat{\boldsymbol{\Sigma}}_{j}^{-1}(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{j})\right]\hat{P}(\omega_{j})} $</p>
+      <p class="fragment">
+      The value of $\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}})$ is high if the <strong>squared Mahalanobis distance</strong> $\colorbox{lightblue}{$(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i})^{T}\hat{\boldsymbol{\Sigma}}_{i}^{-1}(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i})$}$ is small.
+      </p>
+      <p class="fragment">
+      Intuitively, this just means that if a sample is close to the centroid of a class cluster, then the likelihood of it belonging to the associated class is high.
+      </p>
+      </section>
+      <section id="calculating-probabilities-via-distance-to-centroids" class="level2">
+      <h2>Calculating Probabilities Via Distance to Centroids</h2>
+      <p>If we replace the Mahalanobis with the squared Euclidean distance $|\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i}|^{2}$, we can find the mean $\hat{\boldsymbol{\mu}}_{m}$ nearest to $\mathbf{x}_{k}$.</p>
+      <p class="fragment">
+      Thus we can approximate $\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}})$ as:
+      </p>
+      <p class="fragment">
+      $ \hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}}) \simeq \begin{cases} 1 &amp; \quad \textrm{if }i=m \\ 0 &amp; \quad \textrm{otherwise.} \\ \end{cases}$
+      </p>
+      <p class="fragment">
+      Then we can plug this into the equation we got before and solve for $\hat{\boldsymbol{\mu}}_{1},\cdots,\hat{\boldsymbol{\mu}}_{c}$.
+      </p>
+      <p class="fragment">
+      We can “initialize” by selecting $c$ class centroids at random from the unlabeled data, and then iterating.
+      </p>
+      </section>
+      <section id="algorithm-for-k-means-clustering" class="level2">
+      <h2>Algorithm for $k$-Means Clustering</h2>
+      <div class="txt-left">
+      <pre id="hello-world-code" style="display:hidden;">
+      \begin{algorithm}
+      \caption{\$k\$-Means Clustering}
+      \begin{algorithmic}
+      \INPUT Initialize \$n\$, \$c\$, \$\\boldsymbol{\\mu}\_{1}, \\ldots, \\boldsymbol{\\mu}\_{c}\$
+      \REPEAT
+          \STATE Classify \$n\$ samples according to nearest \$\\boldsymbol{\\mu}\_{i}\$
+          \STATE Recompute \$\\boldsymbol{\\mu}\_{i}\$
+      \UNTIL{no change in \$\\boldsymbol{\\mu}_{i}\$}
+      \RETURN \$\\boldsymbol{\\mu}\_{1}, \\ldots, \\boldsymbol{\\mu}\_{c}\$
+      \end{algorithmic}
+      \end{algorithm}
+      </pre>
+      </div>
+      </section>
+      <section id="k-means-example-hill-climbing" class="level2">
+      <h2>$k$-Means Example: Hill-climbing</h2>
+      <figure>
+      <img src="img/kmeans_hill_climb.svg" style="width:80.0%" alt="" /><figcaption>Stoachastic hill-climbing in $k$-means.</figcaption>
+      </figure>
+      </section>
+      <section id="comparing-k-means-and-mle" class="level2">
+      <h2>Comparing $k$-Means and MLE</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/2d_gaussian_mle_mixture.svg" style="width:80.0%" alt="" /><figcaption>MLE Example</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/kmeans_hill_climb.svg" style="width:80.0%" alt="" /><figcaption>$k$-Means Example</figcaption>
+      </figure>
+      </div>
+      </div>
+      <p>Comparison of MLE and $k$-Means. Since the overlap between the components is relatively small, we arrive at basically the same answers for $\mu_{1}$ and $\mu_{2}$.</p>
+      </section>
+      <section id="k-means-in-sample-space" class="level2">
+      <h2>$k$-Means In Sample Space</h2>
+      <figure>
+      <img src="img/kmeans_iter1.svg" style="width:80.0%" alt="" /><figcaption>$k$-Means Sample Space</figcaption>
+      </figure>
+      </section>
+      <section id="k-means-in-sample-space-1" class="level2">
+      <h2>$k$-Means In Sample Space</h2>
+      <figure>
+      <img src="img/kmeans_iter2.svg" style="width:80.0%" alt="" /><figcaption>$k$-Means Sample Space</figcaption>
+      </figure>
+      </section>
+      <section id="k-means-in-sample-space-2" class="level2">
+      <h2>$k$-Means In Sample Space</h2>
+      <figure>
+      <img src="img/kmeans_iter3.svg" style="width:80.0%" alt="" /><figcaption>$k$-Means Sample Space</figcaption>
+      </figure>
+      </section>
+      <section id="k-means-summary" class="level2">
+      <h2>$k$-Means Summary</h2>
+      <p>$k$-Means is a staple of unsupervised clustering methods.</p>
+      <p class="fragment">
+      It is simple and relatively fast, operating in $O(ndcT)$ time where $n$ is the number of patterns, $d$ is the number of features, $c$ is the number of clusters and $T$ is the number of iterations.
+      </p>
+      <p class="fragment">
+      It typically finishes in a small number of iterations.
+      </p>
+      </section>
+      <section id="k-means-caveats" class="level2">
+      <h2>$k$-Means Caveats</h2>
+      <p>When does it fail?</p>
+      <ul>
+      <li class="fragment">
+      If we are wrong about our number of classes, we will converge on two means that don’t mean anything.
+      </li>
+      <li class="fragment">
+      If the clusters are too close to one another, there may not be enough samples to properly “ascend” to the true value of $\mu$.
+      </li>
+      </ul>
+      <p class="fragment">
+      Remember: <strong>everything</strong> is dependent on your features!
+      </p>
+      </section>
+      </section>
+      <section id="section-6" class="level1">
+      <h1></h1>
+      <section id="evaluating-clusters" class="level2">
+      <h2>Evaluating Clusters</h2>
+      </section>
+      <section id="how-well-did-we-cluster" class="level2">
+      <h2>How Well Did We Cluster?</h2>
+      <p>So far, we’ve been talking about <strong>clusters</strong> and <strong>classes</strong> as being synonymous, but that’s clearly not the case.</p>
+      <p class="fragment">
+      An underlying density with multiple modes could represent the same class, while a unimodal density may represent multiple classes (i.e. it’s a bad feature for discrimination).
+      </p>
+      <p class="fragment">
+      We make assumptions about the form of the data, but clearly we could estimate perfectly valid parameter sets and completely miss the underlying structure of the data.
+      </p>
+      </section>
+      <section id="examples-of-misleading-parameters" class="level2">
+      <h2>Examples of Misleading Parameters</h2>
+      <figure>
+      <img src="img/misleading_clusters.svg" style="width:80.0%" alt="" /><figcaption>Distributions with equal $\boldsymbol{\mu}$ and $\boldsymbol{\Sigma}$.</figcaption>
+      </figure>
+      </section>
+      <section id="similarity-measures" class="level2">
+      <h2>Similarity Measures</h2>
+      <p>If we are interested in finding <strong>subclasses</strong> in our unlabeled data, we have to define what we mean.</p>
+      <p class="fragment">
+      Finding “clusters” seems like a good place to start, but how do we define a cluster?
+      </p>
+      <p class="fragment">
+      We need a way to say that samples in one cluster are more similar to each other than they are to samples in another cluster.
+      </p>
+      <p class="fragment">
+      We also need a way to evaluate a given partitioning of the dataset, to say that Clustering Result A is better or worse than Clustering Result B.
+      </p>
+      <p class="fragment">
+      We can even start by using a distance metric to define our clusters in the first place!
+      </p>
+      </section>
+      <section id="examples-of-distance-thresholding-high-threshold" class="level2">
+      <h2>Examples of Distance Thresholding: High Threshold</h2>
+      <figure>
+      <img src="img/cluster_high_thresh.svg" style="width:70.0%" alt="" /><figcaption>High Threshold Cluster</figcaption>
+      </figure>
+      <p>Clustering with a high threshold means that almost everything is put into the same cluster. In graph theory, this would be called a <strong>fully connected</strong> graph and is akin to <strong>under-training</strong>.</p>
+      </section>
+      <section id="examples-of-distance-thresholding-medium-threshold" class="level2">
+      <h2>Examples of Distance Thresholding: Medium Threshold</h2>
+      <figure>
+      <img src="img/cluster_mid_thresh.svg" style="width:70.0%" alt="" /><figcaption>Medium Threshold Cluster</figcaption>
+      </figure>
+      <p>Clustering with an intermediate threshold can reveal structure in your data, but it is up to the designer to say whether this is the <strong>correct</strong> structure.</p>
+      </section>
+      <section id="examples-of-distance-thresholding-low-threshold" class="level2">
+      <h2>Examples of Distance Thresholding: Low Threshold</h2>
+      <figure>
+      <img src="img/cluster_low_thresh.svg" style="width:70.0%" alt="" /><figcaption>Low Threshold Cluster</figcaption>
+      </figure>
+      <p>Clustering with a low threshold forces only the closest points to be associated with the same cluster. This is akin to <strong>over-training</strong>.</p>
+      </section>
+      <section id="choosing-a-similarity-metric-invariance-to-transforms" class="level2">
+      <h2>Choosing a Similarity Metric: Invariance to Transforms</h2>
+      <p>Generally speaking, we assume the correct distance metric is Euclidean (the shortest distance between two points is a straight line).</p>
+      <p class="fragment">
+      However, this is only justified if the space is <strong>isotropic</strong> (distances in one dimension are equivalent to those in another) and the data is evenly spread.
+      </p>
+      <p class="fragment">
+      Euclidean distance is robust to <strong>rigid</strong> transformations of the feature space (rotation and translation).
+      </p>
+      <p class="fragment">
+      It is NOT robust to arbitrary linear transformations which distort distance relationships.
+      </p>
+      </section>
+      <section id="rotations-effect-on-cluster-groupings" class="level2">
+      <h2>Rotation’s Effect on Cluster Groupings</h2>
+      <figure>
+      <img src="img/cluster_scaling.svg" style="width:40.0%" alt="" /><figcaption>Cluster Scaling</figcaption>
+      </figure>
+      </section>
+      <section id="choosing-a-similarity-metric-normalization" class="level2">
+      <h2>Choosing a Similarity Metric: Normalization</h2>
+      <p>We can try to counteract the effects of non-isotropy in our feature space through <strong>normalization</strong>, where we translate and scale the data to have a zero mean and unit variance.</p>
+      <p class="fragment">
+      We can also rotate the coordinate space so that the axes coincide with the eigenvectors of the covariance matrix; this is part of <strong>principal component analysis (PCA)</strong> which we will cover shortly.
+      </p>
+      <p class="fragment">
+      However, normalization has its own problems…
+      </p>
+      </section>
+      <section id="normalization-sometimes-ruins-our-clusters" class="level2">
+      <h2>Normalization Sometimes Ruins Our Clusters</h2>
+      <figure>
+      <img src="img/cluster_normalization.svg" style="width:80.0%" alt="" /><figcaption>Normalization</figcaption>
+      </figure>
+      <p>Normalization can take a well-separated dataset with two processes (left) and smoosh it together so we end up with a single cloud (right).</p>
+      </section>
+      </section>
+      <section id="section-7" class="level1">
+      <h1></h1>
+      <section id="parting-words" class="level2">
+      <h2>Parting Words</h2>
+      </section>
+      <section id="benefits-of-unsupervised-methods" class="level2">
+      <h2>Benefits of Unsupervised Methods</h2>
+      <p>Question: Will supervised methods always out-perform unsupervised methods?</p>
+      <p class="fragment">
+      As always, <strong>it depends!</strong> Having more information (like labels) is better, but over-fitting is always a danger.
+      </p>
+      <p class="fragment">
+      Over-fitting isn’t just fine-tuning your decision hyperplanes, it is also when you choose $c$ to be too high, or if you pick too many mixtures for each of your densities.
+      </p>
+      <p class="fragment">
+      Sometimes, clustering can give you insight above and beyond what you <strong>thought</strong> you knew!
+      </p>
+      <ul>
+      <li class="fragment">
+      If you think you have two classes, and you find three clusters, what does that mean?
+      </li>
+      <li class="fragment">
+      If you have five classes and you find two clusters, what does THAT mean?
+      </li>
+      </ul>
+      </section>
+      </section>
+      <section id="section-8" class="level1">
+      <h1></h1>
+      <section id="next-class" class="level2">
+      <h2>Next Class</h2>
+      </section>
+      <section id="similarity-metric-selection" class="level2">
+      <h2>Similarity Metric Selection</h2>
+      <p>In most situations, the choice of similarity metric / distance function will be arbitrary.</p>
+      <p class="fragment">
+      In the literature, Euclidean distance metric is usually assumed, unless you have reason to believe otherwise.
+      </p>
+      <p class="fragment">
+      With non-linear datasets, this may NOT true… but that’s for next class.
+      </p>
+      <p class="fragment">
+      We will also look at evaluating our clusters by calculating <strong>criterion functions</strong>: sum-of-squared-error, minimum variance, scatter matrices, trace / determinant criterions, and invariant criterions.
+      </p>
+      <p class="fragment">
+      (We may not look at all of those, but enough to give you the idea.)
+      </p>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <!-- Pseudocode scripts -->
+    <script>
+     pseudocode.renderElement(document.getElementById("hello-world-code"));
+    </script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+          fragments: true,
+          math: {
+					    mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+					    config: 'TeX-AMS_HTML-full'
+          },
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
