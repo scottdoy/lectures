@@ -1,0 +1,1 @@
+sed -f script 14_dimensionality_reduction.md > index.md

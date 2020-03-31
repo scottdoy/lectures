@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dimensionality Reduction</title>
+
+    <meta name="description" content="Dimensionality Reduction">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Custom Addons: TikzJax -->
+    <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css">
+    <script src="http://tikzjax.com/v1/tikzjax.js"></script>
+    <!-- Custom Addons: pseudocode.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">Dimensionality Reduction</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="recap" class="level2">
+      <h2>Recap</h2>
+      </section>
+      <section id="recap-principal-component-analysis" class="level2">
+      <h2>Recap: Principal Component Analysis</h2>
+      <p>PCA is a method of projecting data by calculating a set of vectors that captures the variance or “spread” of the data.</p>
+      <p class="fragment">
+      Recall that eigenvectors and eigenvalues can represent the <strong>direction</strong> and <strong>magnitude</strong> (respectively) of something represented in a matrix.
+      </p>
+      <p class="fragment">
+      If our matrix is the covariance matrix $\boldsymbol{\Sigma}$, then the eigenvectors represent the direction of the data “spread”, while the eigenvalues are the magnitude of that spread.
+      </p>
+      <p class="fragment">
+      Thus we can express the data as a lower-dimensional projection by choosing a set of eigenvectors corresponding to the largest eigenvalues.
+      </p>
+      </section>
+      <section id="recap-are-principal-components-always-orthogonal" class="level2">
+      <h2>Recap: Are Principal Components Always Orthogonal?</h2>
+      <p>The covariance matrix $\boldsymbol{\Sigma}$ is always positive and symmetric, having dimension $d\times d$ where $d$ is the number of dimensions.</p>
+      <p class="fragment">
+      We can prove that because of this, it has $d$ <strong>distinct, positive eigenvalues</strong>, each of which corresponds to an <strong>orthonormal</strong> eigenvector.
+      </p>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="independent-component-analysis" class="level2">
+      <h2>Independent Component Analysis</h2>
+      </section>
+      <section id="motivation-for-ica" class="level2">
+      <h2>Motivation for ICA</h2>
+      <p>PCA tries to represent data by an optimized projection of the data using the covariance of the samples.</p>
+      <p class="fragment">
+      ICA seeks out independent <strong>generating components</strong> of the data.
+      </p>
+      <p class="fragment">
+      Suppose you have $d$ independent, <strong>noiseless</strong> source signals $x_{i}(t)$ for $i=1,\,d$, where $t$ is our time component $1\leq t\leq T$.
+      </p>
+      <p class="fragment">
+      We denote by $\mathbf{x}(t)$ the $d$ values of the mixed signal at time $t$, and assume that the mean of $\mathbf{x}$ over time is zero.
+      </p>
+      <p class="fragment">
+      The multivariate density function is then written as:
+      </p>
+      <p class="fragment">
+      $ p\left[\mathbf{x}(t)\right]=\prod_{i=1}^{d}p\left[x_{i}(t)\right] $
+      </p>
+      </section>
+      <section id="illustration-of-source-signals-mathbfxt" class="level2">
+      <h2>Illustration of Source Signals $\mathbf{x}(t)$</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/ica_signal_01.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/ica_signal_02.svg" style="width:100.0%" /></p>
+      </div>
+      </div>
+      <p>Example of two source signals, $x_{1}(t)$ and $x_{2}(t)$.</p>
+      </section>
+      <section id="sources-and-signals" class="level2">
+      <h2>Sources and Signals</h2>
+      <p>The source signals are detected by a $k$-dimensional sensor:</p>
+      <p class="fragment">
+      $ \mathbf{s}(t)=\mathbf{A}\mathbf{x}(t) $
+      </p>
+      <p class="fragment">
+      where $\mathbf{A}$ is a $k\times d$ matrix representing the individual modulation of the $d$ source signals with respect to the $k$ detectors.
+      </p>
+      <p class="fragment">
+      <strong>Example</strong>: If $\mathbf{x}$ is a set of sound waves produced by $d$ instruments, and $\mathbf{s}$ is an array of $k$ microphones that are recording the sound, then $\mathbf{A}$ might represent the distance between each specific microphone and instrument.
+      </p>
+      <p class="fragment">
+      <strong>Goal</strong>: Extract the $d$ components in $\mathbf{s}$ that are independent.
+      </p>
+      <p class="fragment">
+      Note that we’re ignoring the effects of noise, time delay, and possible dependence of one signal on another.
+      </p>
+      </section>
+      <section id="illustration-of-detected-signals-mathbfst" class="level2">
+      <h2>Illustration of Detected Signals $\mathbf{s}(t)$</h2>
+      <div class="l-multiple">
+      <div>
+      <p><img src="img/ica_sensed_signal_01.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/ica_sensed_signal_02.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/ica_sensed_signal_03.svg" style="width:100.0%" /></p>
+      </div>
+      </div>
+      <p>The source signals are sensed by an array of $k$ detectors, each of which receives a different mixture of $x_{1}(t)$ and $x_{2}(t)$.</p>
+      </section>
+      <section id="jacobian-matrix" class="level2">
+      <h2>Jacobian Matrix</h2>
+      <p>The distribution in the output signals is related to the distribution:</p>
+      <p class="fragment">
+      $ p_\mathbf{y}=\frac{p_{\mathbf{s}}(\mathbf{s})}{|\mathbf{J}|} $
+      </p>
+      <p class="fragment">
+      where $\mathbf{J}$ is the Jacobian matrix:
+      </p>
+      <p class="fragment">
+      $ \mathbf{J}=\left( \begin{matrix} \frac{\partial y_{1}}{\partial s_{1}} &amp; \cdots &amp; \frac{\partial y_{d}}{\partial s_{1}} \\ \vdots &amp; \ddots &amp; \vdots \\ \frac{\partial y_{1}}{\partial s_{d}} &amp; \cdots &amp; \frac{\partial y_{d}}{\partial s_{d}} \end{matrix}\right) $
+      </p>
+      <p class="fragment">
+      and
+      </p>
+      <p class="fragment">
+      $ |\mathbf{J}|=\left| |\mathbf{W}|\prod_{i=1}^{d}\frac{\partial y_{i}}{\partial s_{i}}\right| $
+      </p>
+      </section>
+      <section id="reconstructed-output-signal" class="level2">
+      <h2>Reconstructed Output Signal</h2>
+      <p>The final stage is modeled as a linear transform of the source signals, plus a static nonlinearity:</p>
+      <p class="fragment">
+      $ \mathbf{y}=f[\mathbf{Ws}+\mathbf{w}_{0}] $
+      </p>
+      <p class="fragment">
+      where $\mathbf{w}_{0}$ is a bias vector and $f[\cdot]$ is some kind of function (e.g. a sigmoid).
+      </p>
+      <p class="fragment">
+      The goal in ICA is to find $\mathbf{W}$ and $\mathbf{w}_{0}$ so as to make the outputs $y_{i}$ as independent from one another as possible.
+      </p>
+      <p class="fragment">
+      This is motivated by the fact that <strong>we know</strong> (i.e. we assume) the original signals themselves were independent.
+      </p>
+      </section>
+      <section id="finding-mathbfw" class="level2">
+      <h2>Finding $\mathbf{W}$</h2>
+      <p>So to find our matrix, we can calculate $\mathbf{W}$ and $\mathbf{w}_{0}$ iteratively, by defining a cost function, finding the derivative, and setting that to zero.</p>
+      <p class="fragment">
+      The goal is to find the set of components which are <strong>maximally independent</strong>, so our “cost” function should be a measure of independence for signals that we can try to maximize.
+      </p>
+      </section>
+      <section id="illustration-of-recovered-source-signals" class="level2">
+      <h2>Illustration of Recovered Source Signals</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/ica_recovered_signal_01.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/ica_recovered_signal_02.svg" style="width:100.0%" /></p>
+      </div>
+      </div>
+      <p>The reconstructed source signals are found by transforming the detected signals by a set of learned weights $\mathbf{W}$.</p>
+      </section>
+      <section id="compare-source-and-recovered-signals" class="level2">
+      <h2>Compare Source and Recovered Signals</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/ica_signal_01.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/ica_recovered_signal_blank_01.svg" style="width:100.0%" /></p>
+      </div>
+      </div>
+      <p>The reconstructed source signals are found by transforming the detected signals by a set of learned weights $\mathbf{W}$.</p>
+      </section>
+      <section id="compare-source-and-recovered-signals-1" class="level2">
+      <h2>Compare Source and Recovered Signals</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/ica_signal_02.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/ica_recovered_signal_blank_02.svg" style="width:100.0%" /></p>
+      </div>
+      </div>
+      <p>The reconstructed source signals are found by transforming the detected signals by a set of learned weights $\mathbf{W}$.</p>
+      </section>
+      <section id="finding-mathbfw-measuring-independence" class="level2">
+      <h2>Finding $\mathbf{W}$: Measuring Independence</h2>
+      <p>We use <strong>joint entropy</strong> to measure independence:</p>
+      <p class="fragment">
+      \begin{align} H(\mathbf{y}) &amp;= -\mathcal{E}[\ln{p_{\mathbf{y}}(\mathbf{y})}] \\ &amp;=\mathcal{E}[\ln{|\mathbf{J}|}]-\underbrace{\mathcal{E}[\ln{p_{\mathbf{s}}(\mathbf{s})}]}_{\textrm{independent of weights}} \ \end{align}
+      </p>
+      <p class="fragment">
+      $\mathcal{E}$ is the expected value across all $t=1,\ldots,T$.
+      </p>
+      <p class="fragment">
+      Through gradient descent we find the learning rule for $\mathbf{W}$:
+      </p>
+      <p class="fragment">
+      $ \Delta\mathbf{W}\propto\frac{\partial H(\mathbf{y})}{\partial\mathbf{W}}=\frac{\partial}{\partial\mathbf{W}}\ln{|\mathbf{J}|}=\frac{\partial}{\partial\mathbf{W}}\ln{|\mathbf{W}|}+\frac{\partial}{\partial\mathbf{W}}\ln{\prod_{i=1}^{d}\left|\frac{\partial y_{i}}{\partial s_{i}}\right|} $
+      </p>
+      </section>
+      <section id="finding-mathbfw-cofactors-and-inverse-matrices" class="level2">
+      <h2>Finding $\mathbf{W}$: Cofactors and Inverse Matrices</h2>
+      <p>In component form we can write the first term as:</p>
+      <p class="fragment">
+      $ \frac{\partial}{\partial W_{ij}}\ln{|\mathbf{W}|}=\frac{\textrm{cof}[W_{ij}]}{|\mathbf{W}|} $
+      </p>
+      <p class="fragment">
+      where $\textrm{cof}[W_{ij}]$ is the cofactor of $W_{ij}$, or $(-1)^{i+j}$ times the determinant of the $(d-1)-by-(k-1)$-dimensional matrix gotten by deleting the $i$th row and $j$th column of $\mathbf{W}$.
+      </p>
+      <p class="fragment">
+      This gives us:
+      </p>
+      <p class="fragment">
+      $ \frac{\partial}{\partial \mathbf{W}}\ln{|\mathbf{W}|}=[\mathbf{W}^{T}]^{-1} $
+      </p>
+      <p class="fragment">
+      Which, in turn, gives the weight update rule for $\mathbf{W}$:
+      </p>
+      <p class="fragment">
+      $ \Delta\mathbf{W}\propto[\mathbf{W}^{T}]^{-1}+(\mathbf{1}-2\mathbf{y})\mathbf{s}^{T}_{g} $
+      </p>
+      </section>
+      <section id="bias-mathbfw_0-learning-rule" class="level2">
+      <h2>Bias $\mathbf{w}_{0}$ Learning Rule</h2>
+      <p>It can be shown that with the same sets of assumptions, the learning rule for the bias weights is:</p>
+      <p class="fragment">
+      $ \Delta\mathbf{w}_{0}\propto\mathbf{1}-2\mathbf{y} $
+      </p>
+      <p class="fragment">
+      It’s difficult to know how many components we should try to reconstruct; if the number is too high, ICA may be sensitive to numerical simulation and may be unreliable.
+      </p>
+      <p class="fragment">
+      This is a potentially useful alternative to PCA, if we suspect that our classes are elongated in parallel.
+      </p>
+      </section>
+      <section id="full-illustration-of-ica" class="level2">
+      <h2>Full Illustration of ICA</h2>
+      <figure>
+      <img src="img/ica_full_system.svg" style="width:70.0%" alt="" /><figcaption>Full Illustration of ICA</figcaption>
+      </figure>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="curse-of-dimensionality" class="level2">
+      <h2>Curse of Dimensionality</h2>
+      </section>
+      <section id="problems-with-high-dimensional-visualization" class="level2">
+      <h2>Problems with High Dimensional Visualization</h2>
+      <p>Using “similarity” instead of “distance” loses some intuitive interpretation about our data’s structure.</p>
+      <p class="fragment">
+      When this data is in very high dimensions, it’s impossible for us to visualize, even if the mathematics works perfectly.
+      </p>
+      <p class="fragment">
+      We’d like to figure out a way to represent data in a low number (1-3) of dimensions while preserving the similarity between points.
+      </p>
+      <ul>
+      <li class="fragment">
+      We can see the data in a way that makes sense to us (i.e. using distance as a reliable surrogate of similarity).
+      </li>
+      <li class="fragment">
+      We can see the data at all (in three or fewer spatial dimensions).
+      </li>
+      </ul>
+      </section>
+      <section id="motivation-for-low-dimensional-representation" class="level2">
+      <h2>Motivation for Low-Dimensional Representation</h2>
+      <p>First: Why do we NEED to see things in low dimensions?</p>
+      <p class="fragment">
+      Will a classifier work the same on the low-dimensional representation as it does on the high-dimensional one?
+      </p>
+      <p class="fragment">
+      Are these methods only to help us humans visualize the data?
+      </p>
+      <p class="fragment">
+      <strong>No!</strong> We are always constrained by the curse of dimensionality.
+      </p>
+      <p class="fragment">
+      We’ve discussed it before, but now let’s examine it in detail.
+      </p>
+      </section>
+      <section id="accuracy-in-high-dimensions" class="level2">
+      <h2>Accuracy in High Dimensions</h2>
+      <p>The curse of dimensionality seems paradoxical at first: if features are statistically independent, and the class means are different, shouldn’t we <strong>always</strong> do better?</p>
+      <p class="fragment">
+      Consider the two class case where $p(\mathbf{x}|\omega_{j})\sim N(\boldsymbol{\mu}_{j},\boldsymbol{\Sigma})$ for $j=1,2$.
+      </p>
+      <p class="fragment">
+      <strong>Assuming equal priors</strong> (just to make it simple), the Bayes error rate is:
+      </p>
+      <p class="fragment">
+      $ P(e)=\frac{1}{\sqrt{2}}\int_{r/2}^{\infty}e^{-\frac{r^{2}}{2}}du $
+      </p>
+      <p class="fragment">
+      where $r^2$ is the Mahalanobis distance between the class means:
+      </p>
+      <p class="fragment">
+      $ r^{2}=(\boldsymbol{\mu}_{1}-\boldsymbol{\mu}_{2})^{T}\boldsymbol{\Sigma}^{-1}(\boldsymbol{\mu}_{1}-\boldsymbol{\mu}_{2}) $
+      </p>
+      </section>
+      <section id="accuracy-in-high-dimensions-1" class="level2">
+      <h2>Accuracy in High Dimensions</h2>
+      <p>$ P(e)=\frac{1}{\sqrt{2}}\int_{\frac{r}{2}}^{\infty}e^{-\frac{r^{2}}{2}}du $</p>
+      <p class="fragment">
+      How does our probability of error change as the distance between the class means $r$ increases?
+      </p>
+      <p class="fragment">
+      Assuming conditional indpenedence, $\boldsymbol{\Sigma}=diag(\sigma_{1}^{2},\ldots,\sigma_{d}^{2})$ and:
+      </p>
+      <p class="fragment">
+      $ r^{2}=\sum_{i=1}^{d}\left(\frac{\mu_{i1}-\mu_{i2}}{\sigma_{i}}\right)^{2} $
+      </p>
+      <p class="fragment">
+      How does this change as $d$ gets larger?
+      </p>
+      <p class="fragment">
+      <strong>We are adding more components, and thus (potentially) increasing $r$</strong>.
+      </p>
+      </section>
+      <section id="illustration-of-increasing-dimensionality" class="level2">
+      <h2>Illustration of Increasing Dimensionality</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/cod_illustration.svg" style="width:80.0%" /></p>
+      </div>
+      <div>
+      <p>In the one-dimensional space, there is some significant overlap (i.e. Bayes error) between the features.</p>
+      <p>When we add dimensions, we see a reduction in this overlap; in the third dimensions, the class spaces are completely separate, and the Bayes error is zero.</p>
+      </div>
+      </div>
+      </section>
+      <section id="theory-vs.-reality" class="level2">
+      <h2>Theory vs. Reality</h2>
+      <p><strong>In theory</strong>, the worst feature will have identical class means, so that $\mu_{i1}-\mu_{i2}=0$, so $r$ will not increase at that point in the sum.</p>
+      <p class="fragment">
+      If $r$ is increased without limit, then our error should theoretically approach zero! (Which obviously doesn’t happen.)
+      </p>
+      <p class="fragment">
+      <strong>So what’s wrong?</strong> The reason not all classifiers are perfect comes down to one of these:
+      </p>
+      <ul>
+      <li class="fragment">
+      Our assumption that the features are independent is wrong.
+      </li>
+      <li class="fragment">
+      Our underlying model for our distributions is wrong.
+      </li>
+      <li class="fragment">
+      Our training samples are finite, so we cannot accurately estimate the distributions.
+      </li>
+      </ul>
+      <p class="fragment">
+      <strong>Dimensionality reduction</strong> methods seek to address these issues by projecting the data into a low-dimensional space, combining dependent variables and ignoring non-informative ones.
+      </p>
+      </section>
+      </section>
+      <section id="section-3" class="level1">
+      <h1></h1>
+      <section id="multidimensional-scaling" class="level2">
+      <h2>Multidimensional Scaling</h2>
+      </section>
+      <section id="simple-case-example" class="level2">
+      <h2>Simple Case Example</h2>
+      <p>Let $\mathbf{y}_{i}$ be a projection of a sample $\mathbf{x}_{i}$.</p>
+      <p class="fragment">
+      $\delta_{ij}$ (delta) is the distance between $\mathbf{x}_{i}$ and $\mathbf{x}_{j}$, and $d_{ij}$ (lowercase “d”)is the distance between $\mathbf{y}_{i}$ and $\mathbf{y}_{j}$.
+      </p>
+      <p class="fragment">
+      Thus we want to find how to arrange $\mathbf{y}_{1},\ldots,\mathbf{y}_{n}$ such that the distances $d_{ij}$ are as close as possible to $\delta_{ij}$.
+      </p>
+      </section>
+      <section id="simple-case-illustration" class="level2">
+      <h2>Simple Case Illustration</h2>
+      <figure>
+      <img src="img/mds_illustration.svg" style="width:80.0%" alt="" /><figcaption>3D to 2D mapping, with Euclidean distances for $\delta_{ij}$ and $d_{ij}$.</figcaption>
+      </figure>
+      </section>
+      <section id="criterion-functions-for-mds" class="level2">
+      <h2>Criterion Functions for MDS</h2>
+      <p>We can set up a few criterion functions:</p>
+      <table>
+      <tr>
+      <td>
+      <strong>Equation</strong>
+      </td>
+      <td>
+      <strong>Characteristic</strong>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      $J_{ee}=\frac{\sum_{i&lt;j}(d_{ij}-\delta_{ij})^{2}}{\sum_{i&lt;j}\delta_{ij}^{2}}$
+      </td>
+      <td>
+      Emphasizes large error, regardless of original distance
+      </td>
+      </tr>
+      <tr>
+      <td>
+      $J_{ff}=\sum_{i&lt;j}\left(\frac{d_{ij}-\delta_{ij}}{\delta_{ij}}\right)^{2}$
+      </td>
+      <td>
+      Emphasizes proportional error, regardless of actual error
+      </td>
+      </tr>
+      <tr>
+      <td>
+      $J_{ef}=\frac{1}{\sum_{i&lt;j}\delta_{ij}}\sum_{i&lt;j}\frac{(d_{ij}-\delta_{ij})^{2}}{\delta_{ij}}$
+      </td>
+      <td>
+      Compromise between the two
+      </td>
+      </tr>
+      </table>
+      <p>All are invariant to rigid transforms and are normalized.</p>
+      </section>
+      <section id="gradients-for-criterion-functions" class="level2">
+      <h2>Gradients for Criterion Functions</h2>
+      <p>Gradients are easy to compute: The gradient of $d_{ij}$ with respect to $\mathbf{y}_{i}$ is a unit vector in the direction of $\mathbf{y}_{i}-\mathbf{y}_{j}$:</p>
+      <p class="fragment">
+      $ \boldsymbol{\nabla}_{\mathbf{y}_{k}}J_{ef}=\frac{2}{\sum_{i&lt;j}\delta_{ij}}\sum_{j\neq k}\frac{d_{kj}-\delta_{kj}}{\delta_{kj}}\frac{\mathbf{y}_{k}-\mathbf{y}_{j}}{d_{kj}} $
+      </p>
+      <p class="fragment">
+      Example: 30 points spaced at unit intervals along a spiral, which circles around the $x_{3}$ axis:
+      </p>
+      <p class="fragment">
+      \begin{align} x_{1}(k) &amp;= \cos{\left(\frac{k}{\sqrt{2}}\right)} \\ x_{2}(k) &amp;= \sin{\left(\frac{k}{\sqrt{2}}\right)} \\ x_{3}(k) &amp;= \frac{k}{\sqrt{2}} \\ \end{align}
+      </p>
+      </section>
+      <section id="illustration-of-spiral-mds" class="level2">
+      <h2>Illustration of Spiral MDS</h2>
+      <figure>
+      <img src="img/mds_spiral.svg" style="width:80.0%" alt="" /><figcaption>3D to 2D embedding with $J_{ef}$.</figcaption>
+      </figure>
+      </section>
+      <section id="wrapup-of-linear-methods" class="level2">
+      <h2>Wrapup of Linear Methods</h2>
+      <p>One thing to keep in mind is that these methods are <strong>linear</strong> – they cannot encode nonlinear relationships between datapoints.</p>
+      <p class="fragment">
+      A nonlinear dataset is one in which linear distances (e.g. Euclidean distance) between points is <strong>not</strong> a reliable measure of similarity.
+      </p>
+      <p class="fragment">
+      What are some examples?
+      </p>
+      </section>
+      <section id="examples-of-nonlinear-datasets" class="level2">
+      <h2>Examples of Nonlinear Datasets</h2>
+      <p><img src="img/swissroll_unlabeled.svg" style="width:80.0%" /></p>
+      </section>
+      <section id="how-to-know-if-datasets-are-nonlinear" class="level2">
+      <h2>How to Know if Datasets are Nonlinear?</h2>
+      <p>As we’ve seen, unsupervised methods rely on data structure to “tell a story” – therefore, if your linear method is applied to a nonlinear dataset, and you just get a big blob, how do you know what’s wrong?</p>
+      <p class="fragment">
+      You need a <strong>large number</strong> of samples before you can conclude that your dataset is nonlinear (and for nonlinear methods to work at all).
+      </p>
+      <p class="fragment">
+      The swiss roll is nonlinear in 3 dimensions, but if your data is nonlinear in a million dimensions, it’ll be tough to know ahead of time.
+      </p>
+      <p class="fragment">
+      Therefore, validation of these methods will require <strong>some</strong> amount of labeling or ground truth.
+      </p>
+      </section>
+      </section>
+      <section id="section-4" class="level1">
+      <h1></h1>
+      <section id="locally-linear-methods" class="level2">
+      <h2>Locally Linear Methods</h2>
+      </section>
+      <section id="various-manifold-methods" class="level2">
+      <h2>Various Manifold Methods</h2>
+      <p>If you have a lot of data, you can assume it lies on a well-defined manifold – that is, the points form a “sheet” in high-dimensional space.</p>
+      <p class="fragment">
+      The only distances that are valid are those between a point and its close neighbors; everything else is invalid (i.e. the distance is “infinite”).
+      </p>
+      <p class="fragment">
+      Think of houses on switchback streets: if you’re in a car, and not driving over people’s lawns, you have to travel the road to get to your neighbor’s house.
+      </p>
+      </section>
+      <section id="common-themes" class="level2">
+      <h2>Common Themes</h2>
+      <p>There are a lot of these methods, but they all make some pretty basic assumptions:</p>
+      <ul>
+      <li class="fragment">
+      Points in high-dimensional space lie on a manifold;
+      </li>
+      <li class="fragment">
+      There are enough points in the datasest to “define” that manifold;
+      </li>
+      <li class="fragment">
+      You can set a neighborhood parameter to define how far apart points can be without “hopping” onto another part of the manifold;
+      </li>
+      <li class="fragment">
+      It’s possible to devise a mapping such that $\delta_{ij}$ and $d_{ij}$ are similar for pairs of points $\mathbf{x}_{i}, \mathbf{x}_{j}$ and their projections $\mathbf{y}_{i}, \mathbf{y}_{j}$
+      </li>
+      </ul>
+      </section>
+      <section id="do-it-yourself" class="level2">
+      <h2>Do It Yourself!</h2>
+      <p>There are a lot of nonlinear methods.</p>
+      <ul>
+      <li class="fragment">
+      <strong>Isometric mapping</strong> (ISOMAPS)
+      </li>
+      <li class="fragment">
+      <strong>Locally Linear Embedding</strong> (LLE)
+      </li>
+      <li class="fragment">
+      <strong>DBSCAN</strong>
+      </li>
+      <li class="fragment">
+      <strong>t-Distributed Stochastic Neighbor Embedding</strong> (t-SNE)
+      </li>
+      <li class="fragment">
+      <strong>UMAP</strong>
+      </li>
+      </ul>
+      <p class="fragment">
+      We will cover the last two, as they are what most people gravitate towards these days, and it’s implemented in MATLAB.
+      </p>
+      </section>
+      </section>
+      <section id="section-5" class="level1">
+      <h1></h1>
+      <section id="t-distributed-stochastic-neighbor-embedding" class="level2">
+      <h2>t-Distributed Stochastic Neighbor Embedding</h2>
+      </section>
+      <section id="formulation-of-t-sne" class="level2">
+      <h2>Formulation of t-SNE</h2>
+      <p>This is a relatively new method developed in 2008 by:</p>
+      <ul>
+      <li class="fragment">
+      Geoffrey Hinton, who has done great foundational work in neural networks
+      </li>
+      <li class="fragment">
+      Laurens van der Maaten, who has written extensively on dimensionality reduction
+      </li>
+      </ul>
+      <p class="fragment">
+      It is a <strong>nonlinear, probabilistic</strong> technique which is also solved through numerical optimization (i.e., gradient descent).
+      </p>
+      <p class="fragment">
+      This means that running t-SNE multiple times may give you <strong>different embeddings</strong>.
+      </p>
+      </section>
+      <section id="how-does-t-sne-work" class="level2">
+      <h2>How Does t-SNE Work?</h2>
+      <p>Let’s assume we have our $d$-dimensional dataset, $\{\mathbf{x}_{1}, \mathbf{x}_{2}, \ldots, \mathbf{x}_{N}\}$.</p>
+      <p class="fragment">
+      We assume that $d$ is fairly large, and that all features are relevant to describing the dataset.
+      </p>
+      <p class="fragment">
+      The goal is to find a mapping where <strong>similarity between points is preserved</strong>, which in t-SNE is done by modeling between-point similarity as a probability distribution (and a Gaussian, no less).
+      </p>
+      </section>
+      <section id="similarity-as-a-probability" class="level2">
+      <h2>Similarity as a Probability</h2>
+      <p>If we assume the points are distributed as a Gaussian in high-dimensional space, then the probability, $p_{j|i}$, is understood as the likelihood that point $\mathbf{x}_{i}$ would have $\mathbf{x}_{j}$ as its “neighbor” (in other words, that the points would be close together).</p>
+      <p class="fragment">
+      $ p_{j|i} = \frac{\exp\left[-|\mathbf{x}_{i} - \mathbf{x}_{j}|^{2}/ 2\sigma^{2}_{i}\right]}{\sum_{k\neq i}\exp\left[-|\mathbf{x}_{i} - \mathbf{x}_{k}|^{2} / 2\sigma^{2}_{i}\right]} $
+      </p>
+      <p class="fragment">
+      If you look closely, this is just a Gaussian where one of the points serves as the “mean”. The value of $\sigma$ is a parameter that can be derived from the “complexity” of the data, and is a tunable parameter.
+      </p>
+      </section>
+      <section id="similarity-as-a-probability-1" class="level2">
+      <h2>Similarity as a Probability</h2>
+      <p>By normalizing by the number of all points, we get a measure of point similarity:</p>
+      <p class="fragment">
+      $ p_{ij} = \frac{p_{i|j} + p_{j|i}}{2N} $
+      </p>
+      </section>
+      <section id="similarity-in-the-low-dimensional-space" class="level2">
+      <h2>Similarity in the Low Dimensional Space</h2>
+      <p>Next, we define a similar point-wise probability for the points in <strong>low</strong> dimensional space as well. Here, high-dimensional point $\mathbf{x}_{i}$ is referred to in low-dimensional space as $\mathbf{y}_{i}$.</p>
+      <p class="fragment">
+      Low-dimensional probability is defined as:
+      </p>
+      <p class="fragment">
+      $ q_{ij} = \frac{\left(1 + |\mathbf{y}_{i} - \mathbf{y}_{j}|^{2}\right)^{-1} }{\sum_{k\neq i}\left(1 + |\mathbf{y}_{i} - \mathbf{y}_{k}|^{2}\right)^{-1}} $
+      </p>
+      <p class="fragment">
+      This is NOT a Gaussian modeling: this is a Student-t distribution (hence, “t-distributed SNE”).
+      </p>
+      </section>
+      <section id="why-use-different-distributions" class="level2">
+      <h2>Why Use Different Distributions?</h2>
+      <p>The paper goes into detail for each of their choices, but the use of two different distributions addresses some issues where outlier points have incorrect amounts of influence on the resulting mapping.</p>
+      <p class="fragment">
+      The Student-t distribution works like an inverse square law for large distances, meaning that the scale of the mapping doesn’t affect the result.
+      </p>
+      </section>
+      <section id="putting-it-together" class="level2">
+      <h2>Putting it Together</h2>
+      <p>So we have a probability distribution on the data in high dimensions, $p_{ij}$, which we can calculate. We also have a form for the low-dimensional distribution, $q_{ij}$, but we can’t calculate that because we don’t know what $\mathbf{y}$ should be.</p>
+      <p class="fragment">
+      To find the location of the points $\mathbf{y}$, we minimize the Kullback-Leibler Divergence, which is defined as:
+      </p>
+      <p class="fragment">
+      $ KL(P||Q) = \sum_{i\neq j}p_{ij}\log{\frac{p_{ij}}{q_{ij}}} $
+      </p>
+      <p class="fragment">
+      The KL Divergence is basically how you calculate the difference between two probability distributions.
+      </p>
+      <p class="fragment">
+      How do we minimize? Gradient descent!
+      </p>
+      </section>
+      <section id="parameters-parameters-everywhere" class="level2">
+      <h2>Parameters, Parameters Everywhere</h2>
+      <p>As with any numerical optimization approach, we have to think about:</p>
+      <ul>
+      <li class="fragment">
+      Our <strong>learning rate</strong>
+      </li>
+      <li class="fragment">
+      Our <strong>search time</strong>
+      </li>
+      <li class="fragment">
+      Our <strong>initial conditions</strong> (i.e. local vs. global minima)
+      </li>
+      </ul>
+      <p class="fragment">
+      Because of this, t-SNE can give you different results if run multiple times (because of local minima), and selection of parameter values is <strong>critically important</strong>.
+      </p>
+      <p class="fragment">
+      So interpreting your results should be done with a fair amount of caution. Make sure you test robustness by running the algorithm multiple times with different parameter sets on data you know is clean.
+      </p>
+      </section>
+      <section id="still-more-parameters" class="level2">
+      <h2>Still More Parameters</h2>
+      <p>In addition, t-SNE has its own tunable parameters:</p>
+      <ul>
+      <li class="fragment">
+      “Perplexity”, which is related to the bandwidth of the Gaussians used to model probability densities in high dimensions
+      </li>
+      <li class="fragment">
+      Similarity metric, which in the original formulation is Euclidean
+      </li>
+      </ul>
+      <p class="fragment">
+      Again: you need to check that what you’re getting makes sense for your own data and assumptions.
+      </p>
+      <p class="fragment">
+      Interpreting dimensionality reduction methods should be done with extreme caution.
+      </p>
+      </section>
+      </section>
+      <section id="section-6" class="level1">
+      <h1></h1>
+      <section id="parting-words" class="level2">
+      <h2>Parting Words</h2>
+      </section>
+      <section id="tip-of-the-iceberg" class="level2">
+      <h2>Tip of the Iceberg</h2>
+      <p>Unsupervised methods, clustering, and DR are obviously a HUGE topic.</p>
+      <p class="fragment">
+      They are typically the first thing you can do when you start collecting data.
+      </p>
+      <p class="fragment">
+      Cheap, (somewhat) fast, and give you an idea of how well your calculated features are doing.
+      </p>
+      <p class="fragment">
+      There are a ton of variations of what we’ve discussed, but if you are interested, this is a good starting point.
+      </p>
+      </section>
+      <section id="next-topic" class="level2">
+      <h2>Next Topic</h2>
+      <p>Neural networks are an extension of linear machines and will serve as the basis for deep learning.</p>
+      <p class="fragment">
+      Next class, we will begin building the foundations we’ll need for understanding these complex classifiers.
+      </p>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <!-- Pseudocode scripts -->
+    <script>
+     pseudocode.renderElement(document.getElementById("hello-world-code"));
+    </script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+          fragments: true,
+          math: {
+					    mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+					    config: 'TeX-AMS_HTML-full'
+          },
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
