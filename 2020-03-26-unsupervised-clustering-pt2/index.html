@@ -1,0 +1,1123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Unsupervised Clustering (Pt. 2)</title>
+
+    <meta name="description" content="Unsupervised Clustering (Pt. 2)">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Custom Addons: TikzJax -->
+    <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css">
+    <script src="http://tikzjax.com/v1/tikzjax.js"></script>
+    <!-- Custom Addons: pseudocode.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">Unsupervised Clustering (Pt. 2)</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="recap" class="level2">
+      <h2>Recap</h2>
+      </section>
+      <section id="recap-why-use-unlabeled-data" class="level2">
+      <h2>Recap: Why Use Unlabeled Data?</h2>
+      <ul>
+      <li>
+      Samples are cheap to collect, costly to label.
+      </li>
+      <li class="fragment">
+      Clustering gives you a free(ish) look at the structure of your data.
+      </li>
+      <li class="fragment">
+      Clustering does not preclude performing hands-on labeling later.
+      </li>
+      <li class="fragment">
+      Unsupervised methods adapt to new trends in the data over time.
+      </li>
+      <li class="fragment">
+      Some methods learn features as well as class labels.
+      </li>
+      </ul>
+      </section>
+      <section id="recap-component-densities-and-mixing-parameters" class="level2">
+      <h2>Recap: Component Densities and Mixing Parameters</h2>
+      <p>$p(\mathbf{x}|\boldsymbol{\theta})=\sum_{j=1}^{c}p(\mathbf{x}|\omega_{j},\boldsymbol{\theta}_{j})P(\omega_{j})$</p>
+      <p class="fragment">
+      In this form, $p(\mathbf{x}|\boldsymbol{\theta})$ is known as a <strong>mixture density</strong>.
+      </p>
+      <p class="fragment">
+      Conditional densities $p(\mathbf{x}|\omega_{j},\boldsymbol{\theta_{j}})$ are the <strong>component densities</strong>.
+      </p>
+      <p class="fragment">
+      Priors $P(\omega_{j})$ are the <strong>mixing parameters</strong>.
+      </p>
+      </section>
+      <section id="recap-component-densities-and-mixing-parameters-1" class="level2">
+      <h2>Recap: Component Densities and Mixing Parameters</h2>
+      <figure>
+      <img src="img/gaussian_mixture_fused.svg" style="width:80.0%" alt="" /><figcaption>Observed Sample Distribution</figcaption>
+      </figure>
+      </section>
+      <section id="recap-component-densities-and-mixing-parameters-2" class="level2">
+      <h2>Recap: Component Densities and Mixing Parameters</h2>
+      <figure>
+      <img src="img/gaussian_mixture_1d.svg" style="width:80.0%" alt="" /><figcaption>Underlying Component Distributions</figcaption>
+      </figure>
+      </section>
+      <section id="recap-normal-mixtures-and-additional-assumptions" class="level2">
+      <h2>Recap: Normal Mixtures and Additional Assumptions</h2>
+      <p>We’ve already assumed we know the form of each mixture density (namely, they are Gaussian).</p>
+      <p class="fragment">
+      There are four parameters that we may not know:
+      </p>
+      <ul>
+      <li class="fragment">
+      $\boldsymbol{\mu}_{i}$, the multivariate mean;
+      </li>
+      <li class="fragment">
+      $\boldsymbol{\Sigma}_{i}$, the covariance matrix;
+      </li>
+      <li class="fragment">
+      $P(\omega_{i})$, the prior probability; and
+      </li>
+      <li class="fragment">
+      $c$, the total number of classes.
+      </li>
+      </ul>
+      <p class="fragment">
+      We CAN evaluate the system if we don’t know anything.
+      </p>
+      </section>
+      <section id="recap-estimating-our-parameter-sets-for-clustering" class="level2">
+      <h2>Recap: Estimating our Parameter Sets for Clustering</h2>
+      <p>Our strategy for finding $c$ and $P(\omega_{i})$ is simply to estimate them from the domain (similar to how we estimate $P(\omega_{i})$ in the Bayesian case).</p>
+      <p class="fragment">
+      $c$ can be optimized by looking at the clustering criteria (later in this lecture).
+      </p>
+      <p class="fragment">
+      Typically (as in Bayes), we select non-informative $P(\omega_{i})$ – what happens if we select unequal priors?
+      </p>
+      </section>
+      <section id="recap-unequal-prior-values" class="level2">
+      <h2>Recap: Unequal Prior Values</h2>
+      <p><img src="img/gaussian_mixture_1d_unequal_fused.svg" style="width:80.0%" /></p>
+      </section>
+      <section id="recap-unequal-prior-values-1" class="level2">
+      <h2>Recap: Unequal Prior Values</h2>
+      <p><img src="img/gaussian_mixture_1d_unequal.svg" style="width:80.0%" /></p>
+      </section>
+      <section id="recap-mle-estimating-boldsymboltheta_i" class="level2">
+      <h2>Recap: MLE: Estimating $\boldsymbol{\theta}_{i}$</h2>
+      <p>For $\boldsymbol{\mu}_{i}$ and $\boldsymbol{\Sigma}_{i}$, we find the derivative of our mixture likelihoods with respect to the parameters, set equal to zero, and iteratively find the <strong>most likely</strong> parameter set that would give us our training data.</p>
+      <p class="fragment">
+      If our mixture density is this:
+      </p>
+      <p class="fragment">
+      $p(\mathbf{x}|\boldsymbol{\theta})=\sum_{j=1}^{c}p(\mathbf{x}|\omega_{j},\boldsymbol{\theta}_{j})P(\omega_{j})$
+      </p>
+      <p class="fragment">
+      And we assume that each $p(\mathbf{x}|\omega_{j},\boldsymbol{\theta}_{j})$ is Gaussian, then we can differentiate the natural logarithm with respect to each parameter in turn and calculate the maximum likelihood estimate.
+      </p>
+      </section>
+      <section id="recap-mle-solving-for-boldsymbolsigma" class="level2">
+      <h2>Recap: MLE: Solving for $\boldsymbol{\Sigma}$</h2>
+      <p>There’s a lot of tricky math and derivations, but at the end of the day we can get an estimate for $\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}})$:</p>
+      <p class="fragment">
+      $\require{color} \hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}}) = \frac{ |\boldsymbol{\hat{\Sigma}}_{i}|^{-\frac{1}{2}}\exp\left[-\frac{1}{2} \colorbox{lightblue}{$(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i})^{T}\hat{\boldsymbol{\Sigma}}_{i}^{-1}(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i})$} \right]\hat{P}(\omega_{i})}{\sum_{j=1}^{c}|\hat{\boldsymbol{\Sigma}}_{j}|^{-\frac{1}{2}}\exp\left[-\frac{1}{2}(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{j})^{T}\hat{\boldsymbol{\Sigma}}_{j}^{-1}(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{j})\right]\hat{P}(\omega_{j})}$
+      </p>
+      <p class="fragment">
+      With this long, ugly thing, we can estimate the likelihood that a point $\mathbf{x}_{k}$ belongs to $\omega_{i}$.
+      </p>
+      <p class="fragment">
+      Simple explanation: if the squared Mahalanobis distance, $\colorbox{lightblue}{$(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i})^{T}\hat{\boldsymbol{\Sigma}}_{i}^{-1}(\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i})$}$, is small, then $\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}})$ is large.
+      </p>
+      </section>
+      <section id="recap-k-means-clustering" class="level2">
+      <h2>Recap: $k$-Means Clustering</h2>
+      <p>If we replace the Mahalanobis with the squared Euclidean distance $|\mathbf{x}_{k}-\hat{\boldsymbol{\mu}}_{i}|^{2}$, we can find the mean $\hat{\boldsymbol{\mu}}_{m}$ nearest to $\mathbf{x}_{k}$.</p>
+      <p class="fragment">
+      Thus we can approximate $\hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}})$ as:
+      </p>
+      <p class="fragment">
+      $ \hat{P}(\omega_{i}|\mathbf{x}_{k},\hat{\boldsymbol{\theta}}) \simeq \begin{cases} 1 &amp; \quad \textrm{if }i=m \\ 0 &amp; \quad \textrm{otherwise.} \\ \end{cases}$
+      </p>
+      <p class="fragment">
+      Then we can plug this into the equation we got before and solve for $\hat{\boldsymbol{\mu}}_{1},\cdots,\hat{\boldsymbol{\mu}}_{c}$.
+      </p>
+      <p class="fragment">
+      We can “initialize” by selecting $c$ class centroids at random from the unlabeled data, and then iterating.
+      </p>
+      </section>
+      <section id="recap-k-means-in-sample-space" class="level2">
+      <h2>Recap: $k$-Means In Sample Space</h2>
+      <figure>
+      <img src="img/kmeans_iter1.svg" style="width:80.0%" alt="" /><figcaption>$k$-Means Sample Space</figcaption>
+      </figure>
+      </section>
+      <section id="recap-k-means-in-sample-space-1" class="level2">
+      <h2>Recap: $k$-Means In Sample Space</h2>
+      <figure>
+      <img src="img/kmeans_iter2.svg" style="width:80.0%" alt="" /><figcaption>$k$-Means Sample Space</figcaption>
+      </figure>
+      </section>
+      <section id="recap-k-means-in-sample-space-2" class="level2">
+      <h2>Recap: $k$-Means In Sample Space</h2>
+      <figure>
+      <img src="img/kmeans_iter3.svg" style="width:80.0%" alt="" /><figcaption>$k$-Means Sample Space</figcaption>
+      </figure>
+      </section>
+      <section id="recap-k-means-hill-climbing" class="level2">
+      <h2>Recap: $k$-Means Hill-climbing</h2>
+      <figure>
+      <img src="img/kmeans_hill_climb.svg" style="width:80.0%" alt="" /><figcaption>Stoachastic hill-climbing in $k$-means.</figcaption>
+      </figure>
+      </section>
+      <section id="recap-comparing-mle-and-k-means" class="level2">
+      <h2>Recap: Comparing MLE and $k$-Means</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/2d_gaussian_mle_mixture.svg" style="width:80.0%" alt="" /><figcaption>MLE Example</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/kmeans_hill_climb.svg" style="width:80.0%" alt="" /><figcaption>$k$-Means Example</figcaption>
+      </figure>
+      </div>
+      </div>
+      <p>Comparison of MLE and $k$-Means. Since the overlap between the components is relatively small, we arrive at basically the same answers for $\mu_{1}$ and $\mu_{2}$.</p>
+      </section>
+      <section id="recap-k-means-summary" class="level2">
+      <h2>Recap: $k$-Means Summary</h2>
+      <p>$k$-Means is a staple of unsupervised clustering methods.</p>
+      <p class="fragment">
+      It is simple and fast.
+      </p>
+      <p class="fragment">
+      When does it fail?
+      </p>
+      <ul>
+      <li class="fragment">
+      If we are wrong about the number of clusters, we will converge on parameters that don’t “mean” anything.
+      </li>
+      <li class="fragment">
+      If the clusters are too close to one another, there may not be enough samples to properly “ascend” to the true value of $\mu$.
+      </li>
+      </ul>
+      <p class="fragment">
+      Remember: <strong>everything</strong> is dependent on your features!
+      </p>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="data-description-and-clustering" class="level2">
+      <h2>Data Description and Clustering</h2>
+      </section>
+      <section id="how-well-did-we-cluster" class="level2">
+      <h2>How Well Did We Cluster?</h2>
+      <p>$k$-Means finds the parameters $\boldsymbol{\theta}$ of the underlying processes that control our samples.</p>
+      <p class="fragment">
+      <strong>Clusters</strong> and <strong>Classes</strong> are NOT synonymous!
+      </p>
+      <ul>
+      <li class="fragment">
+      Some classes are multi-modal: “Atypical” nuclei can be too small OR too large.
+      </li>
+      <li class="fragment">
+      Some features are bad: If $\boldsymbol{\theta}_{1} \approx \boldsymbol{\theta}_{2}$, the feature cannot distinguish $\omega_{1}$ and $\omega_{2}$.
+      </li>
+      </ul>
+      </section>
+      <section id="examples-of-misleading-parameters" class="level2">
+      <h2>Examples of Misleading Parameters</h2>
+      <figure>
+      <img src="img/misleading_clusters.svg" style="width:80.0%" alt="" /><figcaption>Distributions with equal $\boldsymbol{\mu}$ and $\boldsymbol{\Sigma}$.</figcaption>
+      </figure>
+      </section>
+      <section id="identifying-the-true-clusters" class="level2">
+      <h2>Identifying the “True” Clusters</h2>
+      <figure>
+      <img src="img/unclear_clustering.svg" style="width:40.0%" alt="" /><figcaption>How many clusters are in this data?</figcaption>
+      </figure>
+      </section>
+      <section id="clustering-vs.-classification" class="level2">
+      <h2>Clustering vs. Classification</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/polynomial_disc_func.svg" style="width:100.0%" /></p>
+      </div>
+      <div>
+      <ul>
+      <li>
+      A class is a label that <strong>you</strong> decide on, and is not necessarily synonymous with clusters.
+      </li>
+      <li class="fragment">
+      If we don’t have class labels, we <strong>cannot</strong> say that $\mathcal{R}_{1}$ on the left is the same decision region as $\mathcal{R}_{1}$ on the right.
+      </li>
+      </ul>
+      </div>
+      </div>
+      </section>
+      <section id="illustration-of-clustering-methods" class="level2">
+      <h2>Illustration of Clustering Methods</h2>
+      <p><img src="img/sklearn_clustering.png" style="width:70.0%" /></p>
+      </section>
+      <section id="the-first-major-issue-defining-similarity" class="level2">
+      <h2>The First Major Issue: Defining Similarity</h2>
+      <p>Unlabeled samples rely <strong>completely</strong> on their descriptive features.</p>
+      <p class="fragment">
+      We need to quantitatively say that samples in one cluster are “more similar” to each other than they are to samples in another cluster.
+      </p>
+      <p class="fragment">
+      This is a <strong>similarity metric</strong>.
+      </p>
+      </section>
+      <section id="distance-as-inverse-similarity" class="level2">
+      <h2>Distance as Inverse Similarity</h2>
+      <p><strong>Distance</strong> may represent the inverse of <strong>similarity</strong>: High distance = low similarity</p>
+      <p class="fragment">
+      In Euclidean space, $\mathbf{x}_{a}$ is <strong>more similar</strong> to $\mathbf{x}_{b}$ than $\mathbf{x}_{c}$ if $|\mathbf{x}_{a}-\mathbf{x}_{b}|^{2}&lt;|\mathbf{x}_{a}-\mathbf{x}_{c}|^{2}$.
+      </p>
+      <p class="fragment">
+      We can cluster points by setting a threshold $d_{0}$, where two points $\mathbf{x}_{a}$ and $\mathbf{x}_{b}$ belong to the same cluster if $|\mathbf{x}_{a}-\mathbf{x}_{b}|^{2} &lt; d_{0}$.
+      </p>
+      </section>
+      <section id="examples-of-distance-thresholding-high-threshold" class="level2">
+      <h2>Examples of Distance Thresholding: High Threshold</h2>
+      <div class="l-multiple">
+      <div>
+      <figure>
+      <img src="img/cluster_high_thresh.svg" style="width:100.0%" alt="" /><figcaption>High Threshold Cluster</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/cluster_mid_thresh.svg" style="width:100.0%" alt="" /><figcaption>Medium Threshold Cluster</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/cluster_low_thresh.svg" style="width:100.0%" alt="" /><figcaption>Low Threshold Cluster</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="choosing-a-similarity-metric" class="level2">
+      <h2>Choosing a Similarity Metric</h2>
+      <div class="l-double">
+      <div>
+      <p><strong>Discrete Metric:</strong></p>
+      </div>
+      <div>
+      <p>$ d(\mathbf{x,y}) = \begin{cases} 1 &amp; \text{if } \mathbf{x\neq y}\\ 0 &amp; \text{if } \mathbf{x=y}\\ \end{cases}$</p>
+      </div>
+      </div>
+      <div class="l-double">
+      <div>
+      <p><strong>Euclidean Metric:</strong></p>
+      </div>
+      <div>
+      <p>$ d(\mathbf{x,y}) = \sqrt{(x_{1}-y_{1})^{2}+\cdots+(x_{d}-y_{d})^{2}} $</p>
+      </div>
+      </div>
+      <div class="l-double">
+      <div>
+      <p><strong>Taxicab Metric:</strong></p>
+      </div>
+      <div>
+      <p>$ d(\mathbf{x,y}) = \sum_{i=1}^{d}|x_{i}-y_{i}| $</p>
+      </div>
+      </div>
+      </section>
+      <section id="illustration-of-distances" class="level2">
+      <h2>Illustration of Distances</h2>
+      <p><img src="img/distancemetrics.png" style="width:45.0%" /></p>
+      </section>
+      <section id="choosing-a-similarity-metric-invariance-to-transforms" class="level2">
+      <h2>Choosing a Similarity Metric: Invariance to Transforms</h2>
+      <p>Euclidean distance is a good first choice:</p>
+      <p class="fragment">
+      $ D(\mathbf{x},\mathbf{x}^{\prime}) = \sqrt{\sum_{k=1}^{d}(x_{k} - x_{k}^{\prime})^{2}} $
+      </p>
+      <ul>
+      <li class="fragment">
+      <strong>Isotropy</strong>: distances in all dimensions must be equivalent.
+      </li>
+      <li class="fragment">
+      <strong>Smoothness</strong>: distances in all feature ranges are equivalent.
+      </li>
+      <li class="fragment">
+      <strong>Linearity</strong>: data should be observed throughout the feature space.
+      </li>
+      </ul>
+      <p class="fragment">
+      Euclidean distance is robust to rigid transformations of the feature space (rotation and translation), but are NOT robust to <strong>arbitrary linear transformations</strong> which distort distance relationships.
+      </p>
+      </section>
+      <section id="rotations-effect-on-cluster-groupings" class="level2">
+      <h2>Rotation’s Effect on Cluster Groupings</h2>
+      <figure>
+      <img src="img/cluster_scaling.svg" style="width:40.0%" alt="" /><figcaption>Cluster Scaling</figcaption>
+      </figure>
+      </section>
+      <section id="alternative-distance-metrics" class="level2">
+      <h2>Alternative Distance Metrics</h2>
+      <p>We generalize from the Euclidean to the <strong>Minkowski</strong> metric:</p>
+      <p class="fragment">
+      $ D(\mathbf{x},\mathbf{x}^{\prime})=\left( \sum_{k=1}^{d}|x_{k}-x_{k}^{\prime}|^{q}\right)^{\frac{1}{q}} $
+      </p>
+      <p class="fragment">
+      If $q=2$, then this is Euclidean; if $q=1$, this is the <strong>city block</strong> metric.
+      </p>
+      <p class="fragment">
+      You can also look at <strong>Mahalanobis</strong> distance, $(\mathbf{x}-\mathbf{x}^{\prime})^{T}\Sigma^{-1}(\mathbf{x}-\mathbf{x}^{\prime})$, which depends on the data itself to define the distance.
+      </p>
+      <p class="fragment">
+      We can even abandon distance and define an arbitrary symmetric function $s(\mathbf{x},\mathbf{x}^{\prime})$ as some measurement of “similarity”, e.g. the angle between two vectors:
+      </p>
+      <p class="fragment">
+      $ s(\mathbf{x},\mathbf{x}^{\prime})=\frac{\mathbf{x}^{T}\mathbf{x}^{\prime}}{|\mathbf{x}||\mathbf{x}^{\prime}|} $
+      </p>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="criterion-functions" class="level2">
+      <h2>Criterion Functions</h2>
+      </section>
+      <section id="the-second-major-issue-evaluation" class="level2">
+      <h2>The Second Major Issue: Evaluation</h2>
+      <p>Suppose we’ve got our unlabeled training set $\mathcal{D}=\{\mathbf{x}_{1},\ldots,\mathbf{x}_{n}\}$.</p>
+      <p class="fragment">
+      We want to divide this into exactly $c$ disjoint subsets $\mathcal{D}_{1},\ldots,\mathcal{D}_{c}$, which represent cluster memberships.
+      </p>
+      <p class="fragment">
+      All samples in $\mathcal{D}_{a}$ should be more alike to each other than to those in $\mathcal{D}_{b}$, $a\neq b$.
+      </p>
+      <p class="fragment">
+      Let’s define ourselves a <strong>criterion function</strong> that is simply used to evaluate how good a given partition is; our task will then be to find a partition that “extremizes” our function.
+      </p>
+      </section>
+      <section id="sum-of-squared-error-criterion" class="level2">
+      <h2>Sum-of-Squared-Error Criterion</h2>
+      <p>The <strong>sum-of-squared-error</strong> criterion is defined as the difference between the samples and the mean of the assigned cluster:</p>
+      <p class="fragment">
+      $ J_{e}=\sum_{i=1}^{c}\sum_{\mathbf{x}\in\mathcal{D}_{i}}|\mathbf{x}-\mathbf{m}_{i}|^{2}$
+      </p>
+      <p class="fragment">
+      where:
+      </p>
+      <p class="fragment">
+      $ \mathbf{m}_{i}=\frac{1}{n_{i}}\sum_{\mathbf{x}\in\mathcal{D}_{i}}\mathbf{x} $
+      </p>
+      <p class="fragment">
+      The optimal partition is the one that minimizes $J_{e}$.
+      </p>
+      <p class="fragment">
+      The idea is that it measures the error incurred if all of the samples in $\mathcal{D}_{i}$ were represented by the cluster center $\mathbf{m}_{i}$.
+      </p>
+      </section>
+      <section id="sum-of-squared-error-criterion-1" class="level2">
+      <h2>Sum-of-Squared-Error Criterion</h2>
+      <p>This works very well if we have clusters that are:</p>
+      <ul>
+      <li class="fragment">
+      Equally evenly spread
+      </li>
+      <li class="fragment">
+      Far apart from each other
+      </li>
+      </ul>
+      <p class="fragment">
+      If one cluster is spread out and one is small, this criterion may end up trying to “even out” the differences by selecting a non-optimal partition.
+      </p>
+      </section>
+      <section id="sum-of-squared-error-criterion-2" class="level2">
+      <h2>Sum-of-Squared-Error Criterion</h2>
+      <figure>
+      <img src="img/SSE_clustering.svg" style="width:35.0%" alt="" /><figcaption>Sum-of-Squared Error Failure</figcaption>
+      </figure>
+      </section>
+      <section id="related-minimum-variance-criterion" class="level2">
+      <h2>Related Minimum Variance Criterion</h2>
+      <p>We can wrangle the mean vectors out of the expression for Sum-of-Squared-Error and get the equivalent expression:</p>
+      <p class="fragment">
+      $ J_{e}=\frac{1}{2}\sum_{i=1}^{c}n_{i}\bar{s}_{i}$
+      </p>
+      <p class="fragment">
+      Where $\bar{s}_{i}$ can be formed into whatever kind of similarity function we want:
+      </p>
+      <p class="fragment">
+      \begin{align} \bar{s}_{i} &amp;= \frac{1}{n^{2}_{i}}\sum_{\mathbf{x}\in\mathcal{D}_{i}}\sum_{\mathbf{x}^{\prime}\in\mathcal{D}_{i}}|\mathbf{x}-\mathbf{x}^{\prime}|^{2}\\ \bar{s}_{i} &amp;= \frac{1}{n_{i}^{2}}\sum_{\mathbf{x}\in\mathcal{D}_{i}}\sum_{\mathbf{x}^{\prime}\in\mathcal{D}_{i}}s(\mathbf{x},\mathbf{x}^{\prime})\\ \bar{s}_{i} &amp;= \min_{\mathbf{x},\mathbf{x}^{\prime}\in\mathcal{D}_{i}}s(\mathbf{x},\mathbf{x}^{\prime}) \ \end{align}
+      </p>
+      </section>
+      <section id="scatter-criteria" class="level2">
+      <h2>Scatter Criteria</h2>
+      <p>We can calculate a bunch of values that relate to the “scatter” of the data in each cluster.</p>
+      <p class="fragment">
+      We’ll come back to these when we discuss PCA, but here is a list of six quantities that are useful to know.
+      </p>
+      </section>
+      <section id="mean-vectors-and-scatter-matrices" class="level2">
+      <h2>Mean Vectors and Scatter Matrices</h2>
+      <table>
+      <tr>
+      <td>
+      Name
+      </td>
+      <td>
+      Equation
+      </td>
+      </tr>
+      <tr>
+      <td>
+      Mean vector for the $i$th cluster
+      </td>
+      <td>
+      $\mathbf{m}_{i}=\frac{1}{n_{i}}\sum_{\mathbf{x}\in\mathcal{D}_{i}}\mathbf{x}$
+      </td>
+      </tr>
+      <tr>
+      <td>
+      Total mean vector
+      </td>
+      <td>
+      $\mathbf{m}=\frac{1}{n}\sum_{\mathcal{D}}\mathbf{x}=\frac{1}{n}\sum_{i=1}^{c}n_{i}\mathbf{m}_{i}$
+      </td>
+      </tr>
+      <tr>
+      <td>
+      Scatter matrix for the $i$th cluster
+      </td>
+      <td>
+      $\mathbf{S}_{i}=\sum_{\mathbf{x}\in\mathcal{D}_{i}}(\mathbf{x}-\mathbf{m}_{i})(\mathbf{x}-\mathbf{m}_{i})^{T}$
+      </td>
+      </tr>
+      <tr>
+      <td>
+      Within-cluster scatter matrix
+      </td>
+      <td>
+      $\mathbf{S}_{W}=\sum_{i=1}^{c}\mathbf{S}_{i}$
+      </td>
+      </tr>
+      <tr>
+      <td>
+      Between-cluster scatter matrix
+      </td>
+      <td>
+      $\mathbf{S}_{B}=\sum_{i=1}^{c}n_{i}(\mathbf{m}_{i}-\mathbf{m})(\mathbf{m}_{i}-\mathbf{m})^{T}$
+      </td>
+      </tr>
+      <tr>
+      <td>
+      Total scatter matrix
+      </td>
+      <td>
+      $\mathbf{S}_{T}=\sum_{\mathbf{x}\in\mathcal{D}}(\mathbf{x}-\mathbf{m})(\mathbf{x}-\mathbf{m})^{T}$
+      </td>
+      </tr>
+      <tr>
+      <td>
+      </td>
+      <td>
+      $\mathbf{S}_{T} = \mathbf{S}_{W} + \mathbf{S}_{B}$
+      </td>
+      </tr>
+      </table>
+      </section>
+      <section id="trace-criterion" class="level2">
+      <h2>Trace Criterion</h2>
+      <p>We need a scalar measure of the “size” of the scatter matrix, so we know if one set of points is more or less scattered than another.</p>
+      <p class="fragment">
+      One measure is the <strong>trace</strong> of the within-cluster scatter matrix, which is the sum of its diagonal elements.
+      </p>
+      <p class="fragment">
+      Minimizing this turns out to be the sum-of-squared-error criterion:
+      </p>
+      <p class="fragment">
+      $ \operatorname{Tr}\left[\mathbf{S}_{W}\right] = \sum_{i=1}^{c}\operatorname{Tr}\left[\mathbf{S}_{i}\right]=\sum_{i=1}^{c}\sum_{\mathbf{x}\in\mathcal{D}_{i}}|\mathbf{x}-\mathbf{m}_{i}|^{2}=J_{e} $
+      </p>
+      <p class="fragment">
+      Note that $\operatorname{Tr}\left[\mathbf{S}_{T}\right]$ is independent of the partitioning (i.e. it doesn’t change), and this is equal to $\operatorname{Tr}\left[\mathbf{S}_{W}\right] + \operatorname{Tr}\left[\mathbf{S}_{B}\right]$.
+      </p>
+      <p class="fragment">
+      Therefore, minimizing $\operatorname{Tr}\left[\mathbf{S}_{W}\right]$ also maximizes $\operatorname{Tr}\left[\mathbf{S}_{B}\right]$.
+      </p>
+      </section>
+      <section id="determinant-criterion" class="level2">
+      <h2>Determinant Criterion</h2>
+      <p>The determinant measures the square of the scattering volume.</p>
+      <p class="fragment">
+      $\mathbf{S}_{B}$ is singular if the number of clusters is less than or equal to the number of dimensions, so we don’t want to use it for our criterion function.
+      </p>
+      <p class="fragment">
+      If we assume that $\mathbf{S}_{W}$ is nonsingular, we can have:
+      </p>
+      <p class="fragment">
+      $ J_{d} = |\mathbf{S}_{W}| = |\sum_{i=1}^{c}\mathbf{S}_{i}| $
+      </p>
+      <p class="fragment">
+      The trace and determinant criteria do not need to be the same, although they often are.
+      </p>
+      </section>
+      <section id="invariant-criterion" class="level2">
+      <h2>Invariant Criterion</h2>
+      <p>We may want to look at the ratio of between-cluster and within-cluster matrices, $\mathbf{S}_{W}^{-1}\mathbf{S}_{B}$, as an optimal partition would ideally have small clusters that are also spread far apart.</p>
+      <p class="fragment">
+      This can be done by finding partitions that result in the eigenvalues of $\mathbf{S}_{W}^{-1}\mathbf{S}_{B}$ are large.
+      </p>
+      <p class="fragment">
+      Since the trace of a matrix is the sum of its eigenvalues, we can maximize a criterion function as:
+      </p>
+      <p class="fragment">
+      $ \operatorname{Tr}\left[\mathbf{S}_{W}^{-1}\mathbf{S}_{B}\right] = \sum_{i=1}^{d}\lambda_{i} $
+      </p>
+      </section>
+      <section id="invariant-criterion-1" class="level2">
+      <h2>Invariant Criterion</h2>
+      <p>By using the relation $\mathbf{S}_{T} = \mathbf{S}_{W} + \mathbf{S}_{B}$, we can derive the following invariant criterion functions:</p>
+      <p class="fragment">
+      $ J_{f}=\operatorname{Tr}\left[\mathbf{S}_{T}^{-1}\mathbf{S}_{W}\right] = \sum_{i=1}^{d}\frac{1}{1+\lambda_{i}}$
+      </p>
+      <p class="fragment">
+      $ \frac{|\mathbf{S}_{W}|}{|\mathbf{S}_{T}|}=\prod_{i=1}^{d}\frac{1}{1+\lambda_{i}} $
+      </p>
+      </section>
+      <section id="comparing-criterion-examples" class="level2">
+      <h2>Comparing Criterion Examples</h2>
+      <figure>
+      <img src="img/unknown_clusters.png" style="width:35.0%" alt="" /><figcaption>Unknown Number of Clusters</figcaption>
+      </figure>
+      </section>
+      <section id="comparing-criterion-examples-two-clusters" class="level2">
+      <h2>Comparing Criterion Examples: Two Clusters</h2>
+      <div class="l-multiple">
+      <div>
+      <figure>
+      <img src="img/unknown_clusters_je_c2.png" style="width:100.0%" alt="" /><figcaption>$J_{e}$, $c=2$</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/unknown_clusters_jd_c2.png" style="width:100.0%" alt="" /><figcaption>$J_{d}$, $c=2$</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/unknown_clusters_jf_c2.png" style="width:100.0%" alt="" /><figcaption>$J_{f}$, $c=2$</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="comparing-criterion-examples-three-clusters" class="level2">
+      <h2>Comparing Criterion Examples: Three Clusters</h2>
+      <div class="l-multiple">
+      <div>
+      <figure>
+      <img src="img/unknown_clusters_je_c3.png" style="width:100.0%" alt="" /><figcaption>$J_{e}$, $c=3$</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/unknown_clusters_jd_c3.png" style="width:100.0%" alt="" /><figcaption>$J_{d}$, $c=3$</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/unknown_clusters_jf_c3.png" style="width:100.0%" alt="" /><figcaption>$J_{f}$, $c=3$</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      </section>
+      <section id="section-3" class="level1">
+      <h1></h1>
+      <section id="hierarchical-clustering" class="level2">
+      <h2>Hierarchical Clustering</h2>
+      </section>
+      <section id="introduction-to-hierarchical-clustering" class="level2">
+      <h2>Introduction to Hierarchical Clustering</h2>
+      <p>So far, we’ve been interested in <strong>disjoint subsets</strong>; that is, $\mathcal{D}_{a}\cup\mathcal{D}_{b}=\emptyset$.</p>
+      <p class="fragment">
+      However, remember that our classes are things that <strong>we</strong> define, and some objects can be associated with more than one class.
+      </p>
+      <ul>
+      <li class="fragment">
+      kingdom = animal
+      </li>
+      <li class="fragment">
+      phylum = Chordata
+      </li>
+      <li class="fragment">
+      …
+      </li>
+      <li class="fragment">
+      family = Salmonidae
+      </li>
+      <li class="fragment">
+      genus = Oncorhynchus
+      </li>
+      <li class="fragment">
+      species = Oncorhynchus kisutch
+      </li>
+      </ul>
+      </section>
+      <section id="hierarchical-definitions" class="level2">
+      <h2>Hierarchical Definitions</h2>
+      <p>Data description is <strong>flat</strong> in disjoint partitioning.</p>
+      <p class="fragment">
+      In hierarchical clustering, we have a <strong>sequence</strong> of partitions. The approach is:
+      </p>
+      <ol>
+      <li class="fragment">
+      Partition the data into $n$ clusters (each data point is its own cluster).
+      </li>
+      <li class="fragment">
+      Merge clusters one at a time based on some criteria until we only have $1$ cluster.
+      </li>
+      </ol>
+      <p class="fragment">
+      Level $k$ in the sequence is when $c=n-k+1$.
+      </p>
+      <p class="fragment">
+      We select a minimum number of clusters, $c$, to stop the algorithm. If we set $c=1$, we get a dendrogram.
+      </p>
+      <p class="fragment">
+      In this setup, every two samples $\mathbf{x}$ and $\mathbf{x}^{\prime}$ will be grouped eventually.
+      </p>
+      </section>
+      <section id="dendrogram-tree" class="level2">
+      <h2>Dendrogram Tree</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/dendrogram_tree.png" style="width:100.0%" alt="" /><figcaption>Dendrogram Tree</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Cluster similarity is visualized as the distance from one level to the next.</p>
+      <p class="fragment">
+      Large distances imply here is a natural clustering at that level.
+      </p>
+      <p class="fragment">
+      We can visualize this setup as text brackets:
+      </p>
+      <p class="fragment">
+      $\{\{\mathbf{x}_{1},\{\mathbf{x}_{2},\mathbf{x}_{3}\}\},\{\{\{\mathbf{x}_{4},\mathbf{x}_{5}\},\{\mathbf{x}_{6},\mathbf{x}_{7}\}\},\mathbf{x}_{8}\}\}$.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="alternative-representation-venn-diagrams" class="level2">
+      <h2>Alternative Representation: Venn Diagrams</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/venn_diagram.png" style="width:60.0%" alt="" /><figcaption>Venn Diagram</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Venn diagrams can also be used to see these relationships.</p>
+      <p class="fragment">
+      This is less quantitative, but represents how the different samples are grouped in the feature space.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="two-approches-to-hierarchical-clustering" class="level2">
+      <h2>Two Approches to Hierarchical Clustering</h2>
+      <p>There are two related approaches to hierarchical clustering:</p>
+      <ul>
+      <li class="fragment">
+      <strong>Agglomerative</strong>: bottom-up, starting with $n$ singleton clusters and grouping up.
+      </li>
+      <li class="fragment">
+      <strong>Divisive</strong>: top-down, start with 1 all-encompassing cluster and then splitting.
+      </li>
+      </ul>
+      <p class="fragment">
+      We will focus on the former, which typically has a simpler (but oft-repeated) calculation at each hierarchical level.
+      </p>
+      </section>
+      <section id="agglomerative-clustering" class="level2">
+      <h2>Agglomerative Clustering</h2>
+      <div class="txt-left">
+      <pre id="hello-world-code" style="display:hidden;">
+      \begin{algorithm}
+      \caption{Agglomerative Hierarchical Clustering}
+      \begin{algorithmic}
+      \INPUT Target clusters \$c\$
+      \STATE Set current clusters to number of points \$n\$
+      \REPEAT 
+          \STATE Decrease number of current clusters by 1
+          \STATE Find the two nearest clusters, \$D\_{i}\$ and
+          \$D\_{j}\$
+          \STATE Merge \$D\_{i}\$ and \$D\_{j}\$
+      \UNTIL{Current cluster number equals \$c\$}
+      \RETURN \$c\$ clusters
+      \end{algorithmic}
+      \end{algorithm}
+      </pre>
+      </div>
+      </section>
+      <section id="agglomerative-procedure" class="level2">
+      <h2>Agglomerative Procedure</h2>
+      <p>Define measurements of cluster relationships:</p>
+      <p>\begin{align} d_{min}(\mathcal{D}_{i},\mathcal{D}_{j}) &amp;= \min_{\substack{\mathbf{x}\in\mathcal{D}_{i} \\ \mathbf{x}^{\prime}\in\mathcal{D}_{j}}}|\mathbf{x}-\mathbf{x}^{\prime}| \\ d_{max}(\mathcal{D}_{i},\mathcal{D}_{j}) &amp;= \max_{\substack{\mathbf{x}\in\mathcal{D}_{i} \\ \mathbf{x}^{\prime}\in\mathcal{D}_{j}}}|\mathbf{x}-\mathbf{x}^{\prime}| \\ d_{avg}(\mathcal{D}_{i},\mathcal{D}_{j}) &amp;= \frac{1}{n_{i}n_{j}}\sum_{\mathbf{x}\in\mathcal{D}_{i}}\sum_{\mathbf{x}^{\prime}\in\mathcal{D}_{j}}|\mathbf{x}-\mathbf{x}^{\prime}| \\ d_{mean}(\mathcal{D}_{i},\mathcal{D}_{j}) &amp;= |\mathbf{m}_{i}-\mathbf{m}_{j}| \\ \end{align}</p>
+      </section>
+      <section id="computational-complexity" class="level2">
+      <h2>Computational Complexity</h2>
+      <p>Suppose we have $n$ samples in $d$-dimensional space; we want $c$ clusters with $d_{min}$.</p>
+      <p class="fragment">
+      We’ll need to calculate $n(n-1)$ distances, each of which is an $O(d)$ calculation.
+      </p>
+      <p class="fragment">
+      For the first step, the complexity is $O(n(n-1)(d+1))=O(n^{2}d)$.
+      </p>
+      <p class="fragment">
+      At each step we are merging points, so the number of calculations goes down.
+      </p>
+      <p class="fragment">
+      For each step, we just need to calculate $n(n-1)-\hat{c}$ “unused” distances in the list.
+      </p>
+      <p class="fragment">
+      The full time complexity is thus $O(cn^{2}d)$.
+      </p>
+      </section>
+      <section id="nearest-neighbor-algorithm" class="level2">
+      <h2>Nearest-Neighbor Algorithm</h2>
+      <p class="fragment">
+      When the distance between clusters is $d_{min}(\cdot,\cdot)$, it’s called the <strong>nearest-neighbor</strong> clustering algorithm.
+      </p>
+      <p class="fragment">
+      Imagine each $\mathbf{x}$ is a node in a graph, with edges connecting nodes in the same cluster, $\mathcal{D}_{i}$. The merging of $\mathcal{D}_{i}$ and $\mathcal{D}_{j}$ corresponds to adding an edge between the nearest pair of nodes in $\mathcal{D}_{i}$ and $\mathcal{D}_{j}$.
+      </p>
+      <p class="fragment">
+      Because of the way we add edges, we won’t have any closed loops or circuits. Therefore it generates a tree – this is a <strong>spanning tree</strong> is when all the subsets are linked.
+      </p>
+      <p class="fragment">
+      Moreover, this algorithm will create a <strong>minimum spanning tree</strong>: the sum of edge lengths is lower than for all spanning trees.
+      </p>
+      </section>
+      <section id="example-of-chaining-effect" class="level2">
+      <h2>Example of Chaining Effect</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/chaining_before.png" style="width:50.0%" alt="" /><figcaption>Nearest-Neighbor Clustering</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/chaining_after.png" style="width:50.0%" alt="" /><figcaption>Single Sample Added</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="stepwise-optimal-clustering" class="level2">
+      <h2>Stepwise-Optimal Clustering</h2>
+      <p>Previously we looked at the “nearest” clusters and merged them.</p>
+      <p class="fragment">
+      As we saw in the discussion about clustering evaluation, we need a way to define the “nearest” (i.e. most-similar) samples.
+      </p>
+      <p class="fragment">
+      To do this, we can replace “nearest” with a criterion function which changes the least with each merger.
+      </p>
+      <p class="fragment">
+      This gives us a new algorithm, and a new “distance” whose minimum value indicates the optimal merger:
+      </p>
+      <p class="fragment">
+      $d_{e}(\mathcal{D}_{i},\mathcal{D}_{j})=\sqrt{\frac{n_{i}n_{j}}{n_{i}+n_{j}}}|\mathbf{m}_{i}-\mathbf{m}_{j}| $
+      </p>
+      </section>
+      </section>
+      <section id="section-4" class="level1">
+      <h1></h1>
+      <section id="principal-component-analysis" class="level2">
+      <h2>Principal Component Analysis</h2>
+      </section>
+      <section id="dimensionality-reduction" class="level2">
+      <h2>Dimensionality Reduction</h2>
+      <p><strong>Component analysis</strong> is used both for dimensionality reduction and clustering.</p>
+      <p class="fragment">
+      We will start with linear techniques, and these will lend naturally to nonlinear approaches later.
+      </p>
+      <p class="fragment">
+      There are two common linear approaches to component analysis: Principal Component Analysis and Multiple Discriminant Analysis.
+      </p>
+      <p class="fragment">
+      PCA seeks a projection to <strong>represent</strong> the data, while MDA seeks a projection to <strong>separate</strong> the data.
+      </p>
+      </section>
+      <section id="principal-component-analysis-basic-approach" class="level2">
+      <h2>Principal Component Analysis: Basic Approach</h2>
+      <p>We have a $d$-dimensional mean $\boldsymbol{\mu}$ and a $d\times d$ covariance $\boldsymbol{\Sigma}$ for our data set $\mathcal{D}$.</p>
+      <p class="fragment">
+      Compute eigenvectors and eigenvalues of $\boldsymbol{\Sigma}$ and sort columns by decreasing eigenvalues.
+      </p>
+      <p class="fragment">
+      Choose the $k$ largest eigenvalues, and form a $d\times k$ matrix $\mathbf{A}$ of the $k$ associated eigenvectors.
+      </p>
+      <p class="fragment">
+      The data is then projected onto the $k$-dimensional subspace according to:
+      </p>
+      <p class="fragment">
+      $ \mathbf{x}^{\prime}=\mathbf{F}_{1}(\mathbf{x})=\mathbf{A}^{T}(\mathbf{x}-\boldsymbol{\mu}) $
+      </p>
+      </section>
+      <section id="pca-in-detail" class="level2">
+      <h2>PCA in Detail</h2>
+      <p>Imagine we want to represent all samples in $\mathcal{D}$ with a single vector $\mathbf{x}_{0}$.</p>
+      <p class="fragment">
+      $\mathbf{x}_{0}$ should minimize the sum of the squared distances between itself and each sample:
+      </p>
+      <p class="fragment">
+      $ J_{0}(\mathbf{x}_{0})=\sum_{k=1}^{n}|\mathbf{x}_{0}-\mathbf{x}_{k}|^{2} $
+      </p>
+      <p class="fragment">
+      We can assume that this criterion function will be minimized by the sample mean:
+      </p>
+      <p class="fragment">
+      $ \mathbf{x}_{0}=\mathbf{m}=\frac{1}{n}\sum_{k=1}^{n}\mathbf{x}_{k} $
+      </p>
+      </section>
+      <section id="dimensionality-of-our-representation" class="level2">
+      <h2>Dimensionality of Our Representation</h2>
+      <p>The sample mean is a “zero-dimensional” representation of the data, and can correspond to many different sample distributions, as we’ve seen.</p>
+      </section>
+      <section id="similar-means-can-represent-different-distributions" class="level2">
+      <h2>Similar Means Can Represent Different Distributions</h2>
+      <figure>
+      <img src="img/misleading_clusters.svg" style="width:80.0%" alt="" /><figcaption>Distributions with equal $\boldsymbol{\mu}$ and $\boldsymbol{\Sigma}$.</figcaption>
+      </figure>
+      </section>
+      <section id="dimensionality-of-our-representation-1" class="level2">
+      <h2>Dimensionality of Our Representation</h2>
+      <p>Let’s say we want to “project” the data onto a <strong>one</strong>-dimensional representation (a line) running through the sample mean.</p>
+      <p class="fragment">
+      If $\mathbf{e}$ is a unit vector in the direction of the desired line, each sample can be written as:
+      </p>
+      <p class="fragment">
+      $ \mathbf{x}_{k}=\mathbf{m}+a_{k}\mathbf{e} $
+      </p>
+      <p class="fragment">
+      … where $a_{k}$ represents the distance of sample point $\mathbf{x}_{k}$ from the mean $\mathbf{m}$.
+      </p>
+      </section>
+      <section id="obtaining-the-optimal-set-of-coefficients" class="level2">
+      <h2>Obtaining the Optimal Set of Coefficients</h2>
+      <p>We can get optimal coefficients $a_{1},\ldots,a_{n}$ by minimizing the criterion:</p>
+      <p>\begin{align} J_{1}(a_{1},\cdots,a_{n},\mathbf{e}) &amp;= \sum_{k=1}^{n}|(\mathbf{m}+a_{k}\mathbf{e})-\mathbf{x}_{k}|^{2}\\ &amp; = \sum_{k=1}^{n}|a_{k}\mathbf{e}-(\mathbf{x}_{k}-\mathbf{m})|^{2}\\ &amp; = \sum_{k=1}^{n}a_{k}^{2}|\mathbf{e}|^{2}-2\sum_{k=1}^{n}a_{k}\mathbf{e}^{T}(\mathbf{x}_{k}-\mathbf{m})+\sum_{k=1}^{n}|\mathbf{x}_{k}-\mathbf{m}|^{2} \\ \end{align}</p>
+      <p class="fragment">
+      Get the derivative with respect to $a_{k}$, set it to zero, and solve:
+      </p>
+      <p class="fragment">
+      $ a_{k}=\mathbf{e}^{T}(\mathbf{x}_{k}-\mathbf{m}) $
+      </p>
+      </section>
+      <section id="return-to-the-scatter-matrix" class="level2">
+      <h2>Return to the Scatter Matrix</h2>
+      <p>We have the distances to the line, but what direction is it in?</p>
+      <p class="fragment">
+      It passes through the mean in infinitely many directions.
+      </p>
+      <p class="fragment">
+      Recall our scatter matrices that we’ve been using:
+      </p>
+      <p class="fragment">
+      $ \mathbf{S}=\sum_{k=1}^{n}(\mathbf{x}_{k}-\mathbf{m})(\mathbf{x}_{k}-\mathbf{m})^{T} $
+      </p>
+      <p class="fragment">
+      If we plug our equation for $a_{k}$ into the criterion function $J_{1}$, we get:
+      </p>
+      <p class="fragment">
+      $ J_{1}(\mathbf{e})=-\mathbf{e}^{T}\mathbf{S}\mathbf{e}+\sum_{k=1}^{n}|\mathbf{x}_{k}-\mathbf{m}|^{2} $
+      </p>
+      </section>
+      <section id="solving-for-the-direction-of-mathbfe" class="level2">
+      <h2>Solving for the Direction of $\mathbf{e}$</h2>
+      <p>$ J_{1}(\mathbf{e})=-\mathbf{e}^{T}\mathbf{S}\mathbf{e}+\sum_{k=1}^{n}|\mathbf{x}_{k}-\mathbf{m}|^{2} $</p>
+      <p class="fragment">
+      We can solve for the optimal $\mathbf{e}$ using the method of Lagrange multipliers, subject to $|\mathbf{e}|=1$:
+      </p>
+      <p class="fragment">
+      $ \underbrace{u}_{L(\mathbf{e},\lambda)}=\underbrace{\mathbf{e}^{T}\mathbf{S}\mathbf{e}}_{f(\mathbf{e})}-\lambda\underbrace{(\mathbf{e}^{T}\mathbf{e}-1)}_{g(\mathbf{e})} $
+      </p>
+      <p class="fragment">
+      Differentiate with respect to $\mathbf{e}$, set to zero, and we get $\mathbf{S}\mathbf{e}=\lambda\mathbf{e}$.
+      </p>
+      <p class="fragment">
+      Since $\mathbf{e}^{T}\mathbf{S}\mathbf{e}=\lambda\mathbf{e}^{T}\mathbf{e}=\lambda$, maximizing $\mathbf{e}^{T}\mathbf{S}\mathbf{e}$ involves selecting the eigenvector corresponding to the largest eigenvalue of $\mathbf{S}$.
+      </p>
+      </section>
+      <section id="extending-to-multiple-dimensions" class="level2">
+      <h2>Extending to Multiple Dimensions</h2>
+      <p>One-dimensional representations are kind of boring.</p>
+      <p class="fragment">
+      If we want to obtain a $d^{\prime}$-dimensional representation, where $d^{\prime}\leq d$, we can estimate $\mathbf{x}$ as:
+      </p>
+      <p class="fragment">
+      $ \mathbf{x}=\mathbf{m}+\sum_{i=1}^{d^{\prime}}a_{i}\mathbf{e}_{i} $
+      </p>
+      <p class="fragment">
+      This makes our criterion function:
+      </p>
+      <p class="fragment">
+      $ J_{d^{\prime}}=\sum_{k=1}^{n}\left|\left(\mathbf{m}+\sum_{i=1}^{d^{\prime}}a_{ki}\mathbf{e}_{i}\right)-\mathbf{x}_{k}\right|^{2} $
+      </p>
+      </section>
+      <section id="why-its-called-pca" class="level2">
+      <h2>Why It’s Called PCA</h2>
+      <p>That criterion function is minimized when $\mathbf{e}_{1},\ldots,\mathbf{e}_{d^{\prime}}$ are the $d^{\prime}$ eigenvectors of the scatter matrix with the largest eigenvalues.</p>
+      <p class="fragment">
+      These are also orthogonal, since $\mathbf{S}$ is real and symmetric.
+      </p>
+      <p class="fragment">
+      In linear algebra, they form a <strong>basis</strong> for representing $\mathbf{x}$.
+      </p>
+      <p class="fragment">
+      The coefficients $a_{i}$ are the components of $\mathbf{x}$ in that basis, and are called the <strong>principal components</strong>.
+      </p>
+      </section>
+      </section>
+      <section id="section-5" class="level1">
+      <h1></h1>
+      <section id="parting-words" class="level2">
+      <h2>Parting Words</h2>
+      </section>
+      <section id="drawbacks-to-pca" class="level2">
+      <h2>Drawbacks to PCA</h2>
+      <p>PCA is a fairly simple approach, but it does the job in linear spaces.</p>
+      <p class="fragment">
+      PCA seeks an <strong>optimal projection</strong>: that is, it tries to represent the variation in the data.
+      </p>
+      <p class="fragment">
+      If our subspace is non-linear, we need additional approaches to properly separate out our data (as we saw in the criterion functions).
+      </p>
+      <p class="fragment">
+      If we know that our data is coming from multiple sources, then we may want to seek an <strong>independent component</strong> set that splits apart those signals.
+      </p>
+      </section>
+      <section id="next-class" class="level2">
+      <h2>Next Class</h2>
+      <p>We will wrap up our discussion of clustering with <strong>dimensionality reduction</strong>, which is a way to visualize and handle data that exists in too high of a dimension.</p>
+      <p class="fragment">
+      We will also cover <strong>nonlinear</strong> methods of reduction, which do not rely on a Euclidean space distribution of the samples.
+      </p>
+      <p class="fragment">
+      After that, we will begin a discussion of deep learning and artificial intelligence with our first lecture on neural networks.
+      </p>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <!-- Pseudocode scripts -->
+    <script>
+     pseudocode.renderElement(document.getElementById("hello-world-code"));
+    </script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+          fragments: true,
+          math: {
+					    mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+					    config: 'TeX-AMS_HTML-full'
+          },
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
