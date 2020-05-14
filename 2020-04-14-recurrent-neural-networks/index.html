@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RECURRENT NEURAL NETWORKS</title>
+
+    <meta name="description" content="RECURRENT NEURAL NETWORKS">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Custom Addons: TikzJax -->
+    <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css">
+    <script src="http://tikzjax.com/v1/tikzjax.js"></script>
+    <!-- Custom Addons: pseudocode.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">RECURRENT NEURAL NETWORKS</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="recurrent-neural-networks" class="level2">
+      <h2>Recurrent Neural Networks</h2>
+      </section>
+      <section id="outside-resources" class="level2">
+      <h2>Outside Resources</h2>
+      <p>Andrej Karpathy: “The Unreasonable Effectiveness of Recurrent Neural Networks” 2015</p>
+      <p><a href="https://karpathy.github.io/2015/05/21/rnn-effectiveness/">https://karpathy.github.io/2015/05/21/rnn-effectiveness/</a></p>
+      <p>Christopher Olah: “Understanding LSTM Networks”, 2015</p>
+      <p><a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">https://colah.github.io/posts/2015-08-Understanding-LSTMs/</a></p>
+      </section>
+      <section id="limitations-of-neural-nets" class="level2">
+      <h2>Limitations of Neural Nets</h2>
+      <p>CNNs were created to exploit structured input data, but have limitations:</p>
+      <ul>
+      <li class="fragment">
+      They accept a <strong>fixed-size input</strong> (the image);
+      </li>
+      <li class="fragment">
+      They produce a <strong>fixed-size output</strong> (classes or images);
+      </li>
+      <li class="fragment">
+      They operate using a <strong>fixed-size number of operations</strong> (layers);
+      </li>
+      </ul>
+      <p class="fragment">
+      This works if your data is fixed, but not all data is.
+      </p>
+      </section>
+      <section id="unfixed-data-examples" class="level2">
+      <h2>Unfixed Data Examples</h2>
+      <ul>
+      <li class="fragment">
+      Genomic sequences;
+      </li>
+      <li class="fragment">
+      Translation between languages;
+      </li>
+      <li class="fragment">
+      Time series data;
+      </li>
+      <li class="fragment">
+      Classifying variable input sequences
+      </li>
+      </ul>
+      </section>
+      <section id="sequence-examples" class="level2">
+      <h2>Sequence Examples</h2>
+      <div class="l-double">
+      <div>
+      <p><strong>One-to-One</strong>:</p>
+      <ul>
+      <li>One input, one output (class)</li>
+      <li>Example: Part of speech classification
+      <ul>
+      <li>Input: “Think”</li>
+      <li>Output: “Verb”</li>
+      </ul></li>
+      </ul>
+      </div>
+      <div>
+      <p><img src="img/inputs_to_outputs_1_to_1.png" style="height:100.0%" /></p>
+      </div>
+      </div>
+      </section>
+      <section id="sequence-examples-one-to-many" class="level2">
+      <h2>Sequence Examples: One-to-Many</h2>
+      <div class="l-double">
+      <div>
+      <p><strong>One-to-Many</strong>:</p>
+      <ul>
+      <li>Single input, variable-length output (sequence)</li>
+      <li>Example: Sentence completion
+      <ul>
+      <li>Input: “Hello”</li>
+      <li>Output: “Hello, how are you?”</li>
+      </ul></li>
+      </ul>
+      </div>
+      <div>
+      <p><img src="img/inputs_to_outputs_1_to_many.png" style="height:100.0%" /></p>
+      </div>
+      </div>
+      </section>
+      <section id="sequence-examples-many-to-one" class="level2">
+      <h2>Sequence Examples: Many-to-One</h2>
+      <div class="l-double">
+      <div>
+      <p><strong>Many-to-One</strong>:</p>
+      <ul>
+      <li>Variable-length input, single output (class)</li>
+      <li>Example: Sequence classification
+      <ul>
+      <li>Input: “I didn’t like this movie, it was terrible.”</li>
+      <li>Output: “Negative”</li>
+      </ul></li>
+      </ul>
+      </div>
+      <div>
+      <p><img src="img/inputs_to_outputs_many_to_1.png" style="height:100.0%" /></p>
+      </div>
+      </div>
+      </section>
+      <section id="sequence-examples-many-to-many-delayed" class="level2">
+      <h2>Sequence Examples: Many-to-Many (Delayed)</h2>
+      <div class="l-double">
+      <div>
+      <p><strong>Many-to-Many (Delayed)</strong>:</p>
+      <ul>
+      <li>Variable-length input, variable-length output</li>
+      <li>Example: Translation
+      <ul>
+      <li>“Hello, my name is Scott.”</li>
+      <li>“Hola, me llamo Scott.”</li>
+      </ul></li>
+      </ul>
+      </div>
+      <div>
+      <p><img src="img/inputs_to_outputs_many_to_many.png" style="height:100.0%" /></p>
+      </div>
+      </div>
+      </section>
+      <section id="sequence-examples-many-to-many-synchronized" class="level2">
+      <h2>Sequence Examples: Many-to-Many (Synchronized)</h2>
+      <div class="l-double">
+      <div>
+      <p><strong>Many-to-Many (Synchronized)</strong>:</p>
+      <ul>
+      <li>Variable-length input, synchronized output</li>
+      <li>Example:
+      <ul>
+      <li>Input: Video Sequence</li>
+      <li>Output: Real-time Tracking Locations</li>
+      </ul></li>
+      </ul>
+      </div>
+      <div>
+      <p><img src="img/inputs_to_outputs_many_to_many_sync.png" style="height:100.0%" /></p>
+      </div>
+      </div>
+      </section>
+      <section id="modifications-needed-for-sequence-processing" class="level2">
+      <h2>Modifications Needed for Sequence Processing</h2>
+      <p>Sequence data processing requires <strong>memory</strong>.</p>
+      <p class="fragment">
+      As you read this sentence, the words only make sense in the context of what’s come before it. Even the words are pronounced based on the sequence of the letters, rather than an independent processing of each unit of input.
+      </p>
+      <p class="fragment">
+      So there is a <strong>preserved state</strong> that is updated and changed based on the sequence of inputs.
+      </p>
+      </section>
+      <section id="diagram-of-recurrent-neural-network" class="level2">
+      <h2>Diagram of Recurrent Neural Network</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/rnn_rolled.png" style="width:45.0%" alt="" /><figcaption>Recurrent Neural Network Unit</figcaption>
+      </figure>
+      </div>
+      <div>
+      <ul>
+      <li>
+      $x$ is the input, $o$ is the output.
+      </li>
+      <li class="fragment">
+      $s$ is the “hidden state” of the network, updated at each timestep.
+      </li>
+      <li class="fragment">
+      $\mathbf{W}$ is the weight of the hidden state.
+      </li>
+      <li class="fragment">
+      $\mathbf{U}$ and $\mathbf{V}$ are the weights of the input-to-hidden and hidden-to-output layers, respectively.
+      </li>
+      <li class="fragment">
+      Each time we “loop around” $\mathbf{W}$, we have another timestep in the sequence.
+      </li>
+      </ul>
+      <p class="fragment">
+      So we can modify this architecture by “unrolling” it to give us a similar, traditional neural network architecture.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="diagram-of-recurrent-neural-network-1" class="level2">
+      <h2>Diagram of Recurrent Neural Network</h2>
+      <figure>
+      <img src="img/rnn.jpg" style="width:100.0%" alt="" /><figcaption>Unrolled Recurrent Network</figcaption>
+      </figure>
+      </section>
+      <section id="explanation-of-rnn-calculations" class="level2">
+      <h2>Explanation of RNN Calculations</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/rnn_unrolled.png" style="width:100.0%" alt="" /><figcaption>Unrolled Recurrent Network</figcaption>
+      </figure>
+      </div>
+      <div>
+      <ul>
+      <li>
+      $x_{t}$ is the input at time step $t$ (e.g. the $t$-th word in a sentence).
+      </li>
+      <li class="fragment">
+      $s_{t}$ is the “hidden state” at $t$, where: $ s_{t} = f(\mathbf{U}x_{t} + \mathbf{W}s_{t-1})$ and where $f(\cdot)$ is a nonlinearity.
+      </li>
+      <li class="fragment">
+      $o_{t}$ is the output at step $t$. If we’re predicting the next word in a sentence, it is a vector of probabilities across all possible words in a vocabulary.
+      </li>
+      </ul>
+      </div>
+      </div>
+      </section>
+      <section id="defining-terms" class="level2">
+      <h2>Defining Terms</h2>
+      <p>$s_{t}$ is the “memory” of the network, capturing information at all previous timesteps. The output $o_{t}$ is computed based on the memory at $t$.</p>
+      <p class="fragment">
+      Traditional deep networks use different parameters at each layer, but RNNs share parameters $\mathbf{U}, \mathbf{V}, \mathbf{W}$ across all time steps.
+      </p>
+      <p class="fragment">
+      This means that we don’t have to train a unique network on every single input (which would be overfitting).
+      </p>
+      <p class="fragment">
+      Outputs depend on the purpose: Many-to-one networks may only be interested in the final output.
+      </p>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="rnns-for-nlp" class="level2">
+      <h2>RNNs for NLP</h2>
+      </section>
+      <section id="text-generation" class="level2">
+      <h2>Text Generation</h2>
+      <p>Simple problem: Given a sequence of words, can we predict the most likely next word?</p>
+      <ul>
+      <li class="fragment">
+      Input: Sequence of words
+      </li>
+      <li class="fragment">
+      Output: Next predicted word
+      </li>
+      </ul>
+      <p class="fragment">
+      This is a <strong>Many-to-One</strong> problem, or a <strong>Many-to-Many (Delayed)</strong> problem if we want to generate a sequence of words from a “starting” sequence.
+      </p>
+      </section>
+      <section id="first-how-do-we-represent-text" class="level2">
+      <h2>First: How Do We Represent Text?</h2>
+      <p>In images, an RGB pixel with values [0, 255, 0] (green) is more similar to a pixel [0, 250, 0] (slightly darker green) than to a pixel [255, 0, 0] (red).</p>
+      <p class="fragment">
+      With language, this doesn’t hold.
+      </p>
+      <p class="fragment">
+      <strong>Car[d]</strong> vs. <strong>Car[e]</strong>: “d” and “e” are right next to each other in the alphabet, but these two words have nothing in common.
+      </p>
+      <p class="fragment">
+      So we want to translate words into a vector representation of some kind that can give us greater descriptive power over what the words mean (and how they might be related to one another).
+      </p>
+      </section>
+      <section id="types-of-word-representations" class="level2">
+      <h2>Types of Word Representations</h2>
+      <p><strong>Vector space models</strong> (VSMs): Embed words into a continuous vector space, where distance is proportional to similarity in meaning.</p>
+      <p class="fragment">
+      One method is to represent words in a sparse, high-dimensional form called a <strong>one-hot</strong> vector, where each word is a vector with dimensionality equal to the vocabulary size.
+      </p>
+      <p class="fragment">
+      The vector is zeros everywhere except the location that represents the word of interest.
+      </p>
+      </section>
+      <section id="one-hot-vector-illustration" class="level2">
+      <h2>One-Hot Vector Illustration</h2>
+      <figure>
+      <img src="img/one_hot_vector.png" style="width:100.0%" alt="" /><figcaption>Image from </figcaption>
+      </figure>
+      </section>
+      <section id="alternate-representations" class="level2">
+      <h2>Alternate Representations</h2>
+      <p>Problems: Large vocabularies lead to large, very sparse dimensional spaces (most of the elements are zero).</p>
+      <p class="fragment">
+      Alternative representations of words, such as <strong>word2vec</strong>, attempt to create a vector representation of a word based on its use in actual language (how often it appears next to other words or in different contexts).
+      </p>
+      <p class="fragment">
+      If you are interested in word embeddings and search-and-retrieval, it’s worth looking at the <strong><a href="https://www.tensorflow.org/tutorials/word2vec">Tensorflow Tutorial on word2vec: https://www.tensorflow.org/tutorials/word2vec</a></strong>
+      </p>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="training-rnns" class="level2">
+      <h2>Training RNNs</h2>
+      </section>
+      <section id="training-sequence-data" class="level2">
+      <h2>Training Sequence Data</h2>
+      <p>Training is done through <strong>Backpropagation Through Time</strong> (BPP): Since parameters are shared by all time steps in the network, we have to take into account all previous timesteps in order to calculate the gradient at time $t$.</p>
+      </section>
+      <section id="defining-terms-1" class="level2">
+      <h2>Defining Terms</h2>
+      <p>Our hidden state (memory) and the output of a single unit are, respectively:</p>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/rnn_unrolled.png" style="width:80.0%" alt="" /><figcaption>Unrolled Recurrent Network</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>\begin{align} s_{t} &amp;= (\mathbf{U}x_{t} + \mathbf{W}s_{t-1}) \\ o_{t} &amp;= \textrm{softmax}(\mathbf{V}s_{t}) \end{align}</p>
+      </div>
+      </div>
+      </section>
+      <section id="defining-error" class="level2">
+      <h2>Defining Error</h2>
+      <p>Gradient descent and backpropagation require an error function. If $\hat{o}$ is the “correct” output, then:</p>
+      <p class="fragment">
+      \begin{align} E_{t}(\hat{o}_{t},o_{t}) &amp;= -\hat{o}_{t}\log o_{t} \\ E(\hat{o},o) &amp;= \sum_{t} E_{t}(\hat{o}_{t}, o_{t}) \\ &amp;= -\sum_{t} \hat{o}_{t}\log o_{t} \end{align}
+      </p>
+      <p class="fragment">
+      $\hat{o}_{t}$ is the correct word at time step $t$, and $o_{t}$ is our prediction. This is the <strong>cross-entropy loss function</strong>, and is calculated over all timesteps (since we typically treat one full sentence as a training exmaple).
+      </p>
+      </section>
+      <section id="summing-error-partials" class="level2">
+      <h2>Summing Error Partials</h2>
+      <p>Since we’re learning the gradient of the error with respect to the parameters, we can sum over the timesteps for each of $\mathbf{U}, \mathbf{V}, \mathbf{W}$:</p>
+      <p>\begin{align} \frac{\partial E}{\partial \mathbf{V}} &amp;= \sum_{t}\frac{\partial E_{t}}{\partial \mathbf{V}} \\ \frac{\partial E}{\partial \mathbf{U}} &amp;= \sum_{t}\frac{\partial E_{t}}{\partial \mathbf{U}} \\ \frac{\partial E}{\partial \mathbf{W}} &amp;= \sum_{t}\frac{\partial E_{t}}{\partial \mathbf{W}} \\ \end{align}</p>
+      </section>
+      <section id="calculating-backpropagation-mathbfv" class="level2">
+      <h2>Calculating Backpropagation: $\mathbf{V}$</h2>
+      <p>We calculate the chain rule working backwards from the output $o_{t}$. So starting with $\mathbf{V}$:</p>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/rnn_unrolled.png" style="width:80.0%" alt="" /><figcaption>Unrolled Recurrent Network</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>\begin{align} \frac{\partial E_{t}}{\partial \mathbf{V}} &amp;= \frac{\partial E_{t}}{\partial o_{t}}\frac{\partial o_{t}}{\partial\mathbf{V}} \\ &amp;=\frac{\partial E_{t}}{\partial o_{t}}\frac{\partial o_{t}}{\partial z_{t}}\frac{\partial z_{t}}{\partial\mathbf{V}} \\ &amp;=(o_{t} - \hat{o}_{t}) \otimes s_{t} \end{align}</p>
+      </div>
+      </div>
+      <p>where $z_{t} = \mathbf{V}s_{t}$ and $\otimes$ is the outer product. The error at time $t$ depends only on the last line, $\hat{o}_{t}, o_{t}, s_{t}$.</p>
+      </section>
+      <section id="calculating-backpropagation-mathbfw" class="level2">
+      <h2>Calculating Backpropagation: $\mathbf{W}$</h2>
+      <p>Now we calculate the gradient for $\mathbf{W}$, the weights carried between the hidden states:</p>
+      <div class="l-double">
+      <div>
+      <p><img src="img/rnn_unrolled.png" style="width:80.0%" /></p>
+      </div>
+      <div>
+      <p>$ \frac{\partial E_{t}}{\partial \mathbf{W}} = \frac{\partial E_{t}}{\partial o_{t}}\frac{\partial o_{t}}{\partial s_{t}}\frac{\partial s_{t}}{\partial\mathbf{W}} $</p>
+      </div>
+      </div>
+      <p>Now, since $s_{t} = (\mathbf{U}x_{t} + \mathbf{W}s_{t-1})$, and we’re taking the derivative with respect to $\mathbf{W}$, we can no longer ignore the fact that $s_{t}$ relies on $s_{t-1}$ which in turn relies on $s_{t-2}$ and so on.</p>
+      </section>
+      <section id="calculating-backpropagation-through-time" class="level2">
+      <h2>Calculating Backpropagation Through Time</h2>
+      <p>So in reality, if we apply the chain rule again, we end up summing across all timepoints up to the current one:</p>
+      <p>$ \frac{\partial E_{t}}{\partial\mathbf{W}} = \sum_{k=0}^{t}\frac{\partial E_{t}}{\partial \hat{y}_{t}}\frac{\partial\hat{y}_{t}}{\partial s_{t}}\frac{\partial s_{t}}{\partial s_{k}}\frac{\partial s_{k}}{\partial\mathbf{W}} $</p>
+      <p class="fragment">
+      Since $\mathbf{W}$ is used in every step up until the step we’re interested in, we sum up throughout the network.
+      </p>
+      </section>
+      <section id="illustration-of-bptt" class="level2">
+      <h2>Illustration of BPTT</h2>
+      <figure>
+      <img src="img/bptt.png" style="width:80.0%" alt="" /><figcaption>Backpropagation Through Time</figcaption>
+      </figure>
+      </section>
+      <section id="difficulties-in-training-rnns" class="level2">
+      <h2>Difficulties in Training RNNs</h2>
+      <p>A similar BPTT process is used for calculating $\frac{\partial E_{t}}{\partial\mathbf{U}}$.</p>
+      <p class="fragment">
+      As our sequences get longer, we calculate more and more gradients – equivalent to stacking more layers in the network.
+      </p>
+      <p class="fragment">
+      Thus RNNs have difficulty with long sequences, both because of the amount of computation needed as well as another problem which we will discuss next.
+      </p>
+      <p class="fragment">
+      These are the same problems as with “very deep” convolutional networks.
+      </p>
+      </section>
+      </section>
+      <section id="section-3" class="level1">
+      <h1></h1>
+      <section id="vanishing-gradient-problem" class="level2">
+      <h2>Vanishing Gradient Problem</h2>
+      </section>
+      <section id="meaning-of-deep-layers-in-rnns" class="level2">
+      <h2>Meaning of Deep Layers in RNNs</h2>
+      <p>As deep networks grow, gradients tend to get lost as they are propagated back from the outputs to the inputs.</p>
+      <p class="fragment">
+      In CNNs, additional layers correspond to learning “higher-level” features.
+      </p>
+      <p class="fragment">
+      In RNNs, more layers correspond to more timepoints, we’re talking about learning connections between inputs (word embeddings) at widely varied timepoints (words that are very far apart from each other).
+      </p>
+      </section>
+      <section id="example-of-word-distance-and-meaning" class="level2">
+      <h2>Example of Word Distance and Meaning</h2>
+      <blockquote>
+      <p>It was the Dover road that lay, on a Friday night late in November, before the first of the persons with whom this history has business.</p>
+      </blockquote>
+      </section>
+      <section id="example-of-word-distance-and-meaning-1" class="level2">
+      <h2>Example of Word Distance and Meaning</h2>
+      <blockquote>
+      <p>It was the Dover road that lay, on a Friday night late in November, before the first of the persons with whom this history has business.</p>
+      </blockquote>
+      <p>This is a line from the beginning of “A Tale of Two Cities”; it’s an example of a sentence where word distances have a lot of meaning:</p>
+      <ul>
+      <li class="fragment">
+      There is a road (a road in Dover, a town in Kent in England);
+      </li>
+      <li class="fragment">
+      The description includes a time: Friday night in late November;
+      </li>
+      <li class="fragment">
+      There is a person;
+      </li>
+      <li class="fragment">
+      The road is “before” the person (here, “before” means “in front of”);
+      </li>
+      <li class="fragment">
+      The person is the “first” involved in the story, implying that there may be others.
+      </li>
+      </ul>
+      </section>
+      <section id="example-of-word-distance-and-meaning-2" class="level2">
+      <h2>Example of Word Distance and Meaning</h2>
+      <blockquote>
+      <p>It was the Dover road that lay, on a Friday night late in November, before the first of the persons with whom this history has business.</p>
+      </blockquote>
+      <p>There are 15 words between “road” and “persons”, so understanding the relationship between the two (the road is in front of the person) requires at least 15 timepoints (layers, with their chained gradients).</p>
+      <p class="fragment">
+      You can imagine that as the timesteps increase, the layer stacks get larger and larger – eventually larger than ResNet!
+      </p>
+      </section>
+      <section id="extending-gradients-gets-worse" class="level2">
+      <h2>Extending Gradients Gets Worse</h2>
+      <p>$ \frac{\partial E_{t}}{\partial\mathbf{W}} = \sum_{k=0}^{t}\frac{\partial E_{t}}{\partial o_{t}}\frac{\partial o_{t}}{\partial s_{t}}\frac{\partial s_{t}}{\partial s_{k}}\frac{\partial s_{k}}{\partial\mathbf{W}} $</p>
+      <p>The $\mathbf{W}$ gradient includes the term $\frac{\partial s_{t}}{\partial s_{k}}$, which itself expands to a chain rule.</p>
+      <p class="fragment">
+      So for $t=3, k=1$:
+      </p>
+      <p class="fragment">
+      $ \frac{\partial s_{3}}{\partial s_{1}} = \frac{\partial s_{3}}{\partial s_{2}}\frac{\partial s_{2}}{\partial s_{1}}$
+      </p>
+      <p class="fragment">
+      And so on; as $t$ increases, then the distance between $t$ and 1 increases, so we end up with more and more terms in the gradient.
+      </p>
+      </section>
+      <section id="jacobian-matrix" class="level2">
+      <h2>Jacobian Matrix</h2>
+      <p>Since $\frac{\partial s_{t}}{\partial s_{k}}$ is a partial derivative of a vector function with respect to a vector input, the result is a <strong>Jacobian matrix</strong> whose elements are pointwise derivatives.</p>
+      <p class="fragment">
+      We can rewrite the gradient as:
+      </p>
+      <p class="fragment">
+      $ \frac{\partial E_{t}}{\partial \mathbf{W}} = \sum_{k=0}^{t}\frac{\partial E_{t}}{\partial o_{t}}\frac{\partial o_{t}}{\partial s_{t}}\left(\prod_{j=k+1}^{t}\frac{\partial s_{j}}{\partial s_{j-1}}\right)\frac{\partial s_{k}}{\partial \mathbf{W}} $
+      </p>
+      <p class="fragment">
+      The 2-norm of this matrix has an upper bound of 1, since our activation function ($\tanh$) maps all the inputs to between $[-1, 1]$. The derivative, $\frac{\partial \tanh(x)}{\partial x} = 1 - \tanh^{2}(x)$, is bounded above by 1 as well.
+      </p>
+      </section>
+      <section id="activation-function-and-its-derivative" class="level2">
+      <h2>Activation Function and Its Derivative</h2>
+      <figure>
+      <img src="img/transfer.svg" style="width:70.0%" alt="" /><figcaption>Activation ($$) and Derivative</figcaption>
+      </figure>
+      </section>
+      <section id="consequences-of-gradient-functions" class="level2">
+      <h2>Consequences of Gradient Functions</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/transfer.svg" style="width:100.0%" alt="" /><figcaption>Activation ($$) and Derivative</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Recall that the purpose of the activation function is twofold:</p>
+      <ol>
+      <li class="fragment">
+      Model nonlinear interactions between inputs, and
+      </li>
+      <li class="fragment">
+      “Squash” the inputs $x$ into a specified range, typically $[0, 1]$ or $[-1, 1]$.
+      </li>
+      </ol>
+      <p class="fragment">
+      However, the <strong>derivative</strong> of $$ approaches 0 as the inputs become larger. This means that as you perform BPTT, your gradient calculations include multiplication by very small numbers.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="consequences-of-vanishing-gradients" class="level2">
+      <h2>Consequences of Vanishing Gradients</h2>
+      <p>If the gradients go to zero, that means that <strong>you aren’t altering your weights based on errors generated at large timesteps</strong>.</p>
+      <blockquote>
+      <p>At the library, patrons are able to select and take home a wide variety of [BLANK].</p>
+      </blockquote>
+      <p class="fragment">
+      In training, the predicted word [BLANK] is compared with the actual word of the training sentence; so if the actual sentence ended with “books”, but the classifier returns “puppies”, that would be an error. We would then start calculating our gradient.
+      </p>
+      <p class="fragment">
+      <strong>This is an error is due to the word “library”, which is 12 words away!</strong> If the gradients vanish before they get to that point in the BPTT, then we won’t use the information at the beginning of the sentence to adjust to the prediction at the end.
+      </p>
+      </section>
+      <section id="vanishing-vs.-exploding-gradients" class="level2">
+      <h2>Vanishing vs. Exploding Gradients</h2>
+      <p>There is a similar problem of <strong>exploding gradients</strong>, but:</p>
+      <ul>
+      <li class="fragment">
+      Exploding gradients will crash your program, so it’s obvious; and
+      </li>
+      <li class="fragment">
+      You can fix exploding gradients by clipping them if they get too large.
+      </li>
+      </ul>
+      <p class="fragment">
+      Conversely, vanishing gradients won’t crash your computer, they will just cause your RNN to train very poorly.
+      </p>
+      <p class="fragment">
+      So you may not notice that that’s the problem unless you look for it.
+      </p>
+      </section>
+      <section id="solutions-to-vanishing-gradients" class="level2">
+      <h2>Solutions to Vanishing Gradients</h2>
+      <p>Luckily, the solutions to this problem are pretty simple:</p>
+      <ol>
+      <li class="fragment">
+      Initialize $\mathbf{W}$ carefully;
+      </li>
+      <li class="fragment">
+      Regularize the results of gradient calculations to prevent vanishing;
+      </li>
+      <li class="fragment">
+      Don’t use an activation function with this problem (the RELU unit we discussed earlier has derivatives of just 0 or 1);
+      </li>
+      <li class="fragment">
+      Use a non-vanilla implementation of RNNs that don’t suffer from this issue.
+      </li>
+      </ol>
+      <p class="fragment">
+      Solutions 3 and 4 are the most popular; in fact, RNNs are rarely used in vanilla form nowadays because of their limited sequence capacity.
+      </p>
+      </section>
+      </section>
+      <section id="section-4" class="level1">
+      <h1></h1>
+      <section id="example-results-of-rnns" class="level2">
+      <h2>Example Results of RNNs</h2>
+      </section>
+      <section id="stealing-others-examples" class="level2">
+      <h2>Stealing Others’ Examples</h2>
+      <p>The following examples are from Andrej Karpathy’s website, where he implements a <strong>character-level RNN</strong>: instead of predicting words, he’s predicting the next letter or symbol in a sequence.</p>
+      <p class="fragment">
+      In each case, the training set is just a text file, and the classifier is given a “starter word” to initialize. Then it predicts character-by-character what should come next.
+      </p>
+      <p class="fragment">
+      Also, he’s using a <strong>long-short term memory (LSTM)</strong> network, which we’ll cover next lecture.
+      </p>
+      </section>
+      <section id="english-text" class="level2">
+      <h2>English Text</h2>
+      <p>The first sample is a set of essays on startups and business. This is a 1MB text file, which contains about 1 million characters (a fairly small sample size for this kind of work).</p>
+      <p class="fragment">
+      Here’s a sample produced by the RNN:
+      </p>
+      <p class="fragment">
+      <pre><code>The surprised in investors weren&#39;t going to raise money. I&#39;m not the company
+      with the time there are all interesting quickly, don&#39;t have to get off the
+      same programmers. There&#39;s a super-angel round fundraising, why do you can do.
+      If you have a different physical investment are become in people who reduced
+      in a startup with the way to argument the acquirer could see them just that
+      you&#39;re also the founders will part of users&#39; affords that and an alternation
+      to the idea. [2] Don&#39;t work at first member to see the way kids will seem in
+      advance of a bad successful startup. And if you have to act the big company
+      too.</code></pre>
+      </p>
+      </section>
+      <section id="shakespeares-plays" class="level2 fragile">
+      <h2 class="fragile">Shakespeare’s Plays</h2>
+      <p>Next is a set of Shakespeare’s plays, which are a 4.4MB text file.</p>
+      <pre><code>PANDARUS:
+      Alas, I think he shall be come approached and the day
+      When little srain would be attain&#39;d into being never fed,
+      And who is but a chain and subjects of his death,
+      I should not sleep
+
+      Second Senator:
+      They are away this miseries, produced upon my soul,
+      Breaking and strongly should be buried, when I perish
+      The earth and thoughts of many states.
+
+      DUKE VINCENTIO:
+      Well, your wit is in the care of side and that.</code></pre>
+      </section>
+      <section id="wikipedia-text" class="level2">
+      <h2>Wikipedia Text</h2>
+      <p>The RNN can also produce markup. Here it’s trained on Wikipedia markup text.</p>
+      <pre><code>Naturalism and decision for the majority of Arab countries&#39; capitalide was grounded
+      by the Irish language by [[John Clair]], [[An Imperial Japanese Revolt]], associated
+      with Guangzham&#39;s sovereignty. His generals were the powerful ruler of the Portugal
+      in the [[Protestant Immineners]], which could be said to be directly in Cantonese
+      Communication, which followed a ceremony and set inspired prison, training. 
+      Many governments recognize the military housing of the
+      [[Civil Liberalization and Infantry Resolution 265 National Party in Hungary]],
+      that is sympathetic to be to the [[Punjab Resolution]]
+      (PJS)[http://www.humah.yahoo.com/guardian.
+      cfm/7754800786d17551963s89.htm Official economics Adjoint for the Nazism, Montgomery
+      was swear to advance to the resources for those Socialism&#39;s rule,
+      was starting to signing a major tripad of aid exile.]]</code></pre>
+      </section>
+      <section id="from-text-to-code-latex" class="level2">
+      <h2>From Text to Code: LaTeX</h2>
+      <p>Let’s get more complex and generate a mix of code and text, like a document.</p>
+      <figure>
+      <img src="img/fake_math_01.svg" style="width:50.0%" alt="" /><figcaption>Fake Math</figcaption>
+      </figure>
+      </section>
+      <section id="from-text-to-code-latex-1" class="level2">
+      <h2>From Text to Code: LaTeX</h2>
+      <p>One of these is from the RNN, and the other is from a previous lecture that I wrote.</p>
+      <pre><code>\section{Recap Last Lecture}\label{recap-last-lecture}
+      \\begin{frame}{Recap: Rationale for Deep Networks}
+      In theory, neural networks can replicate any function (decision
+      surface), no matter how complicated. &quot;In theory&quot;.
+      In reality, this would require an unreasonable number of:
+      \\begin{itemize}
+      \tightlist
+      \item \\textbf{\\emph{Input nodes}}, to describe increasingly large data
+        types;
+      \item \\textbf{\\emph{Input samples}}, to accurately describe a complex,
+        varied class space;
+      \item \\textbf{\\emph{Hidden nodes}}, to capture the nonlinear relationship
+        between the inputs and desired outputs;
+      \item \\textbf{\\emph{Hours}}, to fully train a network on all this data;
+      \item \\textbf{\\emph{Dollars}}, to buy the hardware required for such a
+        massive undertaking.
+      \\end{itemize}</code></pre>
+      </section>
+      <section id="from-text-to-code-latex-2" class="level2">
+      <h2>From Text to Code: LaTeX</h2>
+      <p>One of these is from the RNN, and the other is from a previous lecture that I wrote.</p>
+      <pre><code>\\begin{proof}
+      We may assume that \$\\mathcal{I}\$ is an abelian sheaf on \$\\mathcal{C}\$.
+      \item Given a morphism \$\\Delta : \\mathcal{F} \to \\mathcal{I}\$
+      is an injective and let \$\mathfrak q\$ be an abelian sheaf on \$X\$.
+      Let \$\\mathcal{F}\$ be a fibered complex. Let \$\\mathcal{F}\$ be a category.
+      \\begin{enumerate}
+      \item \hyperref[setain-construction-phantom]{Lemma}
+      \label{lemma-characterize-quasi-finite}
+      Let \$\\mathcal{F}\$ be an abelian quasi-coherent sheaf on \$\\mathcal{C}\$.
+      Let \$\\mathcal{F}\$ be a coherent \$\\mathcal{O}\_X\$-module. Then
+      \$\\mathcal{F}\$ is an abelian catenary over \$\\mathcal{C}\$.
+      \item The following are equivalent
+      \\begin{enumerate}
+      \item \$\\mathcal{F}\$ is an \$\\mathcal{O}\_X\$-module.
+      \\end{lemma}</code></pre>
+      </section>
+      <section id="the-ultimate-test-source-code" class="level2">
+      <h2>The Ultimate Test: Source Code</h2>
+      <p>By training on the Linux source code, the RNN can almost write a program.</p>
+      <pre><code>/*
+       * Increment the size file of the new incorrect UI\_FILTER group information
+       * of the size generatively.
+       */
+      static int indicate\_policy(void)
+      {
+        int error;
+        if (fd == MARN\_EPT) {
+          /*
+           * The kernel blank will coeld it to userspace.
+           */
+          if (ss-&gt;segment &lt; mem\_total)
+            unblock\_graph\_and\_set\_blocked();
+          else
+            ret = 1;
+          goto bail;
+        }</code></pre>
+      </section>
+      </section>
+      <section id="section-5" class="level1">
+      <h1></h1>
+      <section id="parting-words" class="level2">
+      <h2>Parting Words</h2>
+      </section>
+      <section id="more-with-recurrent-nets" class="level2">
+      <h2>More with Recurrent Nets</h2>
+      <p>Next lecture we will go over extensions to RNNs, including <strong>Long-Short Term Memory (LSTM)</strong> and <strong>Gated Recurrent Unit (GRU)</strong> networks – these are designed to explicitly account for vanishing gradients, allowing them to train much longer sequences.</p>
+      <p class="fragment">
+      Just like ResNet has kind of taken over as the “default” CNN, LSTM networks have done the same for RNNs in recent papers.
+      </p>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <!-- Pseudocode scripts -->
+    <script>
+     pseudocode.renderElement(document.getElementById("hello-world-code"));
+    </script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+          fragments: true,
+          math: {
+					    mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+					    config: 'TeX-AMS_HTML-full'
+          },
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
