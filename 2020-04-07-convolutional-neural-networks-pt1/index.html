@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Convolutional Neural Networks</title>
+
+    <meta name="description" content="Convolutional Neural Networks">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Custom Addons: TikzJax -->
+    <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css">
+    <script src="http://tikzjax.com/v1/tikzjax.js"></script>
+    <!-- Custom Addons: pseudocode.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">Convolutional Neural Networks</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="recap-last-lecture" class="level2">
+      <h2>Recap Last Lecture</h2>
+      </section>
+      <section id="recap-perceptrons" class="level2">
+      <h2>Recap: Perceptrons</h2>
+      <p><img src="img/perceptron_model.jpeg" style="width:70.0%" /></p>
+      </section>
+      <section id="recap-archetypal-three-layer-network" class="level2">
+      <h2>Recap: Archetypal Three-Layer Network</h2>
+      <figure>
+      <img src="img/backpropagation_schematic.svg" style="width:60.0%" alt="" /><figcaption>Three-Layer Fully Connected Network</figcaption>
+      </figure>
+      </section>
+      <section id="recap-net-activation" class="level2">
+      <h2>Recap: Net Activation</h2>
+      <p>If the hidden layer has units indexed by $j$, and the input layer is indexed by $i$, then the net activation is:</p>
+      <p class="fragment">
+      $ net_{j} = \sum_{i=1}^{d}x_{i}w_{ji}+w_{j0}=\sum_{i=0}^{d}x_{i}w_{ji}\equiv \mathbf{w}_{j}^{T}\mathbf{x} $
+      </p>
+      <p class="fragment">
+      The output layer (indexed by $k$) has a unique set of weights operating on the results of the hidden layer (denoted in total by $\mathbf{y}$):
+      </p>
+      <p class="fragment">
+      $ net_{k} = \sum_{j=1}^{n_{H}}y_{i}w_{kj}+w_{k0} = \sum_{j=0}^{n_{H}}y_{j}w_{kj}=\mathbf{w}_{k}^{T}\mathbf{y} $
+      </p>
+      </section>
+      <section id="recap-nonlinearities" class="level2">
+      <h2>Recap: Nonlinearities</h2>
+      <p>In addition to the weights, a unit has a nonlinear function it operates on its net activation, which dictates its emitted result:</p>
+      <p class="fragment">
+      $ y_{j} = f(net_{j}) \qquad z_{k}=f(net_{k}) $
+      </p>
+      <p class="fragment">
+      Combining equations yields our familiar discriminant function:
+      </p>
+      <p class="fragment">
+      $ g_{k}(\mathbf{x}) \equiv z_{k} = f\left(\sum_{j=1}^{n_{H}} w_{kj} f\left(\sum_{i=1}^{d}w_{ji}x_{i}+w_{j0}\right)+w_{k0}\right) $
+      </p>
+      </section>
+      <section id="recap-example-of-nonlinear-decision-regions-mathcalr_1mathcalr_2" class="level2">
+      <h2>Recap: Example of Nonlinear Decision Regions $\mathcal{R}_{1},\mathcal{R}_{2}$</h2>
+      <figure>
+      <img src="img/two_layer_decision_space.svg" style="width:80.0%" alt="" /><figcaption>Two Layer Decision Space</figcaption>
+      </figure>
+      </section>
+      <section id="recap-example-of-nonlinear-decision-regions-mathcalr_1mathcalr_2-1" class="level2">
+      <h2>Recap: Example of Nonlinear Decision Regions $\mathcal{R}_{1},\mathcal{R}_{2}$</h2>
+      <figure>
+      <img src="img/three_layer_decision_space.svg" style="width:80.0%" alt="" /><figcaption>Three Layer Decision Space</figcaption>
+      </figure>
+      </section>
+      <section id="recap-xor-problem" class="level2">
+      <h2>Recap: XOR Problem</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/xor_plot.svg" style="width:80.0%" alt="" /><figcaption>XOR Problem</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/xor_net.svg" style="width:80.0%" alt="" /><figcaption>Three-Layer, Two-Dimensional Network</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="recap-xor-network-responses" class="level2">
+      <h2>Recap: XOR Network Responses</h2>
+      <figure>
+      <img src="img/xor_net_plus_response.svg" style="width:40.0%" alt="" /><figcaption>Responses</figcaption>
+      </figure>
+      </section>
+      <section id="recap-expressive-power-in-approximating-any-function" class="level2">
+      <h2>Recap: Expressive Power in Approximating Any Function</h2>
+      <p>Hidden layers increase the <strong>expressive power</strong> over and above linear machines or their nonlinear variants.</p>
+      <p class="fragment">
+      Any continuous function (i.e. the nonlinear decision regions) should be learnable as a combination of functions; compare our output function with Kolmogorov’s proof:
+      </p>
+      <p class="fragment">
+      $ g_{k}(\mathbf{x}) \equiv z_{k} = f\left(\sum_{j=1}^{n_{H}} w_{kj} f\left(\sum_{i=1}^{d}w_{ji}x_{i}+w_{j0}\right)+w_{k0}\right) $
+      </p>
+      <p class="fragment">
+      $ g(\mathbf{x}) = \sum_{j=1}^{2n+1}\Xi_{j}\left(\sum_{i=1}^{d}\Psi_{ij}(x_{i})\right) $
+      </p>
+      <p class="fragment">
+      … as well as Fourier’s theorem.
+      </p>
+      </section>
+      <section id="approximation-of-any-function" class="level2">
+      <h2>Approximation of Any Function</h2>
+      <p><img src="img/expressive_power.png" style="width:40.0%" /></p>
+      <p>Given a set of inputs arranged in opposition, we can take a series of S-shaped curves to approximate a “bump” (may or may not be Gaussian). Given a sufficiently large number of these, we could in theory approximate any function.</p>
+      </section>
+      <section id="recap-backpropagation-for-learning-weights" class="level2">
+      <h2>Recap: Backpropagation for Learning Weights</h2>
+      <p><strong>Backpropagation</strong> is the most general method for setting the weights between units.</p>
+      <p class="fragment">
+      Since the hidden layer is an intermediate step, we need an “effective error” we can use to optimize the weights – the <strong>credit assignment</strong> problem.
+      </p>
+      <p class="fragment">
+      This is done during the <strong>learning</strong> mode (as opposed to the <strong>feedforward</strong> mode used for classification).
+      </p>
+      <ul>
+      <li class="fragment">
+      Present training patterns to the network and determine the output
+      </li>
+      <li class="fragment">
+      Compare outputs to the targets and figure out the errors
+      </li>
+      <li class="fragment">
+      Adjust the network weights to reduce the measure of error
+      </li>
+      <li class="fragment">
+      Optimal weights are achieved when the output error is minimized
+      </li>
+      </ul>
+      </section>
+      <section id="recap-training-error" class="level2">
+      <h2>Recap: Training Error</h2>
+      <p>Training error is calculated as the squared difference between the output and the target vector, just as in the LMS algorithm:</p>
+      <p class="fragment">
+      $ J(\mathbf{w})=\frac{1}{2}\sum_{k=1}^{c}(t_{k}-z_{k})^{2}=\frac{1}{2}|\mathbf{t}-\mathbf{z}|^{2} $
+      </p>
+      <p class="fragment">
+      Backpropagation learning, like most of our learning algorithms, is based on gradient descent:
+      </p>
+      <p class="fragment">
+      $ \Delta\mathbf{w}=-\eta\frac{\partial J}{\partial\mathbf{w}} \Delta w_{kj}=-\eta\frac{\partial J}{\partial w_{kj}} $
+      </p>
+      <p class="fragment">
+      To solve $\Delta\mathbf{w}$, we must differentiate using the chain rule – first to find the hidden-to-output weights (since we have an output to compare to), and then the input-to-hidden weights.
+      </p>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="deep-learning-introduction" class="level2">
+      <h2>Deep Learning Introduction</h2>
+      </section>
+      <section id="what-is-deep-learning" class="level2">
+      <h2>What is Deep Learning?</h2>
+      <p>“Deep Learning” is an extension of regular neural networks.</p>
+      <p class="fragment">
+      In general, it refers to stacking many hidden layers between inputs and outputs to model a very complex decision space (MUCH more complex than our simple XOR example).
+      </p>
+      </section>
+      <section id="what-is-deep-learning-1" class="level2">
+      <h2>What is Deep Learning?</h2>
+      <p>Thus, deep learning is not new.</p>
+      <p class="fragment">
+      What <strong>is</strong> new is that:
+      </p>
+      <ul>
+      <li class="fragment">
+      Labeled datasets have gotten much bigger;
+      </li>
+      <li class="fragment">
+      Hardware has gotten much faster (also we figured out how to use GPUs);
+      </li>
+      <li class="fragment">
+      Tricks were discovered to cheat how we design very complex networks.
+      </li>
+      </ul>
+      </section>
+      <section id="network-architecture-design" class="level2">
+      <h2>Network Architecture Design</h2>
+      <p>The process of designing architecture, calculating backpropagation, etc. are the same for deep networks as for traditional neural networks.</p>
+      <p class="fragment">
+      The added layers provide the ability to describe increasingly nonlinear decision spaces.
+      </p>
+      <p class="fragment">
+      The <strong>universal approximation theorem</strong> postulates that even a single hidden layer, given enough units, can represent almost any continuous function.
+      </p>
+      </section>
+      <section id="network-architecture-design-dangers" class="level2">
+      <h2>Network Architecture Design Dangers</h2>
+      <p>The problem is that <strong>fully connected deep networks</strong> rarely work in practice.</p>
+      <p class="fragment">
+      They suffer from a few major drawbacks:
+      </p>
+      <ul>
+      <li class="fragment">
+      <strong>Unstable Gradients</strong>: It is tough to keep the gradients “meaningful” when you’ve got too many layers interacting.
+      </li>
+      <li class="fragment">
+      <strong>Insufficient Training</strong>: These classifiers are trying to learn a very complex, high-dimensional dataset – having enough data to fully train is critical.
+      </li>
+      <li class="fragment">
+      <strong>Computational Complexity:</strong> Training these networks takes a very, very, VERY long time.
+      </li>
+      </ul>
+      <p class="fragment">
+      There is a relationship between the <strong>depth</strong> of the network, the <strong>size</strong> of the training set, and the <strong>computational complexity</strong> (i.e. training time) required to fully train the network without overfitting.
+      </p>
+      </section>
+      <section id="answers-to-computational-complexity" class="level2">
+      <h2>Answers to Computational Complexity</h2>
+      <p>To assist in training these systems, we can add layers while at the same time using “tricks” to reduce the number of connections we need to worry about.</p>
+      <p class="fragment">
+      The first of these gives rise to <strong>Convolutional Neural Nets</strong>, which are based around the description and classification of images.
+      </p>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="convolutional-neural-networks" class="level2">
+      <h2>Convolutional Neural Networks</h2>
+      </section>
+      <section id="disclaimer" class="level2">
+      <h2>Disclaimer</h2>
+      <p>CNNs are focused on “natural” images, but these are the datasets that have had a TON of machine learning research poured into them over the years.</p>
+      <p class="fragment">
+      The concepts extend to medical datasets as well, with a few caveats (medical images are often <strong>rotationally invariant</strong>, etc.).
+      </p>
+      </section>
+      <section id="issues-with-dimensionality" class="level2">
+      <h2>Issues with Dimensionality</h2>
+      <p>Practically speaking, what do our input units represent?</p>
+      <p class="fragment">
+      $\mathbf{x}=(x_{1},\ldots,x_{n})^{T}$; for each input feature, we have an input node. Imagine we want to build a neural network to identify images of objects – each of the inputs would be a data point in the image (i.e. a pixel).
+      </p>
+      <p class="fragment">
+      The CIFAR-10 dataset, a benchmark dataset of natural images, is made of images just 32x32 pixels. For 3-channel color images (R,G,B), this means <strong>3,072</strong> neurons… at the input layer.
+      </p>
+      </section>
+      <section id="example-of-cifar-10-images" class="level2">
+      <h2>Example of CIFAR-10 Images</h2>
+      <div class="l-multiple">
+      <div>
+      <p><img src="img/cifar10_cat.png" style="width:50.0%" /><br /> <img src="img/cifar10_horse.png" style="width:50.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/cifar10_airplane.png" style="width:50.0%" /><br /> <img src="img/cifar10_bird.png" style="width:50.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/cifar10_car.png" style="width:50.0%" /><br /> <img src="img/cifar10_ship.png" style="width:50.0%" /></p>
+      </div>
+      </div>
+      </section>
+      <section id="cifar-10-cat-exploded" class="level2">
+      <h2>CIFAR-10 Cat Exploded</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/cifar10_cat.png" style="width:80.0%" alt="" /><figcaption>Cat</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/cifar10_cat_explode.png" style="width:80.0%" alt="" /><figcaption>Individual Pixels</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="pixel-encodings" class="level2">
+      <h2>Pixel Encodings</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/cifar10_cat_highlighted.png" style="width:80.0%" alt="" /><figcaption>Single Pixel Representation</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/rgb_pixel.png" style="width:80.0%" alt="" /><figcaption>Color Pixel in 3 Dimensions</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="scalability-of-traditional-neural-nets" class="level2">
+      <h2>Scalability of Traditional Neural Nets</h2>
+      <p>The number of inputs balloons very quickly: a 200x200 image would result in 120,000 weights.</p>
+      <p class="fragment">
+      Moreover, each of these must be mapped to hidden units – so our weight vector is 120,000 multiplied by some (likely larger) number of hidden units.
+      </p>
+      <p class="fragment">
+      And that’s all for one layer, and for a dataset of just 200x200x3 images, which are quite small.
+      </p>
+      </section>
+      <section id="modifications-for-image-inputs" class="level2">
+      <h2>Modifications for Image Inputs</h2>
+      <p>Images have a few characteristics that allow us to constrain the network architecture.</p>
+      <ul>
+      <li class="fragment">
+      <strong>Spatially-localized inputs:</strong> The upper-left corner of an image is probably not related to the lower-right corner of an image.
+      </li>
+      <li class="fragment">
+      <strong>Information at Scale:</strong> You can separate the data that is used to distinguish pixel-by-pixel features from those used to distinguish region-by-region features
+      </li>
+      </ul>
+      <p class="fragment">
+      Thus, instead of having a fully-connected network (where every neuron is connected to all the neurons in the previous layer), we constrain each input to a geographic regions surrounding it.
+      </p>
+      <p class="fragment">
+      Convolution nets have layers arranged as <strong>volumes</strong>, which in turn transform the 3D input to a 3D output volume of activations.
+      </p>
+      </section>
+      <section id="example-of-convolutional-nets" class="level2">
+      <h2>Example of Convolutional Nets</h2>
+      <figure>
+      <img src="img/neural_net_schematic.jpeg" style="width:90.0%" alt="" /><figcaption>Fully-Connected Neural Network</figcaption>
+      </figure>
+      </section>
+      <section id="example-of-convolutional-nets-1" class="level2">
+      <h2>Example of Convolutional Nets</h2>
+      <figure>
+      <img src="img/cnn_schematic.jpeg" style="width:100.0%" alt="" /><figcaption>Convolutional Neural Network</figcaption>
+      </figure>
+      </section>
+      <section id="layers-for-building-convolutional-neural-nets" class="level2">
+      <h2>Layers for Building Convolutional Neural Nets</h2>
+      <p>There are several types of layers in CNNs which process the input data. The order, number, and size of these layers is the <strong>architecture</strong> of the network, and is the main difference between LeNet, AlexNet, GoogLeNet, etc.</p>
+      <p class="fragment">
+      Here are the most basic layers and their abbreviations:
+      </p>
+      <ul>
+      <li class="fragment">
+      <strong>Convolutional Layers</strong>
+      </li>
+      <li class="fragment">
+      <strong>Rectified Linear Units</strong>
+      </li>
+      <li class="fragment">
+      <strong>Pooling Layers</strong>
+      </li>
+      <li class="fragment">
+      <strong>Fully-Connected Layers</strong>
+      </li>
+      </ul>
+      <p class="fragment">
+      There are other types of layers, but these are the main ones to know.
+      </p>
+      </section>
+      <section id="convolutional-layers" class="level2">
+      <h2>Convolutional Layers</h2>
+      <p><strong>Convolutional Layers</strong> are the main descriptive element of CNNs. They operate by convolving a filter set across the image, generating a set of outputs for each receptive field. We will cover these in detail in a few slides.</p>
+      <p class="fragment">
+      If our input is [32x32x3], and we select a set of 12 space-preserving filters (more on that in a second), then our output will be [32x32x12].
+      </p>
+      </section>
+      <section id="activation-layers" class="level2">
+      <h2>Activation Layers</h2>
+      <p><strong>Activation Layers</strong> apply a straightforward function to the inputs, leaving the input dimensionality unchanged. There are several types of activation layers, the most commonly-used of which is the <strong>Rectified Linear Unit</strong>, which applies the function $\max{0,x}$ to the input $x$.</p>
+      <p class="fragment">
+      In our example, the [32x32x12] input from the CONV layer is unchanged in size, but any values less than 0 are set to 0.
+      </p>
+      </section>
+      <section id="pooling-layers" class="level2">
+      <h2>Pooling Layers</h2>
+      <p><strong>Pooling Layers</strong> perform downsampling operations, which reduce the size of the previous layer’s input in the spatial dimensions. The most common operation is <strong>max pooling</strong>, where the greatest value in a kernel size is used to determine the output.</p>
+      <p class="fragment">
+      Thus an input of [32x32x12] will be turned into a reduced size [16x16x12] layer, assuming we are using a 2x2 kernel (leading to an output that is half the input size).
+      </p>
+      </section>
+      <section id="fully-connected-layers" class="level2">
+      <h2>Fully Connected Layers</h2>
+      <p><strong>Fully-Connected Layers</strong> are the same kind of layers we saw in classical neural networks, where each neuron is connected fully to the previous layer and fully to the next layer.</p>
+      <p class="fragment">
+      In our example, these layers essentially do away with the spatial information in the image, and now we consider each “pixel” as one input like we would for regular nets. If we have 10 output classes, then the [16x16x12] input to this layer would be converted into a [1x1x10] output (after passing it to some large number of hidden fully-connected units).
+      </p>
+      </section>
+      <section id="parameterization" class="level2">
+      <h2>Parameterization</h2>
+      <p>Pooling and activation layers perform fixed operations, while the convolutional and fully-connected layers have a set of parameters (weights and biases) that are learned as before, with gradient descent and backpropagation.</p>
+      </section>
+      <section id="example-of-convolutional-nets-operating-on-an-image" class="level2">
+      <h2>Example of Convolutional Nets Operating on an Image</h2>
+      <p><img src="img/convnet_overview.jpeg" style="width:80.0%" /></p>
+      </section>
+      </section>
+      <section id="section-3" class="level1">
+      <h1></h1>
+      <section id="layer-details" class="level2">
+      <h2>Layer Details</h2>
+      </section>
+      <section id="conv-convolutional-layer" class="level2">
+      <h2>CONV: Convolutional Layer</h2>
+      <p><strong>Convolutional Layers</strong> consist of a set of learnable image filters, which are convolved with the image to produce a map of responses at each local neighborhood.</p>
+      <p class="fragment">
+      The size of the result of this layer depends on a number of factors:
+      </p>
+      <ul>
+      <li class="fragment">
+      <strong>Receptive Field</strong> $\mathbf{F}$: equivalent to the filter’s <strong>kernel size</strong>
+      </li>
+      <li class="fragment">
+      <strong>Depth</strong> $\mathbf{K}$: the number of filters that “looks” at each region of the input
+      </li>
+      <li class="fragment">
+      <strong>Stride</strong> $\mathbf{S}$: how the filter moves across the image
+      </li>
+      <li class="fragment">
+      <strong>Padding</strong> $\mathbf{P}$: how we handle the edges of the spatial input volume
+      </li>
+      </ul>
+      <p class="fragment">
+      The <strong>Receptive Field</strong>, <strong>Stride</strong>, and <strong>Padding</strong> affect the “spatial” output dimensions (height and width), while the <strong>Depth</strong> affects the, well, “depth” output dimension.
+      </p>
+      </section>
+      <section id="example-of-a-convolutional-layer" class="level2">
+      <h2>Example of a Convolutional Layer</h2>
+      <figure>
+      <img src="img/depthcol.jpeg" style="width:50.0%" alt="" /><figcaption>Illustration of the spatial connectivity of a neuron in the convolutional layer. These neurons are stacked 5-deep because there are 5 neurons “looking at” different aspects of the same input space.</figcaption>
+      </figure>
+      </section>
+      <section id="animation-of-a-filter-output" class="level2">
+      <h2>Animation of a Filter Output</h2>
+      <figure>
+      <img src="img/no_padding_no_strides.gif" style="width:30.0%" alt="" /><figcaption><a href="https://arxiv.org/abs/1603.07285">Vincent Dumoulin, Francesco Visin - A guide to convolution arithmetic for deep learning</a></figcaption>
+      </figure>
+      </section>
+      <section id="conv-receptive-field-parameter" class="level2">
+      <h2>CONV: Receptive Field Parameter</h2>
+      <p>The spatial extent of a neuron’s connectivity is called the <strong>receptive field</strong> of the neuron, which is treated as a hyperparameter. This is equivalent to the convolutional filter’s kernel size.</p>
+      <p class="fragment">
+      Each neuron handles a limited spatial location but is connected through the full depth of the input volume; i.e. the neurons corresponding to the color channels of the same receptive field are all connected with one another.
+      </p>
+      <p class="fragment">
+      So if we have an input size of [32x32x3], and we set our kernel size (receptive field) of the [CONV] layer to 5, then each neuron in the [CONV] layer will have weights connecting to a 5x5x3 region of the input volume, so each neuron would have 75 weights and one bias term.
+      </p>
+      </section>
+      <section id="conv-depth-stride-and-padding-parameters" class="level2">
+      <h2>CONV: Depth, Stride, and Padding Parameters</h2>
+      <p>The following three parameters controls how the filter operates across the input image:</p>
+      <ul>
+      <li class="fragment">
+      <strong>Depth</strong> controls how many neurons look at the same spatial region but different “aspects”, like edges or colors. Increasing this has no effect on the height and width of the output volume, just the depth.
+      </li>
+      <li class="fragment">
+      <strong>Stride</strong> controls the overlap of neighboring receptive fields. A stride of 1 means the filter moves one pixel at a time, 2 looks at a pixel and then leapfrogs the next, etc. More overlap means more neurons and potentially more redundancy, but also a more descriptive input space.
+      </li>
+      <li class="fragment">
+      <strong>Zero-padding</strong> refers to how we treat the borders of the input (same as with regular signal / image processing). We can use this to determine what happens at the border, to make input volumes “fit” the network, and to precisely control the size of the output of the CONV layer.
+      </li>
+      </ul>
+      </section>
+      <section id="conv-spatial-size-of-the-output" class="level2">
+      <h2>CONV: Spatial Size of the Output</h2>
+      <p>The size of the output (height and width) is a function of the input size in the spatial dimension ($\mathbf{W}$), the receptive field size ($\mathbf{F}$), the stride ($\mathbf{S}$), and the zero-padding ($\mathbf{P}$):</p>
+      <p class="fragment">
+      $ \frac{\mathbf{W}-\mathbf{F}+2\mathbf{P}}{\mathbf{S}}+1 $
+      </p>
+      <p class="fragment">
+      So if we designed a CONV layer that operates on our [32x32x3] input ($\mathbf{W}=32$), and we used a filter size of 3 ($\mathbf{F}=3$), a padding of 2 ($\mathbf{P}=2$), and a stride of 3 ($\mathbf{S}=3$), then we would have an output of size:
+      </p>
+      <p class="fragment">
+      $ \frac{32 - 3 + (2 \times 2)}{3} + 1 = 12 $
+      </p>
+      <p class="fragment">
+      Thus the output volume would have a spatial size of 12x12. Note that the actual volume of the output would be 12x12x$\mathbf{K}$, which includes the depth (each of the filter outputs is 12x12, so stacking up $\mathbf{K}$ filters gives you the depth dimension.
+      </p>
+      </section>
+      <section id="conv-crafting-the-output" class="level2">
+      <h2>CONV: Crafting the Output</h2>
+      <p>It’s important to note that these parameters are <strong>not</strong> chosen at random; they have to be selected such that they evenly and smoothly cover the input space.</p>
+      <p class="fragment">
+      The use of zero-padding and some other tricks can help you “fit” the layers together.
+      </p>
+      </section>
+      <section id="conv-effect-of-strides" class="level2">
+      <h2>CONV: Effect of Strides</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/no_padding_no_strides.gif" style="width:50.0%" alt="" /><figcaption>No Strides</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/no_padding_strides.gif" style="width:50.0%" alt="" /><figcaption>Stride of 2</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="conv-effect-of-padding" class="level2">
+      <h2>CONV: Effect of Padding</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/no_padding_no_strides.gif" style="width:50.0%" alt="" /><figcaption>No Padding</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/same_padding_no_strides.gif" style="width:50.0%" alt="" /><figcaption>Half-Padding</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="parameter-sharing" class="level2">
+      <h2>Parameter Sharing</h2>
+      <p>Research team Krizhevsky, et al. used image sizes of $227\times 227\times 3$, with $\mathbf{F}=11$, $\mathbf{S}=4$, $\mathbf{P}=0$, and depth $\mathbf{K}=96$, yielding an output volume of $55\times 55\times96 = 290,400$ neurons!</p>
+      <p class="fragment">
+      With a field size of $11\times11\times3$, this yields $363$ weights (plus one bias term) <strong>per neuron</strong>, or $290,400 \times (363 + 1)=105,705,600$ parameters… on just the first layer. <strong>Each and every one</strong> of these parameters has to be estimated through gradient descent and backpropagation!
+      </p>
+      <p class="fragment">
+      However, we can reduce this by making a simplifying assumption: Weights are not likely to change dramatically from one region to the next!
+      </p>
+      <p class="fragment">
+      Thus, even though the first layer has $55\times55\times96$ neurons, if we say that all of the spatial $55\times55$ neurons can share the same parameter, then we just have $96$ weights, multiplied over the region size: $96\times11\times11\times3=34,848$.
+      </p>
+      <p class="fragment">
+      Much better!
+      </p>
+      </section>
+      <section id="simplifying-the-parameter-space" class="level2">
+      <h2>Simplifying the Parameter Space</h2>
+      <p>If all neurons in a depth slice use the same weight, then the neurons’ weights are <strong>convolved</strong> with the corresponding input volume.</p>
+      <p class="fragment">
+      The result is an activation map of the region (e.g. $55\times55$), and the output volume is just this multiplied by the depth slices (e.g. $96$).
+      </p>
+      </section>
+      <section id="visualizing-learned-kernels" class="level2">
+      <h2>Visualizing Learned Kernels</h2>
+      <figure>
+      <img src="img/weights.jpeg" style="width:100.0%" alt="" /><figcaption>96 filters learned by Krizhevsky. Each filter is $11\times11\times3$, corresponding to the size of the spatial location it considers (plus color).</figcaption>
+      </figure>
+      </section>
+      <section id="pooling-layer" class="level2">
+      <h2>Pooling Layer</h2>
+      <p>The <strong>Pooling layer</strong> acts to reduce the spatial size of the representation, which in turn reduces the parameters, computation, and overfitting.</p>
+      <p class="fragment">
+      Its primary operation is to take the maximum of a $2\times2$ filter with a stride of $2$, which gets rid of 75% of the least-important activations.
+      </p>
+      <p class="fragment">
+      Since this is a single operation, it requires no new parameters! Only hyperparameters $\mathbf{F}$ (spatial extent) and $\mathbf{S}$ (stride).
+      </p>
+      <p class="fragment">
+      You can generalize the size of the filter and the stride, but typically $\mathbf{F}=3,\mathbf{S}=2$ or $\mathbf{F}=2,\mathbf{S}=2$.
+      </p>
+      <p class="fragment">
+      Note that there’s no “real” reason the maximum operation is used; you could average together (like you do with image resizing), perform a decimation, etc., but the max pooling approach seems to work better.
+      </p>
+      </section>
+      <section id="example-of-maximum-pooling" class="level2">
+      <h2>Example of Maximum Pooling</h2>
+      <figure>
+      <img src="img/pool.jpeg" style="width:50.0%" alt="" /><figcaption>The $2\times2$ filter reduces the height and width of the input volume while preserving the depth.</figcaption>
+      </figure>
+      </section>
+      <section id="example-of-maximum-pooling-1" class="level2">
+      <h2>Example of Maximum Pooling</h2>
+      <figure>
+      <img src="img/maxpool.jpeg" style="width:70.0%" alt="" /><figcaption>At each $2\times2$ block, you simply take the largest value and that becomes the representative at the end of the pooling operation.</figcaption>
+      </figure>
+      </section>
+      <section id="fully-connected-layers-1" class="level2">
+      <h2>Fully-Connected Layers</h2>
+      <p>The <strong>fully-connected layers</strong> have are connected to all activations in the previous layer and are essentially the same as regular neural network layers.</p>
+      <p class="fragment">
+      Since there’s no modulation of the inputs, these can also be optimized / trained the same way.
+      </p>
+      <p class="fragment">
+      Since convolutional layers are simply modulated by their inputs (they function the same way), a convolutional layer is a subset of the connections in a fully-connected layer.
+      </p>
+      <p class="fragment">
+      For example, setting a convolutional layer with stride equal to 1 and the depth equal to the number of inputs is essentially the same as a fully-connected layer.
+      </p>
+      </section>
+      </section>
+      <section id="section-4" class="level1">
+      <h1></h1>
+      <section id="design-guidelines" class="level2">
+      <h2>Design Guidelines</h2>
+      </section>
+      <section id="size-considerations" class="level2">
+      <h2>Size Considerations</h2>
+      <p>Some rules of thumb in terms of size:</p>
+      <ul>
+      <li class="fragment">
+      <strong>Input layers</strong> should be divisible by 2 and should be equal to the size of the input space (in the case of images).
+      </li>
+      <li class="fragment">
+      <strong>Convolution layers</strong> should use small filters ($3\times3$ or $5\times5$), a stride of 1, and padding should ensure the input size doesn’t change.
+      </li>
+      <li class="fragment">
+      <strong>Pool layers</strong> typically use a filter size of $2\times2$ and a stride of $2$, which discards 75% of the activations in an input volume.
+      </li>
+      </ul>
+      </section>
+      <section id="practical-tips" class="level2">
+      <h2>Practical Tips</h2>
+      <p>Keep downsampling limited to pooling layers by designing convolutional layers such that they preserve the spatial dimensions of the input.</p>
+      <p class="fragment">
+      You can impose harsher restrictions if needed: A $224\times224\times3$ image, with three $3\times3$ convolution layers and $64$ filters in each would create three activation volumes of $224\times224\times64$.
+      </p>
+      <p class="fragment">
+      This is equivalent to around 10 million activations, or 72 MB of memory – for one image. This is quite rare to see in practice.
+      </p>
+      <p class="fragment">
+      Remember: <strong>Start Simple</strong>! Only move onto more complex approaches if you absolutely need to!
+      </p>
+      </section>
+      </section>
+      <section id="section-5" class="level1">
+      <h1></h1>
+      <section id="parting-words" class="level2">
+      <h2>Parting Words</h2>
+      </section>
+      <section id="deep-learning-ahoy" class="level2">
+      <h2>Deep Learning Ahoy!</h2>
+      <p>Next class, we will finish up CNNs and discuss some recent departures in the literature from this simple setup. I will also show some examples of CNNs in my own research, and give some software resources where you can play with these networks.</p>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <!-- Pseudocode scripts -->
+    <script>
+     pseudocode.renderElement(document.getElementById("hello-world-code"));
+    </script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+          fragments: true,
+          math: {
+					    mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+					    config: 'TeX-AMS_HTML-full'
+          },
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
