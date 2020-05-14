@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Machine Learning Ethics</title>
+
+    <meta name="description" content="Machine Learning Ethics">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Custom Addons: TikzJax -->
+    <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css">
+    <script src="http://tikzjax.com/v1/tikzjax.js"></script>
+    <!-- Custom Addons: pseudocode.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">Machine Learning Ethics</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="announcements-final-assignments" class="level2">
+      <h2>Announcements: Final Assignments</h2>
+      </section>
+      <section id="final-assignment-details" class="level2">
+      <h2>Final Assignment Details</h2>
+      <p>The final assignment and the project writeup will both be available for submission starting next week, and will remain open until <strong>May 15</strong>.</p>
+      <p class="fragment">
+      The final assignment (Homework #3) and the final project writeup are <strong>separate assignments</strong> and must be submitted separately.
+      </p>
+      <p class="fragment">
+      This is a departure from previous years, for obvious reasons; if you have issues with this schedule, please let me know and we will make arrangements.
+      </p>
+      </section>
+      <section id="final-project-details" class="level2">
+      <h2>Final Project Details</h2>
+      <p>Final writeup will be a journal manuscript-style report detailing the project you’ve been working on.</p>
+      <p class="fragment">
+      It should be written formally, with a set of sections, references, figures, etc.
+      </p>
+      <p class="fragment">
+      The other assignment pages will remain open, so if there’s anything you’re missing, please submit it ASAP!
+      </p>
+      </section>
+      <section id="final-project-outline" class="level2">
+      <h2>Final Project: Outline</h2>
+      <ul>
+      <li>Title</li>
+      <li>Author List (and affiliations)</li>
+      <li>Abstract</li>
+      <li>Introduction / Previous Work</li>
+      <li>Materials and Methods</li>
+      <li>Experimental Setup</li>
+      <li>Results</li>
+      <li>Discussion / Conclusion</li>
+      </ul>
+      </section>
+      <section id="some-hints" class="level2">
+      <h2>Some Hints</h2>
+      <ul>
+      <li>
+      Intro / Previous Work should include details of any studies that have used this data, including a few citations on the background of the problem.
+      </li>
+      <li class="fragment">
+      Materials / Methods is where you describe your data, any pre-processing steps, your classifiers, what do they do, and why you chose them. This should be in two sections: Supervised vs. Unsupervised.
+      </li>
+      <li class="fragment">
+      Experimental Setup is where you describe the process of classification – cross-validation, train/test splits, etc.
+      </li>
+      <li class="fragment">
+      Results and Discussion can be merged, but this is where you go through all the results that you’ve got so far and what those results mean <strong>in the context of your chosen problem.</strong>
+      </li>
+      </ul>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="overview-ethics-in-ai" class="level2">
+      <h2>Overview: Ethics in AI</h2>
+      </section>
+      <section id="what-we-wont-cover" class="level2">
+      <h2>What We Won’t Cover</h2>
+      <p>“Ethics” is a huge topic, one of the oldest in human philosophy.</p>
+      <p class="fragment">
+      Although interesting, we will not discuss:
+      </p>
+      <ul>
+      <li class="fragment">
+      Do AI algorithms have “ethics”?
+      </li>
+      <li class="fragment">
+      Are AI personalities like Alexa “alive”? Do they have rights? Personhood?
+      </li>
+      <li class="fragment">
+      Is AI going to take over the world, and/or replace humans?
+      </li>
+      <li class="fragment">
+      Should governments or industry groups regulate AI?
+      </li>
+      </ul>
+      <p class="fragment">
+      Answering these questions requires expertise and value judgements that are outside the scope of this course.
+      </p>
+      </section>
+      <section id="what-we-will-cover" class="level2">
+      <h2>What We Will Cover</h2>
+      <p>Instead, I will talk about some use cases in AI and some of the ethical concerns that arise from them.</p>
+      </section>
+      <section id="context" class="level2">
+      <h2>Context</h2>
+      <p>Machine learning / statistical modeling is an old field, but only recently has become a daily-use technology for most of the developed world.</p>
+      <p class="fragment">
+      In this lecture I will discuss some specific applications and examples of where Machine Learning fails in ways that are unethical or biased, to provide context for why this is an important issue.
+      </p>
+      <p class="fragment">
+      At the end, I will give some suggestions as to what we can do as engineers to mitigate the effects of bias in our systems.
+      </p>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="biased-data" class="level2">
+      <h2>Biased Data</h2>
+      </section>
+      <section id="bias-embedded-in-algorithms" class="level2">
+      <h2>Bias Embedded in Algorithms</h2>
+      <p>Algorithms only know about the universe based on what we show it.</p>
+      <p class="fragment">
+      This means that biased data produces biased algorithms.
+      </p>
+      </section>
+      <section id="misinterpretation-vs.-data-bias" class="level2">
+      <h2>Misinterpretation vs. Data Bias</h2>
+      <p>Data Fallacies: <strong>Interpretations</strong> of data that are incorrect or misleading, both intentional and unintentional.</p>
+      <p class="fragment">
+      Data Biases: <strong>Data collection</strong> itself is biased.
+      </p>
+      </section>
+      <section id="data-fallacies-examples" class="level2">
+      <h2>Data Fallacies Examples</h2>
+      <figure>
+      <img src="img/data-fallacies-to-avoid.svg" style="width:40.0%" alt="" /><figcaption>Data Fallacies To Avoid</figcaption>
+      </figure>
+      </section>
+      <section id="data-bias-in-image-analysis" class="level2">
+      <h2>Data Bias in Image Analysis</h2>
+      <figure>
+      <img src="img/gender_imbalance.svg" style="width:100.0%" alt="" /><figcaption>“Men Also Like Cooking”, Zhao, et al. (https://arxiv.org/abs/1707.09457)</figcaption>
+      </figure>
+      <p>Dataset: 33% of cooking images have “Agent: Man”</p>
+      <p>Algorithm: 16% of images have “Agent: Man”</p>
+      </section>
+      <section id="data-bias-in-image-analysis-1" class="level2">
+      <h2>Data Bias in Image Analysis</h2>
+      <p>The paper tried to “reduce bias” by introducing a gender constraint, so that trained models reflect the gender balance in the training set.</p>
+      <p class="fragment">
+      <strong>But why is that the goal?</strong> Why is the training set 66% women?
+      </p>
+      <p class="fragment">
+      The restaurant industry is male-dominated, so why are there more pictures in the dataset of women than men?
+      </p>
+      </section>
+      <section id="data-bias-in-image-analysis-2" class="level2">
+      <h2>Data Bias in Image Analysis</h2>
+      <p>Questions to ask:</p>
+      <ul>
+      <li class="fragment">
+      Where and how was the dataset collected? (Social media, cooking shows, cookbooks, publicity photos…)
+      </li>
+      <li class="fragment">
+      Are there any implicit or explicit biases in the collection criteria?
+      </li>
+      <li class="fragment">
+      Is the dataset representative of <strong>all cooks</strong>, or just a subset of them?
+      </li>
+      </ul>
+      </section>
+      <section id="face-recognition-fails" class="level2">
+      <h2>Face Recognition Fails</h2>
+      <figure>
+      <img src="img/face_recognition.png" style="width:100.0%" alt="" /><figcaption>The Atlantic, April 7, 2016</figcaption>
+      </figure>
+      </section>
+      <section id="data-bias-in-language-translation" class="level2">
+      <h2>Data Bias in Language Translation</h2>
+      <figure>
+      <img src="img/she_doctor.png" style="width:100.0%" alt="" /><figcaption>English to Turkish</figcaption>
+      </figure>
+      </section>
+      <section id="data-bias-in-language-translation-1" class="level2">
+      <h2>Data Bias in Language Translation</h2>
+      <figure>
+      <img src="img/he_doctor.png" style="width:100.0%" alt="" /><figcaption>Turkish to English</figcaption>
+      </figure>
+      </section>
+      <section id="bias-in-language-translation" class="level2">
+      <h2>Bias in Language Translation</h2>
+      <p>Again, questions:</p>
+      <ul>
+      <li class="fragment">
+      What text is being used to train the translator algorithm?
+      </li>
+      <li class="fragment">
+      What biases are present in the dataset?
+      </li>
+      <li class="fragment">
+      <strong>What biases are present in language?</strong>
+      </li>
+      </ul>
+      <p class="fragment">
+      Are AI algorithms <strong>creating</strong> biases, or <strong>exacerbating</strong> existing ones?
+      </p>
+      </section>
+      </section>
+      <section id="section-3" class="level1">
+      <h1></h1>
+      <section id="recommendation-systems-and-fake-news" class="level2">
+      <h2>Recommendation Systems and Fake News</h2>
+      </section>
+      <section id="positive-feedback-loops" class="level2">
+      <h2>“Positive” Feedback Loops</h2>
+      <p>Recommendation systems focus on “engagement” (clicks, shares, likes, time-on-site) rather than truthfulness or fairness.</p>
+      <p class="fragment">
+      This rewards extreme, emotionally charged, or unusual information, leading AI algorithms to recommend MORE of such information.
+      </p>
+      <p class="fragment">
+      Those who want to advertise their ideas know how these algorithms work, and how to game them.
+      </p>
+      </section>
+      <section id="recommendation-systems-facebooks-roboeditors" class="level2">
+      <h2>Recommendation Systems: Facebook’s “RoboEditors”</h2>
+      <figure>
+      <img src="img/facebook_roboeditors.png" style="width:100.0%" alt="" /><figcaption>Ars Technica, August 29, 2016</figcaption>
+      </figure>
+      </section>
+      <section id="recommendation-systems-the-good-the-bad-and-the-crazy" class="level2">
+      <h2>Recommendation Systems: The Good, The Bad, and The Crazy</h2>
+      <figure>
+      <img src="img/youtube_recommendations.png" style="width:100.0%" alt="" /><figcaption>NBC News, April 19, 2018</figcaption>
+      </figure>
+      </section>
+      <section id="fta-from-the-article" class="level2">
+      <h2>FTA (From The Article)</h2>
+      <p><strong>David Carroll, associate professor of media design at The New School</strong></p>
+      <blockquote>
+      <p>“There is an infrastructure built since the Renaissance to ensure the integrity of information and knowledge in libraries, many layers of gatekeepers thick… YouTube dispenses with all of it in the name of frictionless content acquisition and an algorithm optimized for watch-time to sell ads.”</p>
+      </blockquote>
+      </section>
+      <section id="people-arent-much-better" class="level2">
+      <h2>People Aren’t Much Better</h2>
+      <p>Machines learn from the data we feed it, but people learn from the data they get from machines.</p>
+      <p class="fragment">
+      How many of you get news from the Internet, rather than a newspaper?
+      </p>
+      <p class="fragment">
+      In both cases, what you see is <strong>curated</strong> by someone else. With newspapers, this tends to be a newsroom and editors. With the Internet, who knows?
+      </p>
+      </section>
+      <section id="news-has-never-been-unbiased-but-it-has-been-accountable" class="level2">
+      <h2>News Has Never Been Unbiased, But It Has Been Accountable</h2>
+      <p>Editors of newspapers have always had to consider their business as well as the truth.</p>
+      <p class="fragment">
+      However, the key difference is that there was always <strong>accountability</strong> at the core of a newspaper.
+      </p>
+      <p class="fragment">
+      Where is the accountability for Facebook’s participation in propaganda efforts?
+      </p>
+      <p class="fragment">
+      And the problem is only getting worse…
+      </p>
+      </section>
+      <section id="deepfakes-and-fake-news" class="level2">
+      <h2>DeepFakes and Fake News</h2>
+      <figure>
+      <img src="img/deepfake_obama.png" style="width:80.0%" alt="" /><figcaption>Buzzfeed News, April 17, 2018</figcaption>
+      </figure>
+      <p><a href="https://www.buzzfeed.com/davidmack/obama-fake-news-jordan-peele-psa-video-buzzfeed?bfsplash&amp;utm_term=.ikrRbwjyY#.lbnjqARvO"><strong>Link</strong></a></p>
+      </section>
+      <section id="fta" class="level2">
+      <h2>FTA</h2>
+      <p><strong>Aviv Ovadya, Chief Technologist, Center for Social Media Responsibility (UMSI)</strong></p>
+      <blockquote>
+      <p>“What happens when anyone can make it appear as if anything has happened, regardless of whether or not it did?”</p>
+      </blockquote>
+      </section>
+      </section>
+      <section id="section-4" class="level1">
+      <h1></h1>
+      <section id="justice-system-2.0" class="level2">
+      <h2>Justice System 2.0</h2>
+      </section>
+      <section id="minority-report-pre-crime-division" class="level2">
+      <h2>Minority Report: Pre-Crime Division</h2>
+      <p>Statistics have long been used in policing, criminal justice, and legal work (not to mention city planning, public policy, lawmaking…)</p>
+      <p class="fragment">
+      What happens when statistics are used to <strong>predict</strong> who, individually, is a criminal risk?
+      </p>
+      </section>
+      <section id="criminal-prediction-is-biased" class="level2">
+      <h2>Criminal Prediction is Biased</h2>
+      <figure>
+      <img src="img/policing_bias.png" style="width:100.0%" alt="" /><figcaption><a href="https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing">ProPublica, May 23, 2016</a></figcaption>
+      </figure>
+      </section>
+      <section id="risk-assessment-tests" class="level2">
+      <h2>Risk Assessment Tests</h2>
+      <blockquote>
+      <p>In Arizona, Colorado, Delaware, Kentucky, Louisiana, Oklahoma, Virginia, Washington and Wisconsin, the results of such assessments are given to judges during criminal sentencing.</p>
+      </blockquote>
+      <p>The use of risk assessment tools, and the errors associated with them, have not been pretty.</p>
+      </section>
+      <section id="fta-1" class="level2">
+      <h2>FTA</h2>
+      <p><strong>Eric Holder, Former U.S. Attorney General</strong></p>
+      <blockquote>
+      <p>“Although these measures were crafted with the best of intentions, I am concerned that they inadvertently undermine our efforts to ensure individualized and equal justice… [T]hey may exacerbate unwarranted and unjust disparities that are already far too common in our criminal justice system and in our society.”</p>
+      </blockquote>
+      </section>
+      <section id="two-crimes-two-risk-predictions" class="level2">
+      <h2>Two Crimes, Two Risk Predictions</h2>
+      <p><img src="img/atlantic_01.png" style="width:50.0%" /></p>
+      </section>
+      <section id="two-crimes-two-risk-predictions-1" class="level2">
+      <h2>Two Crimes, Two Risk Predictions</h2>
+      <p><img src="img/atlantic_02.png" style="width:50.0%" /></p>
+      </section>
+      <section id="fta-2" class="level2">
+      <h2>FTA</h2>
+      <p>"In forecasting who would re-offend, the algorithm made mistakes with black and white defendants at roughly the same rate but in very different ways.</p>
+      <ol>
+      <li class="fragment">
+      The formula was particularly likely to falsely flag black defendants as future criminals, wrongly labeling them this way at almost twice the rate as white defendants.
+      </li>
+      <li class="fragment">
+      White defendants were mislabeled as low risk more often than black defendants."
+      </li>
+      </ol>
+      <p class="fragment">
+      The authors obtained a set of 137 questions from one such risk assessment tool, used in Florida. Here are some of the questions defendants might be asked.
+      </p>
+      <p class="fragment">
+      Remember: This information will be used to judge whether the defendent is a “risk”.
+      </p>
+      </section>
+      <section id="compas-risk-assessment" class="level2">
+      <h2>COMPAS Risk Assessment</h2>
+      <figure>
+      <img src="img/COMPAS_32.png" style="width:100.0%" alt="" /><figcaption>Home / Family Status</figcaption>
+      </figure>
+      </section>
+      <section id="compas-risk-assessment-1" class="level2">
+      <h2>COMPAS Risk Assessment</h2>
+      <figure>
+      <img src="img/COMPAS_39.png" style="width:100.0%" alt="" /><figcaption>Friends and Acquaintances</figcaption>
+      </figure>
+      </section>
+      <section id="compas-risk-assessment-2" class="level2">
+      <h2>COMPAS Risk Assessment</h2>
+      <figure>
+      <img src="img/COMPAS_90.png" style="width:100.0%" alt="" /><figcaption>Poverty</figcaption>
+      </figure>
+      </section>
+      <section id="compas-risk-assessment-3" class="level2">
+      <h2>COMPAS Risk Assessment</h2>
+      <figure>
+      <img src="img/COMPAS_95.png" style="width:100.0%" alt="" /><figcaption>Boredom(?)</figcaption>
+      </figure>
+      </section>
+      <section id="risk-assessment-tools" class="level2">
+      <h2>Risk Assessment Tools</h2>
+      <p>How are these questions used? What is the model that combines them, how does it work, how was it trained?</p>
+      <p class="fragment">
+      Nobody knows. These are proprietary systems, created by for-profit companies, and sold within the legal system as a way to “reduce bias” in sentencing.
+      </p>
+      <p class="fragment">
+      Does it seem like they will do that? <strong>Do we trust them?</strong>
+      </p>
+      </section>
+      </section>
+      <section id="section-5" class="level1">
+      <h1></h1>
+      <section id="possible-solutions" class="level2">
+      <h2>Possible Solutions</h2>
+      </section>
+      <section id="getcha-pitchforks" class="level2">
+      <h2>Getcha Pitchforks</h2>
+      <p>It’s counter-productive to think that the people who build these systems (or the start companies that then go on to direct engineers to build these systems) are malicious.</p>
+      <p class="fragment">
+      However, as engineers and designers, it is <strong>our responsibility</strong> to make sure that we do all we can to mitigate the negative effects of our tools.
+      </p>
+      </section>
+      <section id="why-is-it-our-responsibility" class="level2">
+      <h2>Why Is It Our Responsibility?</h2>
+      <p>Cathy O’Neil, “Weapons of Math Destruction”</p>
+      <p class="fragment">
+      “Models are opinions embedded in mathematics…”
+      </p>
+      <p class="fragment">
+      “We’re weaponizing math, because people are afraid of math, and they trust math, and they stop asking questions when they see formulas…”
+      </p>
+      </section>
+      <section id="why-it-is-our-responsibility" class="level2">
+      <h2>Why It Is Our Responsibility</h2>
+      <p>Our goal should be to make sure that what we understand is made plain for the general public.</p>
+      <p class="fragment">
+      We should understand the risks and uncertainties in the algorithms we build.
+      </p>
+      <p class="fragment">
+      We should <strong>acknowledge</strong> our biases and try to correct them – claiming that we are “unbiased” is a sure way to fall victim to biases.
+      </p>
+      </section>
+      <section id="political-considerations" class="level2">
+      <h2>Political Considerations</h2>
+      <p>But wait… why <strong>should</strong> we care about these things?</p>
+      <blockquote>
+      <p>What if there really are more male doctors, and more female nurses? What if, statistically, people from single-parent homes really are more likely to commit crimes?</p>
+      </blockquote>
+      <p class="fragment">
+      This is an uncomfortable but important question, and gets to the heart of the problem with algorithms and AI when it comes to ethics.
+      </p>
+      </section>
+      <section id="generalizability-vs.-overfitting" class="level2">
+      <h2>Generalizability vs. Overfitting</h2>
+      <figure>
+      <img src="img/failure_rates.png" style="width:100.0%" alt="" /><figcaption>Biased Algorithm Error</figcaption>
+      </figure>
+      <p>First, in fact, biased algorithms <strong>do not work</strong>.</p>
+      </section>
+      <section id="description-vs.-proscription" class="level2">
+      <h2>Description vs. Proscription</h2>
+      <p>Second, there is an ethical standpoint that we should endeavor for everyone to be treated equally and fairly.</p>
+      <p class="fragment">
+      People should not be subjected to different treatment based on where they are from or their family situation – things fundamentally out of their control (circumstances of birth).
+      </p>
+      </section>
+      <section id="black-mirror-anyone" class="level2">
+      <h2>Black Mirror, Anyone?</h2>
+      <p>Third, we have to recognize that error and bias in AI algorithms may reflect biases in our society in ways that are bigger than any one engineer can handle.</p>
+      <p class="fragment">
+      These should be exposed, discussed, explained, <strong>corrected for</strong>, but most importantly, we should take it as a sign that any one understanding of the world may be incomplete.
+      </p>
+      </section>
+      <section id="i-was-just-following-orders" class="level2">
+      <h2>“I was just following orders…”</h2>
+      <p>Keep in mind: Just because you are an engineer on a larger project does NOT let you off the hook…</p>
+      </section>
+      <section id="vw-executive-sentenced-to-jail" class="level2">
+      <h2>VW Executive Sentenced to Jail</h2>
+      <figure>
+      <img src="img/volkswagen_sentence.png" style="width:100.0%" alt="" /><figcaption>The Verge, Dec. 6, 2017</figcaption>
+      </figure>
+      </section>
+      <section id="fta-3" class="level2">
+      <h2>FTA</h2>
+      <blockquote>
+      <p>In a letter to the judge published earlier this week, [Oliver] Schmidt said he felt like he was “misused” by VW in the diesel scandal. He argued that he was following a script written by the company’s management and one of its lawyers when he lied to the California Air Resources Board about the compliance of VW’s cars with US regulations, and that he had come on board after the scheme was devised.</p>
+      </blockquote>
+      </section>
+      <section id="so-in-conclusion" class="level2">
+      <h2>So In Conclusion…</h2>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <!-- Pseudocode scripts -->
+    <script>
+     pseudocode.renderElement(document.getElementById("hello-world-code"));
+    </script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+          fragments: true,
+          math: {
+					    mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+					    config: 'TeX-AMS_HTML-full'
+          },
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
