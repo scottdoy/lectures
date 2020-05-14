@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Autoencoders</title>
+
+    <meta name="description" content="Autoencoders">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Custom Addons: TikzJax -->
+    <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css">
+    <script src="http://tikzjax.com/v1/tikzjax.js"></script>
+    <!-- Custom Addons: pseudocode.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">Autoencoders</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="recap-cnns" class="level2">
+      <h2>Recap: CNNs</h2>
+      </section>
+      <section id="diagram-of-cnn-in-action-input" class="level2">
+      <h2>Diagram of CNN In Action: Input</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/cnn_layer0_input.png" style="width:80.0%" alt="" /><figcaption>Input Image</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/cnn_layer0_diagram.png" style="width:80.0%" alt="" /><figcaption>Input Layer</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="diagram-of-cnn-in-action-conv-1" class="level2">
+      <h2>Diagram of CNN In Action: CONV 1</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/cnn_layer1_activation.png" style="width:80.0%" alt="" /><figcaption>CONV 1 Activations</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/cnn_layer1_diagram.png" style="width:80.0%" alt="" /><figcaption>CONV 1 Diagram</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="diagram-of-cnn-in-action-pool-1" class="level2">
+      <h2>Diagram of CNN In Action: POOL 1</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/cnn_layer2_activation.png" style="width:80.0%" alt="" /><figcaption>POOL 1 Activations</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/cnn_layer2_diagram.png" style="width:80.0%" alt="" /><figcaption>POOL 1 Diagram</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="diagram-of-cnn-in-action-conv-2" class="level2">
+      <h2>Diagram of CNN In Action: CONV 2</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/cnn_layer3_activation.png" style="width:80.0%" alt="" /><figcaption>CONV 2 Activations</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/cnn_layer3_diagram.png" style="width:80.0%" alt="" /><figcaption>CONV 2 Diagram</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="diagram-of-cnn-in-action-pool-2" class="level2">
+      <h2>Diagram of CNN In Action: POOL 2</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/cnn_layer4_activation.png" style="width:80.0%" alt="" /><figcaption>POOL 2 Activations</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/cnn_layer4_diagram.png" style="width:80.0%" alt="" /><figcaption>POOL 2 Diagram</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="diagram-of-cnn-in-action-fc-1" class="level2">
+      <h2>Diagram of CNN In Action: FC 1</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/cnn_layer5_activation.png" style="width:80.0%" alt="" /><figcaption>FC 1 Activations</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/cnn_layer5_diagram.png" style="width:70.0%" alt="" /><figcaption>FC 1 Diagram</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="diagram-of-cnn-in-action-softmax" class="level2">
+      <h2>Diagram of CNN In Action: SOFTMAX</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/cnn_layer6_softmax.png" style="width:80.0%" alt="" /><figcaption>SOFTMAX Outputs</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/cnn_layer6_diagram.png" style="width:80.0%" alt="" /><figcaption>SOFTMAX Diagram</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="diagram-of-cnn-in-action-output-mapping" class="level2">
+      <h2>Diagram of CNN In Action: Output Mapping</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/cnn_layer7_map.png" style="width:80.0%" alt="" /><figcaption>Tissue Map</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/cnn_layer7_diagram.png" style="width:80.0%" alt="" /><figcaption>Output</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="generative-models" class="level2">
+      <h2>Generative Models</h2>
+      </section>
+      <section id="cnns-behind-the-layers" class="level2">
+      <h2>CNNs: Behind the Layers</h2>
+      <p>So far, we’ve looked at CNNs for <strong>classification</strong>.</p>
+      <p class="fragment">
+      Central idea: they learn how to generalize the data they see (training) to apply labels to a broad, unseen testing set.
+      </p>
+      <p class="fragment">
+      They do this by understanding <strong>higher-order</strong> relationships between the input data (pixel values).
+      </p>
+      <p class="fragment">
+      Meaningful relationships between inputs and groups of inputs are learned, essentially, through trial-and-error (i.e. backpropagation): Using errors in classification to modify the “assumptions” (weights and biases) in the hidden layers.
+      </p>
+      </section>
+      <section id="image-space-and-manifolds" class="level2">
+      <h2>Image Space and Manifolds</h2>
+      <p>Think about the life of a CNN: the only thing it knows about the universe is what is contained in the training data.</p>
+      <p class="fragment">
+      The CNN is trying to learn a <strong>part of the image space</strong> related to our problem, which is defined by the training data.
+      </p>
+      </section>
+      <section id="image-space-and-manifolds-1" class="level2">
+      <h2>Image Space and Manifolds</h2>
+      <p>The input <strong>image space</strong> is finite, meaning there is a limit to how many images you can create given a fixed grid size. Within that grid, every image – from birds to faces to nuclei to genomic arrays – can be constructed.</p>
+      <p class="fragment">
+      You can think of this image space as a <strong>manifold</strong>, where similar images appear close to one another and dissimilar images appear far apart (sound familiar?).
+      </p>
+      </section>
+      <section id="image-manifold-example" class="level2">
+      <h2>Image Manifold Example</h2>
+      <figure>
+      <img src="img/cnn_manifold.png" style="width:75.0%" alt="" /><figcaption>Illustration of Image Manifold (CIFAR-10)</figcaption>
+      </figure>
+      </section>
+      <section id="understanding-what-cnns-know" class="level2">
+      <h2>Understanding what CNNs “Know”</h2>
+      <p>The question we have to ask is: Has the CNN <strong>actually</strong> learned these relationships? Does it “know” what a tumor patch looks like, or is its idea of a tumor patch fundamentally different from ours?</p>
+      <p class="fragment">
+      It would be great if we could ask the system to <strong>draw</strong> for us what it thinks a particular class is like.
+      </p>
+      </section>
+      <section id="image-manifold-sampling" class="level2">
+      <h2>Image Manifold Sampling</h2>
+      <figure>
+      <img src="img/cnn_manifold_sample.png" style="width:75.0%" alt="" /><figcaption>Sampling the Manifold</figcaption>
+      </figure>
+      </section>
+      <section id="interpreting-the-output" class="level2">
+      <h2>Interpreting the Output</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/unknown_reconstruction.png" /></p>
+      </div>
+      <div>
+      Has the classifier learned an “image manifold”?
+      <p class="fragment">
+      What relationships between data exist in this manifold space?
+      </p>
+      <p class="fragment">
+      Can we use this space to create realistic (but “imagined”) additional samples?
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="enter-variational-autoencoders" class="level2">
+      <h2>Enter: Variational Autoencoders</h2>
+      <p>How do we build these systems? We need a setup that can do two things:</p>
+      <ol>
+      <li class="fragment">
+      Build an underlying manifold of image space given a set of training data;
+      </li>
+      <li class="fragment">
+      Sample from the underlying manifold to reconstruct sample inputs.
+      </li>
+      </ol>
+      <p class="fragment">
+      In this lecture we’ll talk about <strong>Variational Autoencoders</strong> as the way to do this.
+      </p>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="autoencoders" class="level2">
+      <h2>Autoencoders</h2>
+      </section>
+      <section id="second-things-first-autoencoders" class="level2">
+      <h2>Second Things First: Autoencoders</h2>
+      <p>Let’s start by understanding an “autoencoder”.</p>
+      <p class="fragment">
+      Simply put, it’s a neural network designed to take an input sample and reconstruct it. So if you have an input $\mathbf{x}$, the autoencoder will spit out $\hat{\mathbf{x}}$, which is it’s attempt to recreate $\mathbf{x}$.
+      </p>
+      <p class="fragment">
+      Sounds simple, right?
+      </p>
+      </section>
+      <section id="autoencoder-generalizability" class="level2">
+      <h2>Autoencoder Generalizability</h2>
+      <p>An autoencoder consists of:</p>
+      <ul>
+      <li class="fragment">
+      An <strong>encoder</strong>, $\mathbf{h} = f(\mathbf{x})$: transforms input $\mathbf{x}$ into a <strong>code</strong> (hidden layer); and
+      </li>
+      <li class="fragment">
+      A <strong>decoder</strong>, $\mathbf{r}=g(\mathbf{h})$, which produces a reconstruction.
+      </li>
+      </ul>
+      <p class="fragment">
+      If we want to copy the inputs exactly, we could just say that the hidden layer has the same dimensionality as the input, and the decoder has the same dimensionality as the hidden layer, and then set all the weights to 1.
+      </p>
+      <p class="fragment">
+      What would this look like?
+      </p>
+      </section>
+      <section id="meaningless-autoencoder" class="level2">
+      <h2>Meaningless Autoencoder</h2>
+      <figure>
+      <img src="img/autoencoder_xerox2.svg" style="width:100.0%" alt="" /><figcaption>Expensive Copy Machine</figcaption>
+      </figure>
+      </section>
+      <section id="designed-imperfection" class="level2">
+      <h2>Designed Imperfection</h2>
+      <p>Obviously that isn’t what we want. Instead, we restrict – or <strong>regularize</strong> – the autoencoder so that we can’t perfectly replicate the input data.</p>
+      <p class="fragment">
+      By doing this, we force the system to learn only the <strong>most important parts</strong> of the input, so that it can achieve “pretty good” reconstruction using as little information as possible.
+      </p>
+      </section>
+      <section id="bottlenecking" class="level2">
+      <h2>Bottlenecking</h2>
+      <p>Example: You are moving from your parents’ house into a new apartment. You like your current bedroom, so you try to build a perfect replica in your new place.</p>
+      <p class="fragment">
+      If you could bring everything you own – if the “bandwidth” of the moving van allowed you to bring all your possessions – then you could build a 1:1 replica of your room in your new place.
+      </p>
+      <p class="fragment">
+      But if we impose a <strong>bottleneck</strong> – for example, you can’t afford a moving van and have to cram everything into a tiny car – then you have to pick and choose what to bring with you to create the closest possible replica.
+      </p>
+      <p class="fragment">
+      It won’t be perfect, but <strong>what</strong> you choose to bring says a lot about what you think is important in the “concept” of what your bedroom is like.
+      </p>
+      </section>
+      <section id="undercomplete-autoencoders" class="level2">
+      <h2>Undercomplete Autoencoders</h2>
+      <p>One easy way to bottleneck is to specify that our encoder function $\mathbf{h}=f(\mathbf{x})$ must have a lower dimension than the input $\mathbf{x}$. Thus, we are by definition throwing away some data when going from $\mathbf{x}\rightarrow\mathbf{h}$.</p>
+      </section>
+      <section id="autoencoder-diagram" class="level2">
+      <h2>Autoencoder: Diagram</h2>
+      <figure>
+      <img src="img/autoencoder_diagram2.svg" style="width:100.0%" alt="" /><figcaption>Autoencoder Schematic</figcaption>
+      </figure>
+      </section>
+      <section id="undercomplete-loss-function" class="level2">
+      <h2>Undercomplete Loss Function</h2>
+      <p>This is called an <strong>undercomplete</strong> autoencoder, and as with all neural networks, it’s trained by defining a loss function:</p>
+      <p>$ L(\mathbf{x}, g(f(\mathbf{x}))) $</p>
+      <p>… which penalizes the system if the reconstruction output is dissimilar from the input.</p>
+      </section>
+      <section id="generalization-of-pca" class="level2">
+      <h2>Generalization of PCA</h2>
+      <p>If $L$ is the mean squared error and the decoder function is linear, then the subspace learned by the autoencoder is similar to PCA.</p>
+      <p class="fragment">
+      If the decoder function is nonlinear, then we can build a more generalizable and powerful version of PCA – this is good!
+      </p>
+      <p class="fragment">
+      But if the encoder and decoder have too much <strong>capacity</strong>, then they will not extract any useful data from the training. Instead, they will just “memorize” the training set, mapping each input to a single value in the hidden layer – this is bad!
+      </p>
+      <p class="fragment">
+      So… how do we know how much capacity to give our network?
+      </p>
+      </section>
+      </section>
+      <section id="section-3" class="level1">
+      <h1></h1>
+      <section id="regularization" class="level2">
+      <h2>Regularization</h2>
+      </section>
+      <section id="motivations-for-regularization" class="level2">
+      <h2>Motivations for Regularization</h2>
+      <p>By designing our system cleverly, we can address the issue of “capacity” by making sure that our system has the right goals (defined by the loss function) to learn important features of the input data <strong>without</strong> memorizing them.</p>
+      <p class="fragment">
+      There are a bunch of ways to do this, and a lot of them involve changing the loss function so that the network needs to learn to do something <strong>in addition</strong> to copying the inputs.
+      </p>
+      </section>
+      <section id="sparse-autoencoders" class="level2">
+      <h2>Sparse Autoencoders</h2>
+      <p><strong>Sparse Autoencoders</strong> add a sparsity term to the loss, so that the loss function becomes:</p>
+      <p>$ L(\mathbf{x}, g(f(\mathbf{x}))) + \Omega(\mathbf{h})$</p>
+      <p class="fragment">
+      The sparsity term $\Omega(\mathbf{h})$ is designed such that it forces the system to <strong>learn classification</strong> in addition to the reconstruction.
+      </p>
+      </section>
+      <section id="denoising-autoencoders" class="level2">
+      <h2>Denoising Autoencoders</h2>
+      <p><strong>Denoising Autoencoders</strong> work by modifying the loss function to be:</p>
+      <p>$ L(\mathbf{x}, g(f(\widetilde{\mathbf{x}}))) $</p>
+      <p class="fragment">
+      where $\widetilde{\mathbf{x}}$ is a copy of $\mathbf{x}$ with some random noise added to it. So now, the second task is to <strong>remove the noise component from the sample</strong> as well as reconstruct it from the code layer.
+      </p>
+      </section>
+      <section id="denoising-autoencoder-example" class="level2">
+      <h2>Denoising Autoencoder Example</h2>
+      <figure>
+      <img src="img/denoising_autoencoder.png" style="width:80.0%" alt="" /><figcaption>From the “Deep Learning Book”</figcaption>
+      </figure>
+      </section>
+      <section id="penalizing-derivatives" class="level2">
+      <h2>Penalizing Derivatives</h2>
+      <p>You can also create a version of a sparse encoder where the error term takes both $\mathbf{x}$ and $\mathbf{h}$ as parameters:</p>
+      <p>$ L(\mathbf{x}, g(f(\mathbf{x}))) + \Omega(\mathbf{h}, \mathbf{x}) $</p>
+      <p class="fragment">
+      In this version, $\Omega(\mathbf{h}, \mathbf{x})$ is of the form:
+      </p>
+      <p class="fragment">
+      $ \Omega(\mathbf{h}, \mathbf{x}) = \gamma \sum_{i} |\nabla_{\mathbf{x}} h_{i}|^{2} $
+      </p>
+      <p class="fragment">
+      What this means is that if the gradient of $\mathbf{x}$ is small, then the sparsity term is small and the classifier is close to calculating the reconstruction loss exclusively. If the gradient is large, then the loss will have to include a giant term, leading to more regularization.
+      </p>
+      <p class="fragment">
+      This is called a <strong>contractive autoencoder</strong>.
+      </p>
+      </section>
+      <section id="autoencoders-galore" class="level2">
+      <h2>Autoencoders Galore</h2>
+      <p>As you can imagine, there are a bunch of different ways you can try to manipulate autoencoders to give you what you want: A meaningful representation of the input data, encoded as $\mathbf{h}$, that represents a low-dimensional set of features related to the “image-space”.</p>
+      <p class="fragment">
+      However, you can do more than just add terms to the loss function…
+      </p>
+      </section>
+      </section>
+      <section id="section-4" class="level1">
+      <h1></h1>
+      <section id="variational-autoencoders" class="level2">
+      <h2>Variational Autoencoders</h2>
+      </section>
+      <section id="vae-bayesian-approach" class="level2">
+      <h2>VAE: Bayesian Approach</h2>
+      <p>So far, the autoencoders are <strong>deterministic</strong> – meaning that a particular input is always mapped to the same code, and the same code is always mapped to a particular output.</p>
+      <p class="fragment">
+      A VAE takes a slightly different approach by defining the encoder and decoder probabilistically:
+      </p>
+      <p class="fragment">
+      $ q_{\phi}(\mathbf{h}|\mathbf{x}) \qquad \textrm{Encoder} $
+      </p>
+      <p class="fragment">
+      $ p_{\theta}(\widetilde{\mathbf{x}} | \mathbf{h}) \qquad \textrm{Decoder} $
+      </p>
+      <p class="fragment">
+      This means that, given an input $\mathbf{x}$, there is a <strong>probability</strong> that we will observe $\mathbf{h}$, and given a particular $\mathbf{h}$, there is another probability that we will observe $\widetilde{\mathbf{x}}$. These probabilities are parameterized by $\phi$ and $\theta$, respectively.
+      </p>
+      </section>
+      <section id="conjugate-priors" class="level2">
+      <h2>Conjugate Priors</h2>
+      <p>We still need to “regularize”, since the probabilities could learn to be arbitrarily small (i.e. the distributions governing the mapping could just become delta functions, with zero variance). So we force the system to implement a <strong>conjugate prior</strong> in the form of a spherical unit Gaussian:</p>
+      <p>$ \mathbf{h}\sim\mathcal{N}(0,I) $</p>
+      <p>Why is this useful?</p>
+      </section>
+      <section id="bayesian-inference" class="level2">
+      <h2>Bayesian Inference</h2>
+      <p>In a Bayesian world, the things that we observe are random variables. This means that there is some underlying distribution or “law” that says that certain observations – like a particular nuclear radius – occur with a specific probability.</p>
+      <p class="fragment">
+      The goal in Bayes is to try and estimate that probability through observation or training.
+      </p>
+      </section>
+      <section id="image-features-abstracted" class="level2">
+      <h2>Image Features, Abstracted</h2>
+      <p>By applying this process to autoencoders, we’re saying that each image is a <strong>sample of a distribution</strong> of possible images, and the dimensions of the latent space encode <strong>salient features of the image</strong>.</p>
+      <p class="fragment">
+      This means that in our low-dimensional code $\mathbf{h}$, one dimension might refer to the “tilt” of the numbers, one might refer to the sharpness of its corners, etc.
+      </p>
+      </section>
+      <section id="sampling-the-code" class="level2">
+      <h2>Sampling the Code</h2>
+      <p>So now, we can do two things:</p>
+      <ul>
+      <li class="fragment">
+      First, we can view a low-dimensional representation of the input image data
+      </li>
+      <li class="fragment">
+      Second, we can <strong>sample</strong> this low-dimensional space and have the system generate samples that are maximally-likely to have come from that region
+      </li>
+      </ul>
+      <p class="fragment">
+      I think some examples are in order…
+      </p>
+      </section>
+      <section id="example-mnist" class="level2">
+      <h2>Example: MNIST</h2>
+      <figure>
+      <img src="img/mnist_examples.png" style="width:35.0%" alt="" /><figcaption>MNIST Digits Database</figcaption>
+      </figure>
+      </section>
+      <section id="example-vae-model" class="level2">
+      <h2>Example: VAE model</h2>
+      <figure>
+      <img src="img/torch_model.png" style="width:90.0%" alt="" /><figcaption>PyTorch Example Code</figcaption>
+      </figure>
+      </section>
+      <section id="example-training" class="level2">
+      <h2>Example: Training</h2>
+      <figure>
+      <img src="img/vae_validation_loss.svg" style="width:75.0%" alt="" /><figcaption>Reconstruction Loss vs. Epochs</figcaption>
+      </figure>
+      </section>
+      <section id="example-epoch-1" class="level2">
+      <h2>Example: Epoch 1</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/vae_reconstruction_1.png" style="width:100.0%" alt="" /><figcaption>VAE Reconstruction, Epoch 1</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/vae_sample_1.png" style="width:70.0%" alt="" /><figcaption>VAE Sampling, Epoch 1</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="example-epoch-5" class="level2">
+      <h2>Example: Epoch 5</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/vae_reconstruction_5.png" style="width:100.0%" alt="" /><figcaption>VAE Reconstruction, Epoch 5</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/vae_sample_5.png" style="width:70.0%" alt="" /><figcaption>VAE Sampling, Epoch 5</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="example-epoch-10" class="level2">
+      <h2>Example: Epoch 10</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/vae_reconstruction_10.png" style="width:100.0%" alt="" /><figcaption>VAE Reconstruction, Epoch 10</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/vae_sample_10.png" style="width:70.0%" alt="" /><figcaption>VAE Sampling, Epoch 10</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="example-latent-walks" class="level2">
+      <h2>Example: Latent Walks</h2>
+      <p>Finally, we can do something pretty cool: let’s pick a set of continuous points in the latent space, and generate samples from an evenly-spaced grid going from one section to another and generating a continuous set of samples from the space.</p>
+      <p class="fragment">
+      This helps us to visualize how the network “thinks” the universe appears, based on the training data!
+      </p>
+      </section>
+      <section id="example-latent-walks-1" class="level2">
+      <h2>Example: Latent Walks</h2>
+      <figure>
+      <img src="img/latent_space_30.png" style="width:45.0%" alt="" /><figcaption>Latent Walk</figcaption>
+      </figure>
+      </section>
+      <section id="example-latent-walks-2" class="level2">
+      <h2>Example: Latent Walks</h2>
+      <figure>
+      <img src="img/latent_space_500.png" style="width:45.0%" alt="" /><figcaption>Latent Walk</figcaption>
+      </figure>
+      </section>
+      <section id="example-latent-walks-3" class="level2">
+      <h2>Example: Latent Walks</h2>
+      <figure>
+      <img src="img/latent_space_1000.png" style="width:45.0%" alt="" /><figcaption>Latent Walk</figcaption>
+      </figure>
+      </section>
+      </section>
+      <section id="section-5" class="level1">
+      <h1></h1>
+      <section id="parting-words" class="level2">
+      <h2>Parting Words</h2>
+      </section>
+      <section id="parting-words-1" class="level2">
+      <h2>Parting Words</h2>
+      <p>These methods are very interesting, but we can make them even better by pitting them against each other!</p>
+      <p class="fragment">
+      In the next lecture we’ll talk about <strong>adversarial networks</strong>, where two classifiers “fight it out” so that each gets better at creating new samples.
+      </p>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <!-- Pseudocode scripts -->
+    <script>
+     pseudocode.renderElement(document.getElementById("hello-world-code"));
+    </script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+          fragments: true,
+          math: {
+					    mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+					    config: 'TeX-AMS_HTML-full'
+          },
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
