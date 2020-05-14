@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LSTM NEURAL NETWORKS</title>
+
+    <meta name="description" content="LSTM NEURAL NETWORKS">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Custom Addons: TikzJax -->
+    <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css">
+    <script src="http://tikzjax.com/v1/tikzjax.js"></script>
+    <!-- Custom Addons: pseudocode.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">LSTM NEURAL NETWORKS</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="recap" class="level2">
+      <h2>Recap</h2>
+      </section>
+      <section id="recurrent-neural-networks" class="level2">
+      <h2>Recurrent Neural Networks</h2>
+      <p>Just as CNNs were created specifically to deal with image data, RNNs are specifically focused on <strong>sequence data</strong> – that is, data that can unrolled in time.</p>
+      <p class="fragment">
+      You can visualize this as a single unit (neuron) that repeats itself and learns to predict instances based on what came before it.
+      </p>
+      </section>
+      <section id="recap-rnn-units" class="level2">
+      <h2>Recap: RNN Units</h2>
+      <figure>
+      <img src="img/rnn_rolled.png" style="width:15.0%" alt="" /><figcaption>Single RNN Unit</figcaption>
+      </figure>
+      </section>
+      <section id="recap-rnn-unrolled" class="level2">
+      <h2>Recap: RNN “Unrolled”</h2>
+      <figure>
+      <img src="img/rnn_unrolled.png" style="width:70.0%" alt="" /><figcaption>Unrolled RNN</figcaption>
+      </figure>
+      </section>
+      <section id="recap-weights" class="level2">
+      <h2>Recap: Weights</h2>
+      <p>As with all NNs, we have a set of weights we need to learn. For RNNs, there are three sets of weights:</p>
+      <ul>
+      <li class="fragment">
+      $\mathbf{U}$, the set of weights from the <strong>inputs</strong> to the <strong>hidden layer</strong> (the “memory state”)
+      </li>
+      <li class="fragment">
+      $\mathbf{W}$, the weights between <strong>hidden layers</strong> across timepoints
+      </li>
+      <li class="fragment">
+      $\mathbf{V}$, the weights between the <strong>hidden layers</strong> and the <strong>output layer</strong>
+      </li>
+      </ul>
+      <p class="fragment">
+      And as with traditional NNs, we learn these weights through <strong>backpropagation</strong>.
+      </p>
+      </section>
+      <section id="recap-defining-terms" class="level2">
+      <h2>Recap: Defining Terms</h2>
+      <p>Our hidden state (memory) and the output of a single unit are, respectively:</p>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/rnn_unrolled.png" style="width:80.0%" alt="" /><figcaption>Unrolled Recurrent Network</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>\begin{align} s_{t} &amp;= \tanh(\mathbf{U}x_{t} + \mathbf{W}s_{t-1}) \\ \hat{y}_{t} &amp;= \textrm{softmax}(\mathbf{V}s_{t}) \end{align}</p>
+      </div>
+      </div>
+      </section>
+      <section id="recap-defining-error" class="level2">
+      <h2>Recap: Defining Error</h2>
+      <p>Gradient descent and backpropagation require an error function to differentiate against, so let’s define that:</p>
+      <p>\begin{align} E_{t}(y_{t},\hat{y}_{t}) &amp;= -y_{t}\log\hat{y}_{t} \\ E(y,\hat{y}) &amp;= \sum_{t} E_{t}(y_{t}, \hat{y}_{t}) \\ &amp;= -\sum_{t} y_{t}\log\hat{y}_{t} \end{align}</p>
+      <p class="fragment">
+      $y_{t}$ is the correct word at time step $t$, and $\hat{y}_{t}$ is our prediction. This is the <strong>cross-entropy loss function</strong>, and is calculated over all timesteps (since we typically treat one full sentence as a training exmaple.
+      </p>
+      </section>
+      <section id="recap-calculating-mathbfv" class="level2">
+      <h2>Recap: Calculating $\mathbf{V}$</h2>
+      <p>Let’s start with $\mathbf{V}$, the weights between the hidden and output layers:</p>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/rnn_unrolled.png" style="width:80.0%" alt="" /><figcaption>Unrolled Recurrent Network</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>\begin{align} \frac{\partial E_{t}}{\partial \mathbf{V}} &amp;= \frac{\partial E_{t}}{\partial\hat{y}_{t}}\frac{\partial\hat{y}_{t}}{\partial\mathbf{V}} \\ &amp;=\frac{\partial E_{t}}{\partial \hat{y}_{t}}\frac{\partial\hat{y}_{t}}{\partial z_{t}}\frac{\partial z_{t}}{\partial\mathbf{V}} \\ &amp;=(\hat{y}_{t} - y_{t}) \otimes s_{t} \end{align}</p>
+      </div>
+      </div>
+      <p>where $z_{t} = \mathbf{V}s_{t}$ and $\otimes$ is the outer product.</p>
+      <p>Thus, the error at time $t$ depends only on the last line, $y_{t}, \hat{y}_{t}, s_{t}$.</p>
+      </section>
+      <section id="recap-calculating-mathbfw" class="level2">
+      <h2>Recap: Calculating $\mathbf{W}$</h2>
+      <p>Now let’s try calculating the gradient for $\mathbf{W}$, the weights carried between the hidden states:</p>
+      <div class="l-double">
+      <div>
+      <p><img src="img/rnn_unrolled.png" style="width:80.0%" /></p>
+      </div>
+      <div>
+      <p>$ \frac{\partial E_{t}}{\partial \mathbf{W}} = \frac{\partial E_{t}}{\partial\hat{y}_{t}}\frac{\partial\hat{y}_{t}}{\partial s_{t}}\frac{\partial s_{t}}{\partial\mathbf{W}} $</p>
+      </div>
+      </div>
+      <p class="fragment">
+      Now, since $s_{t} = \tanh(\mathbf{U}x_{t} + \mathbf{W}s_{t-1})$, and we’re taking the derivative with respect to $\mathbf{W}$, we can no longer ignore the fact that $s_{t}$ relies on $s_{t-1}$ which in turn relies on $s_{t-2}$ and so on.
+      </p>
+      </section>
+      <section id="recap-calculating-bptt" class="level2">
+      <h2>Recap: Calculating BPTT</h2>
+      <p>So in reality, if we apply the chain rule again, we end up summing across all timepoints up to the current one:</p>
+      <p>$ \frac{\partial E_{t}}{\partial\mathbf{W}} = \sum_{k=0}^{t}\frac{\partial E_{t}}{\partial \hat{y}_{t}}\frac{\partial\hat{y}_{t}}{\partial s_{t}}\frac{\partial s_{t}}{\partial s_{k}}\frac{\partial s_{k}}{\partial\mathbf{W}} $</p>
+      <p class="fragment">
+      Since $\mathbf{W}$ is used in every step up until the step we’re interested in, we sum up throughout the network. (This is also true for $\frac{\partial E_{t}}{\partial\mathbf{U}}$.)
+      </p>
+      </section>
+      <section id="recap-vanishing-gradients" class="level2">
+      <h2>Recap: Vanishing Gradients</h2>
+      <p>Since we’re calculating throughout time, as our sequences get longer, we have to calculate more and more gradients – this is equivalent to stacking more layers in our network!</p>
+      <p class="fragment">
+      With more layers / timepoints, calculating the gradient becomes difficult due to the <strong>vanishing gradient</strong> problem, which means that vanilla RNNs have difficulty with sequences that are very long, equivalent to trying to learn proper sentence completion that involves many words between meanings.
+      </p>
+      </section>
+      <section id="recap-source-of-vanishing-gradients" class="level2">
+      <h2>Recap: Source of Vanishing Gradients</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/transfer.svg" style="width:100.0%" alt="" /><figcaption>Activation $\tanh$ and Derivative</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Recall that the purpose of the activation function is twofold:</p>
+      <ol type="1">
+      <li>Model nonlinear interactions between inputs, and</li>
+      <li>“Squash” the inputs $x$ into a specified range, typically $[0, 1]$ or <span class="math inline">[ − 1, 1]</span>.</li>
+      </ol>
+      <p>However, the derivative of $\tanh$ approaches 0 as the inputs become larger. This means that as you perform BPTT, your gradient calculations include multiplication by very small numbers.</p>
+      </div>
+      </div>
+      </section>
+      <section id="recap-long-sequences" class="level2">
+      <h2>Recap: Long Sequences</h2>
+      <p>If the gradients go to zero, that means that <strong>you aren’t altering your weights based on errors generated at large timesteps</strong>.</p>
+      <blockquote>
+      <p>At the library, patrons are able to select and take home a wide variety of [BLANK].</p>
+      </blockquote>
+      <p>There are 12 words between “library” and [BLANK], meaning for us to correctly learn this relationship, we would need at least that many timepoints.</p>
+      <p>If the gradients vanish before then, we can’t use the information at the beginning of the sentence to adjust to the prediction at the end.</p>
+      </section>
+      <section id="recap-solutions-to-vanishing-gradients" class="level2">
+      <h2>Recap: Solutions to Vanishing Gradients</h2>
+      <p>Luckily, the solutions to this problem are pretty simple:</p>
+      <ol type="1">
+      <li>Initialize $\mathbf{W}$ carefully;</li>
+      <li>Regularize the results of gradient calculations to prevent vanishing;</li>
+      <li>Don’t use an activation function with this problem (the RELU unit we discussed earlier has derivatives of just 0 or 1);</li>
+      <li>Use a non-vanilla implementation of RNNs that don’t suffer from this issue.</li>
+      </ol>
+      <p>Solutions 3 and 4 are the most popular; in fact, RNNs are rarely used in vanilla form nowadays because of their limited sequence capacity.</p>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="more-rnn-examples" class="level2">
+      <h2>More RNN Examples</h2>
+      </section>
+      <section id="roboprof-v0.1" class="level2">
+      <h2>RoboProf v0.1</h2>
+      <p>Of course, the first thing AI researchers try to do is create their own robotic replacement. So I trained an RNN on a text file of all of my lectures.</p>
+      <p class="fragment">
+      I write my lectures in Markdown, which is a text file format that looks like this…
+      </p>
+      </section>
+      <section id="markdown-example" class="level2">
+      <h2>Markdown Example</h2>
+      <pre><code>## Recap: Source of Vanishing Gradients
+
+      &lt;div class=&quot;l-double&quot;&gt;
+
+      &lt;div&gt;
+
+
+      ![Activation (\$\\tanh\$) and Derivative](img/transfer.pdf){width=100%}
+
+      &lt;/div&gt;
+      &lt;div&gt;
+
+
+      Recall that the purpose of the activation function is twofold:
+
+      1. Model nonlinear interactions between inputs, and
+      2. &quot;Squash&quot; the inputs \$x\$ into a specified range, typically \$[0, 1]\$ or $[-1,
+      1]$.
+
+      &lt;/div&gt;
+      &lt;/div&gt;</code></pre>
+      <p>This gets converted to \LaTeX, which in turn is used to create the PDF slides you see.</p>
+      </section>
+      <section id="training-process" class="level2">
+      <h2>Training Process</h2>
+      <p>So I took all my markdown files for the lectures so far, concatenated them, and ran an RNN on them.</p>
+      <p class="fragment">
+      I selected chunks of the output that delineated individual slides, and straight cut-and-pasted them into this document. The following 3 slides haven’t been modified by me at all, and were compiled along with the rest of this document.
+      </p>
+      <p class="fragment">
+      How’d it do?
+      </p>
+      </section>
+      <section id="recap-quariate-renition-of-training-estimation" class="level2">
+      <h2>Recap: Quariate Renition of Training Estimation</h2>
+      <p>The will be a low of the samples of the data to do the component to $\mathbf{x}$ samples are can be from the simplify the size signal of the training independent neured and the samples are the split to the to the output in the samples.</p>
+      </section>
+      <section id="recap-recap-example-of-classification" class="level2">
+      <h2>Recap: Recap: Example of Classification</h2>
+      <p>We we can training the samples are classifier to the error of the same in $\mathbf{a}$, and $\mathbf{a}$ and $\mathbf{a}$ is a set of the reduces of the training classifiers.</p>
+      </section>
+      <section id="recap-parameter-errors-mathbfa-is-so-the-class-convergence-all" class="level2">
+      <h2>Recap: Parameter Errors $\mathbf{a}$ is so the class convergence all</h2>
+      <p>$\mathbf{x}$ is a probability of the probability of the probability of the deristical training between the component in the component classifiers that $\mathbf{x}$ and $\mathbf{a}$ and $\mathbf{y}$ is the matrix to $\mathbf{y}$ to the weights with $\mathbf{a}$ is the network $\mathbf{y}$ subcestative estimate the classifier and the look to a porterior sumptors to the component in the component to the mean the layers are a sample of $\mathbf{x}$ and $\mathbf{y}$ and $\mathbf{x}$ is the feature values converges the samples the samples of $\mathbf{x}$.</p>
+      </section>
+      <section id="more-examples-this-is-really-me-now" class="level2">
+      <h2>More Examples (This Is Really Me Now)</h2>
+      <p>Sometimes, the system would try to create “image slides” which won’t compile because the images don’t exist.</p>
+      <p class="fragment">
+      But the markdown is formatted properly, it recognizes my image directory, it even identified the naming scheme I use for my images (two digits represent the lecture number, then a bunch of underlined phrases for the name), and the fact that I have to include the width parameter on the image:
+      </p>
+      <pre><code>## Classification (Samples
+
+      ![Lect To Decision Functions](img/simple\_signal\_signal\_00.pdf){width=100%}</code></pre>
+      </section>
+      <section id="more-examples-no-really-its-me" class="level2">
+      <h2>More Examples (No Really, It’s Me!)</h2>
+      <p>It would also recognize the overall structure of “column slides”, but would usually forget to close them:</p>
+      <pre><code>## Learning Discriminant Function Space
+
+      &lt;div class=&quot;l-double&quot;&gt;
+
+      &lt;/div&gt;
+      &lt;div&gt;
+
+
+      ![](img/decision\_threshold\_b.pdf){width=100%}
+
+      &lt;/div&gt;
+      &lt;div&gt;
+
+
+      ![](img/disc\_func\_noncontint.pdf){width=100%}
+      </code></pre>
+      </section>
+      <section id="more-examples" class="level2">
+      <h2>More Examples</h2>
+      <p>Amazingly, it sometimes created fairly complicated functions using LaTeX syntax (and occasionally drops in some bold words for some reason)…</p>
+      </section>
+      <section id="comparing-recap-simpling-boldsymbolsigma_i" class="level2">
+      <h2>Comparing Recap: Simpling $\boldsymbol{\Sigma}_{i}$</h2>
+      <p>$ \mathcal{D}_{1} = \frac{1}{2}\ln{\frac{1}{2}\sum_{k=1}^{n}\hat{\boldsymbol{\Sigma}}_{i}^{2}} $</p>
+      <p>The sample of the probability of the with of the network with $\mathcal{D}_{i}$ is the convergences are mean distribution as a linear probability of the component function with <strong>distance</strong>.</p>
+      <p>The here and $x$ is the incouting a have a set of the many into a probability of $\mathbf{a}$ and $\mathbf{x}$, we estimate the space (assume the network we can be to a network representation of the samples is the same that a set of a points in the samples of the component is $\mathbf{a}$ is the distance random that is $\mathbf{y}$.</p>
+      <p>In the sample of the samples rearning the training and the evaluate the classifier samples.</p>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="learning-to-speak" class="level2">
+      <h2>Learning to Speak</h2>
+      </section>
+      <section id="online-implementations" class="level2">
+      <h2>Online Implementations</h2>
+      <p>There are lots of online implementations of various RNN flavors, including LSTMs.</p>
+      <p>One of them, from <a href="https://github.com/yxtay/char-rnn-text-generation">this Github site</a>, actually provides periodic updates on the generated text as it goes through the training process.</p>
+      <p>The training text was Shakespeare, again.</p>
+      <p><a href="https://github.com/yxtay/char-rnn-text-generation">https://github.com/yxtay/char-rnn-text-generation</a></p>
+      </section>
+      <section id="shakespeare-epoch-1-92s-loss-3.138" class="level2">
+      <h2>Shakespeare, Epoch 1, 92s, loss: 3.138</h2>
+      <p>Generating with seed: “re”:</p>
+      <pre><code>reoltaoud alet miaele iesl saur thee withe
+       whe an hass wo hocse,
+      sor nant mote iouthe bor iod
+      iwd al it alirsd morhy whr ortee, ane sit snasd mere helart an sn hire mise wo wor biu hout ne bor iitthe haus,
+
+      eous isren ans biul wan hos syenlisd.
+
+      AROTES:
+      IENR:ONOO she me ion bod,
+      tantsininl,
+      teasenl wn sasite het ais meerded tott tradd shhy mhats teiss.
+
+      I ward
+      tiir
+      stinr ton oraln
+      tes, I toun boset, aaus bul muss orelhe ne m int,
+      Ahes ae sareneulot il bo anns, tis bateito he toenns iurd wimis hine taue ie to</code></pre>
+      </section>
+      <section id="shakespeare-epoch-15-93s-loss-1.6338" class="level2">
+      <h2>Shakespeare: Epoch 15, 93s, loss: 1.6338</h2>
+      <p>Generating with seed: “hen the kite bui”:</p>
+      <pre><code>hen the kite buith:
+      Whele with our him me strose sume to tay
+      And by welt of her so hen his lied thick?
+
+      FRLARD:
+      A hear that buch their hope as you he dences,
+      To this would at is beaty, the harbing;
+      My hee heary, whine one told with hath:&#39; by love see thrould
+      Who care wither is no bedientiar.
+
+      LUSEN:
+      What we had al be my sence
+      His better shour me striend your sousing
+      To thou sill of the suckie abeid?
+
+      Secord:
+      That henchen you seve sent of the weeth
+      The duke to some his curn before hath with.</code></pre>
+      </section>
+      <section id="shakespeare-epoch-33-3003s" class="level2">
+      <h2>Shakespeare, Epoch 33, 3003s</h2>
+      <p>Generating with seed: “ivines”:</p>
+      <pre><code>ivines.
+
+      HASTINGS:
+      Go, fellow, give me that with thee the was shall
+      With men, the sease to see as the stand them, and the cannot,
+      Who in thine.
+
+      PRINCO:
+      I was and the will be the words the chance
+      The cause and them women to best blood to
+      chall and heard too lives to strong of too man,
+      And so welcome true this with myself was her
+      And so, and well this wifting stranger, thou art
+      Than his storm&#39;d, tell the word of this breath,
+      As I have too much and thine one and head
+      I words a triend and them would his part,
+      Whet are he would him the will be a man
+      The stranged and to be and their house.
+      </code></pre>
+      </section>
+      <section id="scottbot-epoch-1" class="level2">
+      <h2>ScottBot: Epoch 1</h2>
+      <p>Seed: once I make</p>
+      <pre><code>l o ong tor weet iceretonl tang ot mume tee an thild wo bering. me coung ot ind I Ie wat it she be the is hacer.. the ani tuns hen o ank itid thes bee tols Iille bhititinss hanes at inl inss
+      thent ankthalt, ors and ose som ar and art sonetes hitond I and m bere sirghangithas at arteren Iill Iey I&#39;d ho wheer heelims I tur sous it selto sans at ther he beeg tinser one ciro ta seat alg tharista tuntenas af cars ceamasgrene wor busnind boudel it wtol att wol ant wand mannin tin int an the ingim te wend whe slis</code></pre>
+      </section>
+      <section id="scottbot-epoch-50" class="level2">
+      <h2>ScottBot: Epoch 50</h2>
+      <p>Seed: h was the orig</p>
+      <pre><code>inal flation of a book constricting
+      &quot;&quot;As one of achice... on the comestey to get that ask of a boos
+      You get the considenelity.&quot; My going? The messem by it in a marter that a spart point brain
+      He was status oft that.
+      I mean. I are anyone are sittg about the spyen to all that there&#39;s a leal would the targeth party of slots, but you&#39;re point
+      Start of the ficture: a tould be option has good for a mudy and the there is that a fixse for them weekend
+      Assome to suggestion as once if he&#39;s been with packed at the shut </code></pre>
+      </section>
+      <section id="scottbot-epoch-100" class="level2">
+      <h2>ScottBot: Epoch 100</h2>
+      <p>Seed: Okay, so</p>
+      <pre><code> I&#39;ll be a bit to be a lot of the could have been a lot of more too and started a band of the stand is this point, but I do think it&#39;s a store to be start and the same one of more to to that a statistic or so started a beer to the candy in the politics and and a beer are a little beach, but if you don&#39;t know what I was the conferencing to the story about it and the cares of the posters. 
+       And I was a sending the same the choice of the same to be the status thing to that. 
+       It&#39;s no bean and a sense and too stands to say, and if you wouldn&#39;t be trying </code></pre>
+      </section>
+      </section>
+      <section id="section-3" class="level1">
+      <h1></h1>
+      <section id="building-on-rnns" class="level2">
+      <h2>Building on RNNs</h2>
+      </section>
+      <section id="additional-information" class="level2">
+      <h2>Additional Information</h2>
+      <p>The diagrams from this lecture come from Chris Olah, an engineer at Google, who runs a blog at <a href="colah.github.io">colah.github.io</a>. He provides a very clear and straightforward explanation of LSTMs (among other things – check his site out!).</p>
+      </section>
+      <section id="short-term-dependencies" class="level2">
+      <h2>Short-term Dependencies</h2>
+      <figure>
+      <img src="img/rnn_shorttermdependencies.png" style="width:100.0%" alt="" /><figcaption>Short-term Dependencies are Easy to Learn</figcaption>
+      </figure>
+      </section>
+      <section id="long-term-dependencies" class="level2">
+      <h2>Long-term Dependencies</h2>
+      <figure>
+      <img src="img/rnn_longtermdependencies.png" style="width:100.0%" alt="" /><figcaption>Long-term Dependencies are Difficult to Learn</figcaption>
+      </figure>
+      </section>
+      <section id="overcoming-limitations-of-rnns" class="level2">
+      <h2>Overcoming Limitations of RNNs</h2>
+      <p>As we said, the major drawback to vanilla RNNs is the lack of good support for long term sequences. We made some suggestions on how to solve this issue, but the most common one is to replace the individual hidden state neurons with a more complicated unit.</p>
+      <p class="fragment">
+      First, let’s re-examine the RNN hidden unit.
+      </p>
+      </section>
+      <section id="simple-rnn-tanh-layer" class="level2">
+      <h2>Simple RNN: $\tanh$ Layer</h2>
+      <figure>
+      <img src="img/lstm_simplernn.png" style="width:100.0%" alt="" /><figcaption>Simple $\tanh$ layer</figcaption>
+      </figure>
+      </section>
+      <section id="lstm-repeating-module-structure" class="level2">
+      <h2>LSTM: Repeating Module Structure</h2>
+      <p>In “Long Short Term Memory” networks, the main hidden layer is replaced with a more complex structure.</p>
+      <p class="fragment">
+      The way to think about this is instead of having a single set of neurons in the hidden layer, there are several intermediate hidden units that operate <strong>at one timepoint</strong>, so the center layer ends up with a lot of sub-units that operate at $t$ until they produce an output.
+      </p>
+      </section>
+      <section id="lstm-repeating-module-structure-1" class="level2">
+      <h2>LSTM: Repeating Module Structure</h2>
+      <figure>
+      <img src="img/lstm_chain.png" style="width:100.0%" alt="" /><figcaption>Complex LSTM Layer</figcaption>
+      </figure>
+      </section>
+      <section id="lstm-graphical-notation" class="level2">
+      <h2>LSTM Graphical Notation</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/lstm_chain.png" style="width:100.0%" alt="" /><figcaption>LSTM Structure</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>We’ll go over each component in the structure in time, but it’s important to understand the basic notation:</p>
+      <ul>
+      <li class="fragment">
+      Yellow boxes are <strong>learned layers</strong>.
+      </li>
+      <li class="fragment">
+      Pink circles are <strong>pointwise operations</strong>.
+      </li>
+      <li class="fragment">
+      Vector lines are <strong>transfer lines</strong>.
+      </li>
+      <li class="fragment">
+      Merging vector lines are <strong>concatenation operations</strong>.
+      </li>
+      <li class="fragment">
+      Splitting vector lines are <strong>copy operations</strong>.
+      </li>
+      </ul>
+      </div>
+      </div>
+      </section>
+      <section id="core-innovation-of-lstms" class="level2">
+      <h2>Core Innovation of LSTMs</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/lstm_cline.svg" style="width:100.0%" alt="" /><figcaption>$C_{t}$ Line</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>The top line is equivalent to our “hidden memory state” that gets passed from timestep to timestep.</p>
+      <p class="fragment">
+      The data flowing through this connection is modified at two points; the amount that this data is modified is controlled by “gates”, which control how (and how much) the data from previous timesteps should be used.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="gated-information-modifications" class="level2">
+      <h2>Gated Information Modifications</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/lstm_gate.png" style="width:60.0%" alt="" /><figcaption>LSTM Gates</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>There are three gates in the system; each is a sigmoid layer followed by a pointwise multiplication.</p>
+      <p class="fragment">
+      The output of the sigmoid layer is $[0, 1]$, so these gates learn <strong>how much information to add to the hidden state</strong> at each timepoint.
+      </p>
+      <p class="fragment">
+      The action of these gates determines what happens to the cell state, so they can intentionally keep the gradient alive (or squash it if it’s getting too large).
+      </p>
+      </div>
+      </div>
+      </section>
+      </section>
+      <section id="section-4" class="level1">
+      <h1></h1>
+      <section id="step-by-step-walkthrough" class="level2">
+      <h2>Step-by-Step Walkthrough</h2>
+      </section>
+      <section id="forget-gate-layer" class="level2">
+      <h2>Forget Gate Layer</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/lstm_focusf.svg" style="width:100.0%" alt="" /><figcaption>Forget Gate</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>The first thing that happens in the cell is that the cell state is modified by a <strong>forget gate</strong>, which simply multiplies the cell state by a fraction.</p>
+      <p class="fragment">
+      This path takes $h_{t-1}$ (the <strong>output</strong> from the previous timepoint) and $x_{t}$ (the <strong>input</strong> at the current timepoint), and the $\boldsymbol{\sigma}$ gate spits out $f_{t}\in[0,1]$ which is multiplied by the cell state from the previous step $C_{t-1}$.
+      </p>
+      <p class="fragment">
+      $ f_{t} = \sigma(W_{f}\cdot [h_{t-1}, x_{t}] - b_{f}) $
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="input-gate-layer" class="level2">
+      <h2>Input Gate Layer</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/lstm_focusi.svg" style="width:100.0%" alt="" /><figcaption>Input Gate</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Next we need to add information to the cell state with an <strong>input gate</strong>. This takes place in two steps:</p>
+      <ol>
+      <li class="fragment">
+      Decide <strong>which</strong> values of $x_{t}$ and $h_{t}$ will be updated by an input gate $\sigma$.
+      </li>
+      <li class="fragment">
+      Decide <strong>what</strong> the values are going to be by applying a $\tanh$ layer to $x_{t}$ and $h_{t-1}$.
+      </li>
+      </ol>
+      <p class="fragment">
+      \begin{align} i_{t} &amp;= \sigma(W_{i}\cdot [h_{t-1}, x_{t}] + b_{i}) \\ \tilde{C}_{t} &amp;= \tanh(W_{C}\cdot [h_{t-1}, x_{t}] + b_{C}) \\ \end{align}
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="modify-cell-state" class="level2">
+      <h2>Modify Cell State</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/lstm_focusc.svg" style="width:100.0%" alt="" /><figcaption>Modify $C_{t-1}$</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Now that we know <strong>how</strong> to modify $C_{t-1}$, we go ahead and do it:</p>
+      <p>$ C_{t} = f_{t} \ast C_{t-1} + i_{t} \ast \tilde{C}_{t} $</p>
+      <p class="fragment">
+      This gives us a new cell state for the current timepoint, $C_{t}$, which then exits the cell to become the $C_{t-1}$ of the next state.
+      </p>
+      <p class="fragment">
+      But we aren’t done! What about calculating the <strong>output</strong> of this cell, $h_{t}$?
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="calculate-output" class="level2">
+      <h2>Calculate Output</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/lstm_focuso.svg" style="width:100.0%" alt="" /><figcaption>Calculate $h_{t}$</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>$h_{t}$ is a <strong>filtered version of the new cell state</strong>. The process is the same as $C_{t-1}$: Figure out <strong>which</strong> values to modify by calculating a sigmoid operating on $h_{t-1}$ and $x_{t}$, and then calculate <strong>what</strong> values to use by passing the cell state through a $\tanh$ op:</p>
+      <p class="fragment">
+      \begin{align} o_{t} &amp;= \sigma(W_{o} \cdot [h_{t-1}, x_{t}] + b_{o})\\ h_{t} &amp;= o_{t} \ast \tanh(C_{t}) \\ \end{align}
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="calculate-output-1" class="level2">
+      <h2>Calculate Output</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/lstm_focuso.svg" style="width:100.0%" alt="" /><figcaption>Calculate $h_{t}$</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>\begin{align} o_{t} &amp;= \sigma(W_{o} \cdot [h_{t-1}, x_{t}] + b_{o})\\ h_{t} &amp;= o_{t} \ast \tanh(C_{t}) \\ \end{align}</p>
+      <p class="fragment">
+      Note that in this case, the $\tanh$ layer is <strong>not</strong> a trained layer, but simply the $\tanh$ function!
+      </p>
+      <p class="fragment">
+      In other words, we don’t calculate on $C_{t}$ with a set of weights and biases before passing it through the $\tanh$ function, and we don’t have to learn another set of gradients here.
+      </p>
+      </div>
+      </div>
+      </section>
+      <section id="and-on-and-on-and-on" class="level2">
+      <h2>And On and On and On…</h2>
+      <figure>
+      <img src="img/lstm_chain.png" style="width:50.0%" alt="" /><figcaption>LSTM Chain</figcaption>
+      </figure>
+      <p>We have more weights to learn, and so this system is more computationally expensive, but it nicely allows us to sidestep the issues with long-term information connections – by controlling how the gradient is modified at each step, we can prevent the gradient from shrinking to 0 or exploding to $\infty$.</p>
+      </section>
+      </section>
+      <section id="section-5" class="level1">
+      <h1></h1>
+      <section id="variants-on-lstms" class="level2">
+      <h2>Variants on LSTMs</h2>
+      </section>
+      <section id="rolling-your-own-lstm" class="level2">
+      <h2>Rolling Your Own LSTM</h2>
+      <p>As with CNNs, there are variants on this setup. The main differences have to do with how the connections are “wired up” inside the cell.</p>
+      <p class="fragment">
+      We’ll go through the ones that Olah mentions in his blog post, although (as pointed out) there are a LOT of these.
+      </p>
+      <p class="fragment">
+      Remember the golden rule: <strong>Keep It Simple</strong>! Use the simplest algorithm that works on your problem. If it doesn’t work, figure out why; if you have enough data, and you train for long enough, only then should you consider using a more complex architecture.
+      </p>
+      </section>
+      <section id="peephole-connections" class="level2">
+      <h2>Peephole Connections</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/lstm_var_peepholes.svg" style="width:100.0%" alt="" /><figcaption>Peephole Connections</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>This variant of LSTMs allows the cell state to influence the operation of the gates by providing connections between $C_{t-1}$ and each of the $\sigma$ layers:</p>
+      <p>\begin{align} f_{t} &amp;= \sigma(W_{f}\cdot [C_{t-1}, h_{t-1}, x_{t}] + b_{f}) \\ i_{t} &amp;= \sigma(W_{i}\cdot [C_{t-1}, h_{t-1}, x_{t}] + b_{i}) \\ o_{t} &amp;= \sigma(W_{o}\cdot [C_{t}, h_{t-1}, x_{t}] + b_{o}) \\ \end{align}</p>
+      </div>
+      </div>
+      </section>
+      <section id="coupled-forget-and-input-gates" class="level2">
+      <h2>Coupled Forget and Input Gates</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/lstm_var_tied.svg" style="width:100.0%" alt="" /><figcaption>Tied Connections</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>Another variation is to couple the forget and input gates, so these are learned together. This way we can forget only when there’s something to take its place, and we can input something when we forget something else (so we’re <strong>updating</strong> explicitly).</p>
+      <p>\begin{align} C_{t} &amp;= f_{t} \ast C_{t-1} + (1 - f_{t}) \ast \tilde{C}_{t} \\ \end{align}</p>
+      </div>
+      </div>
+      </section>
+      <section id="gated-recurrent-units-grus" class="level2">
+      <h2>Gated Recurrent Units (GRUs)</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/lstm_var_gru.svg" style="width:100.0%" alt="" /><figcaption>Gated Recurrent Units</figcaption>
+      </figure>
+      </div>
+      <div>
+      <p>The Gated Recurrent Unit (GRU) is often thought of as a natural successor to LSTM. This computes an “update” gate instead of forget and input gates (as with the Coupled variant), but also merges the cell and hidden states, as well as other changes. It ends up with fewer calculations than LSTM:</p>
+      <p>\begin{align} z_{t} &amp;= \sigma(W_{z} \cdot [h_{t-1}, x_{t}]) \\ r_{t} &amp;= \sigma(W_{r} \cdot [h_{t-1}, x_{t}]) \\ \tilde{h}_{t} &amp;= \tanh(W \cdot [r_{t} \ast h_{t-1}, x_{t}]) \\ h_{t} &amp;= (1 - z_{t}) \ast h_{t-1} + z_{t} \ast \tilde{h}_{t} \\ \end{align}</p>
+      </div>
+      </div>
+      </section>
+      <section id="comparison-of-the-variants" class="level2">
+      <h2>Comparison of the Variants</h2>
+      <p>There are a few papers that look into the question of which variant of RNNs works “best”, and of course, the answer is: “Depends.”</p>
+      <p class="fragment">
+      Some applications work better with different architectures, so try different architectures and see what you get.
+      </p>
+      <p class="fragment">
+      However, make sure you know what you’re doing and why you’re doing it!
+      </p>
+      <ul>
+      <li class="fragment">
+      How long are your sequences?
+      </li>
+      <li class="fragment">
+      How big is your “vocabulary”?
+      </li>
+      <li class="fragment">
+      How much data do you have to train?
+      </li>
+      </ul>
+      <p class="fragment">
+      <strong>Start simple, move to complex.</strong>
+      </p>
+      </section>
+      </section>
+      <section id="section-6" class="level1">
+      <h1></h1>
+      <section id="parting-words" class="level2">
+      <h2>Parting Words</h2>
+      </section>
+      <section id="keeping-up-with-the-times" class="level2">
+      <h2>Keeping Up With The Times</h2>
+      <p>The key to staying on top of the field is to read, read, read… and experiment!</p>
+      <p class="fragment">
+      Play with these algorithms if they are implemented in publicly available codebases, and try implementing some of them on your own.
+      </p>
+      <p class="fragment">
+      <p>It isn’t terribly hard to wire up new sets of connections and see how the output looks, and you can’t really “break” anything, so go nuts (and publish what you find)!</p>
+      </p>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <!-- Pseudocode scripts -->
+    <script>
+     pseudocode.renderElement(document.getElementById("hello-world-code"));
+    </script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+          fragments: true,
+          math: {
+					    mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+					    config: 'TeX-AMS_HTML-full'
+          },
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
