@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Generative Adversarial Networks</title>
+
+    <meta name="description" content="Generative Adversarial Networks">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Custom Addons: TikzJax -->
+    <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css">
+    <script src="http://tikzjax.com/v1/tikzjax.js"></script>
+    <!-- Custom Addons: pseudocode.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">Generative Adversarial Networks</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="recap-variational-autoencoders" class="level2">
+      <h2>Recap: (Variational) Autoencoders</h2>
+      </section>
+      <section id="recap-image-manifold" class="level2">
+      <h2>Recap: Image Manifold</h2>
+      <figure>
+      <img src="img/cnn_manifold.png" style="width:75.0%" alt="" /><figcaption>Illustration of Image Manifold (CIFAR-10)</figcaption>
+      </figure>
+      </section>
+      <section id="recap-image-manifold-sampling" class="level2">
+      <h2>Recap: Image Manifold Sampling</h2>
+      <figure>
+      <img src="img/cnn_manifold_sample.png" style="width:75.0%" alt="" /><figcaption>Sampling the Manifold</figcaption>
+      </figure>
+      </section>
+      <section id="recap-autoencoders" class="level2">
+      <h2>Recap: Autoencoders</h2>
+      <p>Autoencoders do two things:</p>
+      <ol>
+      <li class="fragment">
+      Build an image-space manifold
+      </li>
+      <li class="fragment">
+      Sample the manifold to generate samples
+      </li>
+      </ol>
+      </section>
+      <section id="recap-autoencoder-diagram" class="level2">
+      <h2>Recap: Autoencoder Diagram</h2>
+      <figure>
+      <img src="img/autoencoder_diagram2.svg" style="width:90.0%" alt="" /><figcaption>Autoencoder Schematic</figcaption>
+      </figure>
+      </section>
+      <section id="recap-undercomplete-autoencoders" class="level2">
+      <h2>Recap: Undercomplete Autoencoders</h2>
+      <p>If $\mathbf{x} \in \mathbb{R}^{d}$, then making $\mathbf{h}\in\mathbb{R}^{\widehat{d}}$, where $\widehat{d}&lt;d$, forces the encoder to “learn” the most important parts of $\mathbf{x}$.</p>
+      <p class="fragment">
+      This is <strong>bottlenecking</strong> or <strong>limited bandwidth</strong>, and results in an <strong>undercomplete autoencoder</strong>.
+      </p>
+      </section>
+      <section id="recap-training" class="level2">
+      <h2>Recap: Training</h2>
+      <p><strong>Regularization</strong> takes on many forms:</p>
+      <ul>
+      <li class="fragment">
+      <strong>Loss Function</strong>: $L(\mathbf{x}, g(f(\mathbf{x})))$
+      </li>
+      <li class="fragment">
+      <strong>Sparse Autoencoder</strong>: $L(\mathbf{x}, g(f(\mathbf{x}))) + \Omega(\mathbf{h})$
+      </li>
+      <li class="fragment">
+      <strong>Contractive Autoencoder</strong>: $L(\mathbf{x}, g(f(\mathbf{x}))) + \Omega(\mathbf{h}, \mathbf{x})$
+      </li>
+      <li class="fragment">
+      <strong>Denoising Autoencoders</strong>: $L(\mathbf{x}, g(f(\widetilde{\mathbf{x}})))$
+      </li>
+      </ul>
+      </section>
+      <section id="recap-vae" class="level2">
+      <h2>Recap: VAE</h2>
+      <p><strong>Variational Autoencoders</strong> (VAEs) define the encoder and decoder probabilistically:</p>
+      <p>$ q_{\phi}(\mathbf{h}|\mathbf{x}) \qquad \textrm{Encoder} $</p>
+      <p>$ p_{\theta}(\widetilde{\mathbf{x}} | \mathbf{h}) \qquad \textrm{Decoder} $</p>
+      <p class="fragment">
+      To avoid degenerate solutions, we force the system to implement a <strong>conjugate prior</strong> in the form of a spherical unit Gaussian:
+      </p>
+      <p class="fragment">
+      $ \mathbf{h}\sim\mathcal{N}(0,I) $
+      </p>
+      </section>
+      <section id="recap-mnist-dataset" class="level2">
+      <h2>Recap: MNIST Dataset</h2>
+      <figure>
+      <img src="img/mnist_examples.png" style="width:35.0%" alt="" /><figcaption>MNIST Digits Database</figcaption>
+      </figure>
+      </section>
+      <section id="example-epoch-10" class="level2">
+      <h2>Example: Epoch 10</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/vae_reconstruction_10.png" style="width:100.0%" alt="" /><figcaption>VAE Reconstruction, Epoch 10</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/vae_sample_10.png" style="width:70.0%" alt="" /><figcaption>VAE Sampling, Epoch 10</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="example-latent-walks" class="level2">
+      <h2>Example: Latent Walks</h2>
+      <figure>
+      <img src="img/latent_space_30.png" style="width:45.0%" alt="" /><figcaption>Latent Walk</figcaption>
+      </figure>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="adversarial-networks" class="level2">
+      <h2>Adversarial Networks</h2>
+      </section>
+      <section id="adversarial-training-overview" class="level2">
+      <h2>Adversarial Training Overview</h2>
+      <p><strong>Regularization</strong>: The goal is to ensure that we learn a hidden latent space without over-training (just copying things over).</p>
+      <p class="fragment">
+      There’s another way to train these kinds of networks, and that’s using <strong>Adversarial</strong> training.
+      </p>
+      </section>
+      <section id="adversarial-training-intuition" class="level2">
+      <h2>Adversarial Training Intuition</h2>
+      <p>Ever hear of the <strong>Turing test</strong>?</p>
+      <p>Video: <a href="https://youtu.be/lFIW8KphZo0?t=40">Brian Christian, “The Most Human Human”</a></p>
+      </section>
+      <section id="judging-generated-outputs" class="level2">
+      <h2>Judging Generated Outputs</h2>
+      <figure>
+      <img src="img/vae_reconstruction_5.png" style="width:80.0%" alt="" /><figcaption>VAE Reconstruction, Epoch 5</figcaption>
+      </figure>
+      <p>When we see the results of a generative network (e.g. an autoencoder), how do we judge how “good” it is?</p>
+      <p class="fragment">
+      In other words: what is the loss function that we are trying to optimize?
+      </p>
+      </section>
+      <section id="turing-loss-function" class="level2">
+      <h2>Turing Loss Function</h2>
+      <p>In training generative networks, we compare the input image to the output.</p>
+      <p class="fragment">
+      But in inference or testing, humans look at the output and try to guess whether an AI “drew” the sample, or if it is a real one.
+      </p>
+      <p class="fragment">
+      If it can fool us, then we would say that the network has successfully been trained.
+      </p>
+      <p class="fragment">
+      What if we use that feedback to <strong>train</strong> the network in the first place? We might call this a “Turing Loss” function.
+      </p>
+      </section>
+      <section id="human-judges" class="level2">
+      <h2>Human Judges</h2>
+      <p>Obviously, for image-based autoencoders, we can’t have a person sift through millions of generated samples hundreds of times just to provide a numeric loss function for each output in terms of whether or not it’s a “real” or “fake” generated sample.</p>
+      </section>
+      <section id="any-volunteers" class="level2">
+      <h2>Any Volunteers?</h2>
+      <figure>
+      <img src="img/latent_space_30.png" style="width:45.0%" alt="" /><figcaption>Who wants to judge each of these samples?</figcaption>
+      </figure>
+      </section>
+      <section id="human-judges-1" class="level2">
+      <h2>Human Judges</h2>
+      <p>That would be tedious, expensive, time-consuming, and error-prone.</p>
+      <p class="fragment">
+      If only there was a robot who could sit around and judge generated samples all day…
+      </p>
+      </section>
+      <section id="its-ai-all-the-way-down" class="level2">
+      <h2>It’s AI All the Way Down</h2>
+      <figure>
+      <img src="img/gan.svg" style="width:90.0%" alt="" /><figcaption>Generative Adversarial Network</figcaption>
+      </figure>
+      </section>
+      <section id="training-gans" class="level2">
+      <h2>Training GANs</h2>
+      <p>The “generator” $G$ is just like the “decoder” that we saw previously.</p>
+      <p class="fragment">
+      The “discriminator” $D$ is a standard CNN, where the inputs are images and the outputs are labels of “authenticity”.
+      </p>
+      </section>
+      <section id="training-gans-1" class="level2">
+      <h2>Training GANs</h2>
+      <p>Here are the steps a GAN takes:</p>
+      <ol>
+      <li class="fragment">
+      The generator $G$ takes in a random vector with $\widehat{d}$ dimensions and spits out an image.
+      </li>
+      <li class="fragment">
+      The image is fed into the discriminator $D$, with label $0$, along with a stream of real images, each with label $1$.
+      </li>
+      <li class="fragment">
+      The discriminator generates a probability for each input as to whether it is “real” (1) or “fake” (0).
+      </li>
+      </ol>
+      </section>
+      <section id="training-gans-2" class="level2">
+      <h2>Training GANs</h2>
+      <p>We have <strong>two</strong> networks in this scenario that we are trying to train simultaneously.</p>
+      <p class="fragment">
+      We switch back-and-forth between training the discriminator and training the generator, each time keeping the other steady.
+      </p>
+      <p class="fragment">
+      The loss of the discriminator causes it to <strong>get better at spotting fake images</strong>, while the loss of the generated causes it to <strong>get better at generating fake images</strong>.
+      </p>
+      </section>
+      <section id="training-gans-3" class="level2">
+      <h2>Training GANs</h2>
+      <p>Since now we’re generating two deep networks at once, these take a <strong>long</strong> time to train.</p>
+      <p class="fragment">
+      There’s no real way around this, but the upside is that we can start to see some franky scary results…
+      </p>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="examples" class="level2">
+      <h2>Examples</h2>
+      </section>
+      <section id="example-results" class="level2">
+      <h2>Example Results</h2>
+      <p>You can find implementations of GANs throughout the internet.</p>
+      <p class="fragment">
+      I’ll show a few different example results, along with links so you can try this out yourself.
+      </p>
+      </section>
+      <section id="neural-face" class="level2">
+      <h2>Neural Face</h2>
+      <figure>
+      <img src="img/neural_faces_change6.png" style="width:35.0%" alt="" /><figcaption>Example of Generated Faces</figcaption>
+      </figure>
+      <p><a href="https://carpedm20.github.io/faces/">Neural Face Project</a>: <strong>https://carpedm20.github.io/faces/</strong></p>
+      <p><a href="https://github.com/carpedm20/DCGAN-tensorflow">code</a>: <strong>https://github.com/carpedm20/DCGAN-tensorflow</strong></p>
+      </section>
+      <section id="neural-face-latent-walk" class="level2">
+      <h2>Neural Face Latent Walk</h2>
+      <figure>
+      <img src="img/neural_faces_change6_closeup.png" style="width:100.0%" alt="" /><figcaption>Just Be Happy!</figcaption>
+      </figure>
+      <p>The latent walk in the “face-space” shows that it really is learning higher-level features – like different facial expressions!</p>
+      </section>
+      <section id="dc-gan" class="level2">
+      <h2>DC-GAN</h2>
+      <figure>
+      <img src="img/bedrooms_one_epoch_samples.png" style="width:80.0%" alt="" /><figcaption>Bedroom Dataset, One Epoch</figcaption>
+      </figure>
+      <p><a href="https://github.com/Newmu/dcgan_code">DC-GAN</a>: <strong>https://github.com/Newmu/dcgan_code</strong></p>
+      </section>
+      <section id="dc-gan-1" class="level2">
+      <h2>DC-GAN</h2>
+      <figure>
+      <img src="img/bedrooms_five_epoch_samples.png" style="width:80.0%" alt="" /><figcaption>Bedroom Dataset, Five Epochs</figcaption>
+      </figure>
+      <p><a href="https://github.com/Newmu/dcgan_code">DC-GAN</a>: <strong>https://github.com/Newmu/dcgan_code</strong></p>
+      </section>
+      <section id="bedroom-latent-walk" class="level2">
+      <h2>Bedroom Latent Walk</h2>
+      <figure>
+      <img src="img/bedrooms_latent_walk.png" style="width:40.0%" alt="" /><figcaption>Bedroom Latent Walk</figcaption>
+      </figure>
+      <p><a href="https://github.com/Newmu/dcgan_code">DC-GAN</a>: <strong>https://github.com/Newmu/dcgan_code</strong></p>
+      </section>
+      <section id="bedroom-latent-walk-1" class="level2">
+      <h2>Bedroom Latent Walk</h2>
+      <figure>
+      <img src="img/bedrooms_latent_walk_closeup.png" style="width:100.0%" alt="" /><figcaption>Bedroom Latent Walk Closeup</figcaption>
+      </figure>
+      </section>
+      <section id="latent-space-arithmetic" class="level2">
+      <h2>Latent Space Arithmetic</h2>
+      <p>So this latent space… Is it like any other space? Like, can you add and subtract components of the latent space?</p>
+      <p class="fragment">
+      And if those “vectors” refer to image “features”…
+      </p>
+      </section>
+      <section id="latent-space-arithmetic-1" class="level2">
+      <h2>Latent Space Arithmetic</h2>
+      <p><img src="img/faces_arithmetic_collage_glasses.png" style="width:90.0%" /></p>
+      </section>
+      <section id="nvidia-stylegan" class="level2">
+      <h2>Nvidia StyleGAN</h2>
+      <p>Want to never trust anything you see ever again?</p>
+      <ul>
+      <li><a href="https://thispersondoesnotexist.com/">This Person Does Not Exist</a></li>
+      <li><a href="https://www.youtube.com/watch?v=kSLJriaOumA">Nvidia StyleGAN Demonstration</a></li>
+      </ul>
+      </section>
+      <section id="biology-examples" class="level2">
+      <h2>Biology Examples</h2>
+      <p>Okay, so… “Biomedical Data”…</p>
+      <p class="fragment">
+      Generative networks are interesting for biology because:
+      </p>
+      <ol>
+      <li class="fragment">
+      They allow us some insight into what a network actually learns
+      </li>
+      <li class="fragment">
+      They can be used to perturb the image space to generate “fake”, but realistic, learning examples for classification
+      </li>
+      <li class="fragment">
+      The features they pick up on could indicate previously unknown morphological types
+      </li>
+      </ol>
+      <p class="fragment">
+      Also, they’re just… cool.
+      </p>
+      </section>
+      <section id="which-of-these-are-real" class="level2">
+      <h2>Which of These are Real?</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/nuclei_fake_samples_epoch_001.png" style="width:80.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/nuclei_real_samples.png" style="width:80.0%" /></p>
+      </div>
+      </div>
+      </section>
+      <section id="which-of-these-are-real-1" class="level2">
+      <h2>Which of These are Real?</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/nuclei_fake_samples_epoch_001_cropped.png" style="width:80.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/nuclei_real_samples_cropped.png" style="width:80.0%" /></p>
+      </div>
+      </div>
+      </section>
+      <section id="which-of-these-are-real-2" class="level2">
+      <h2>Which of These are Real?</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/nuclei_fake_samples_epoch_001_cropped.png" style="width:80.0%" alt="" /><figcaption>FAKE</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/nuclei_real_samples_cropped.png" style="width:80.0%" alt="" /><figcaption>REAL</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="variations-on-a-theme" class="level2">
+      <h2>Variations on a Theme</h2>
+      <div class="l-double">
+      <div>
+      <figure>
+      <img src="img/nuclei_fake_samples_epoch_001_cropped.png" style="width:80.0%" alt="" /><figcaption>Epoch 001</figcaption>
+      </figure>
+      </div>
+      <div>
+      <figure>
+      <img src="img/nuclei_fake_samples_epoch_002_cropped.png" style="width:80.0%" alt="" /><figcaption>Epoch 002</figcaption>
+      </figure>
+      </div>
+      </div>
+      </section>
+      <section id="how-many-nuclei" class="level2">
+      <h2>How Many Nuclei?</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/nuclei_fakecrop01.png" style="width:80.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/nuclei_fakecrop02.png" style="width:80.0%" /></p>
+      </div>
+      </div>
+      </section>
+      <section id="how-many-nucleoli" class="level2">
+      <h2>How Many Nucleoli?</h2>
+      <div class="l-double">
+      <div>
+      <p><img src="img/nucleoli_fakecrop01.png" style="width:80.0%" /></p>
+      </div>
+      <div>
+      <p><img src="img/nucleoli_fakecrop02.png" style="width:80.0%" /></p>
+      </div>
+      </div>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <!-- Pseudocode scripts -->
+    <script>
+     pseudocode.renderElement(document.getElementById("hello-world-code"));
+    </script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+          fragments: true,
+          math: {
+					    mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+					    config: 'TeX-AMS_HTML-full'
+          },
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
