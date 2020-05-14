@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mini-Lecture: Data Fallacies</title>
+
+    <meta name="description" content="Mini-Lecture: Data Fallacies">    
+
+        <meta name="author" content="Scott Doyle" />
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Custom Addons: TikzJax -->
+    <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css">
+    <script src="http://tikzjax.com/v1/tikzjax.js"></script>
+    <!-- Custom Addons: pseudocode.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
+    <!-- Set Theme -->
+        <link rel="stylesheet" href="css/theme/scottdoy.css" id="theme">
+    
+    <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/atelier-dune-light.css">
+    
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+          </head>
+
+  <body>
+
+  
+  <div class="reveal">
+    <div class="slides">
+      <!-- Custom Title Section Here -->
+      <section data-background="#005bbb" id="particles-js" class="level1">
+        <section id="title" class="level2">
+        <h1 style="color: #e4e4e4;">Mini-Lecture: Data Fallacies</h1>
+        <p>
+        <h3 style="color: #e4e4e4;">Machine Learning for Biomedical Data</h2>
+        </p>
+        <p style="color: #e4e4e4;"><small>Scott Doyle / scottdoy@buffalo.edu</small></p>
+        </section>
+      </section>
+
+      <!-- Custom TOC Section here-->
+      
+      <!-- Insert Body -->
+      <section id="section" class="level1">
+      <h1></h1>
+      <section id="announcements" class="level2">
+      <h2>Announcements</h2>
+      </section>
+      <section id="final-project-details" class="level2">
+      <h2>Final Project Details</h2>
+      <p>The final writeup will be a journal manuscript-style report detailing the project you’ve been working on.</p>
+      <p class="fragment">
+      It should be written formally, with a set of sections, references, figures, etc.
+      </p>
+      <p class="fragment">
+      The other assignment pages will remain open, so if there’s anything you’re missing, please submit it ASAP!
+      </p>
+      </section>
+      <section id="final-project-outline" class="level2">
+      <h2>Final Project: Outline</h2>
+      <ul>
+      <li>Title</li>
+      <li>Author List (and affiliations)</li>
+      <li>Abstract</li>
+      <li>Introduction / Previous Work</li>
+      <li>Materials and Methods</li>
+      <li>Experimental Setup</li>
+      <li>Results</li>
+      <li>Discussion / Conclusion</li>
+      </ul>
+      </section>
+      <section id="some-hints" class="level2">
+      <h2>Some Hints</h2>
+      <ul>
+      <li>Intro / Previous Work should include details of any studies that have used this data, including a few citations on the background of the problem.</li>
+      <li>Materials / Methods is where you describe your data, any pre-processing steps, your classifiers, what do they do, and why you chose them. This should be in two sections: Supervised vs. Unsupervised.</li>
+      <li>Experimental Setup is where you describe the process of classification – cross-validation, train/test splits, etc.</li>
+      <li>Results and Discussion can be merged, but this is where you go through all the results that you’ve got so far and what those results mean <strong>in the context of your chosen problem.</strong></li>
+      </ul>
+      </section>
+      </section>
+      <section id="section-1" class="level1">
+      <h1></h1>
+      <section id="engineering-responsibility" class="level2">
+      <h2>Engineering Responsibility</h2>
+      </section>
+      <section id="biases-biases-everywhere" class="level2">
+      <h2>Biases, Biases Everywhere</h2>
+      <p>When working with data, it’s easy to think that because you’re “doing science,” you are being objective and free from bias.</p>
+      <p class="fragment">
+      <strong>This is dangerous and wrong!</strong>
+      </p>
+      </section>
+      <section id="dangers-of-mathematics" class="level2">
+      <h2>Dangers of Mathematics</h2>
+      <p>\begin{block}{Cathy O’Neil, “Weapons of Math Destruction”} \textit{Models are opinions embedded in mathematics.}</p>
+      <p>\textit{We’re weaponizing math, because people are afraid of math, and they trust math, and they stop asking questions when they see formulas…} \end{block}</p>
+      </section>
+      <section id="responsibility-to-the-client" class="level2">
+      <h2>Responsibility to the Client</h2>
+      <p>As engineers, we have a <strong>responsibility</strong> to be clear about how our methods work, as well as the biases and potential pitfalls in applying our algorithms to real-world data, where there are real consequences.</p>
+      <p class="fragment">
+      We cannot predict all of our mistakes and biases, but we can try to steer clear of some of the biggest ones.
+      </p>
+      </section>
+      </section>
+      <section id="section-2" class="level1">
+      <h1></h1>
+      <section id="data-fallacies" class="level2">
+      <h2>Data Fallacies</h2>
+      </section>
+      <section id="source-of-the-list" class="level2">
+      <h2>Source of the List</h2>
+      <p>There are different types of fallacies – logical, philosophical, etc. – but here we deal with “data” fallacies, those that arise from misinterpretation (either intentional or unintentional) of data.</p>
+      <p class="fragment">
+      This list originated from the <a href="https://www.geckoboard.com/learn/data-literacy/">Data Literacy Guide</a> on Geckoboard.com (no affiliation), and provides a nice pictoral overview of some common data fallacies.
+      </p>
+      </section>
+      <section id="overfitting" class="level2">
+      <h2>Overfitting</h2>
+      <p><img src="img/overfitting.svg" style="width:60.0%" /></p>
+      </section>
+      <section id="summary-statistics" class="level2">
+      <h2>Summary Statistics</h2>
+      <p><img src="img/summary_stats.svg" style="width:60.0%" /></p>
+      </section>
+      <section id="cherry-picking" class="level2">
+      <h2>Cherry Picking</h2>
+      <p><img src="img/cherry_picking.svg" style="width:60.0%" /></p>
+      </section>
+      <section id="sampling-bias" class="level2">
+      <h2>Sampling Bias</h2>
+      <p><img src="img/sampling_bias.svg" style="width:60.0%" /></p>
+      </section>
+      <section id="regression-towards-the-mean" class="level2">
+      <h2>Regression Towards the Mean</h2>
+      <p><img src="img/regression_towards_the_mean.svg" style="width:60.0%" /></p>
+      </section>
+      <section id="cobra-effect" class="level2">
+      <h2>Cobra Effect</h2>
+      <p><img src="img/cobra_effect.svg" style="width:60.0%" /></p>
+      </section>
+      <section id="data-dredging" class="level2">
+      <h2>Data Dredging</h2>
+      <p><img src="img/data_dredging.svg" style="width:60.0%" /></p>
+      </section>
+      <section id="false-causality" class="level2">
+      <h2>False Causality</h2>
+      <p><img src="img/false_causality.svg" style="width:60.0%" /></p>
+      </section>
+      <section id="gamblers-fallacy" class="level2">
+      <h2>Gambler’s Fallacy</h2>
+      <p><img src="img/gamblers_fallacy.svg" style="width:60.0%" /></p>
+      </section>
+      <section id="gerrymandering" class="level2">
+      <h2>Gerrymandering</h2>
+      <p><img src="img/gerrymandering.svg" style="width:60.0%" /></p>
+      </section>
+      <section id="mcnamara-fallacy" class="level2">
+      <h2>McNamara Fallacy</h2>
+      <p><img src="img/mcnamara_fallacy.svg" style="width:60.0%" /></p>
+      </section>
+      <section id="hawthorne-effect" class="level2">
+      <h2>Hawthorne Effect</h2>
+      <p><img src="img/hawthorne_effect.svg" style="width:60.0%" /></p>
+      </section>
+      <section id="publication-bias" class="level2">
+      <h2>Publication Bias</h2>
+      <p><img src="img/publication_bias.svg" style="width:60.0%" /></p>
+      </section>
+      <section id="simpsons-paradox" class="level2">
+      <h2>Simpson’s Paradox</h2>
+      <p><img src="img/simpsons_paradox.svg" style="width:60.0%" /></p>
+      </section>
+      <section id="survivorship-bias" class="level2">
+      <h2>Survivorship Bias</h2>
+      <p><img src="img/survivorship_bias.svg" style="width:60.0%" /></p>
+      </section>
+      </section>
+      </div>
+    </div>
+    <script src="js/reveal.js"></script>
+    <!-- Particles scripts -->
+    <script src="lib/js/particles.js"></script>
+    <script src="lib/js/app.js"></script>
+    <!-- Pseudocode scripts -->
+    <script>
+     pseudocode.renderElement(document.getElementById("hello-world-code"));
+    </script>
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+          fragments: true,
+          math: {
+					    mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+					    config: 'TeX-AMS_HTML-full'
+          },
+
+                  transition: Reveal.getQueryHash().transition || 'fade',
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true },
+          { src: 'plugin/math/math.js', async: true },
+          { src: 'plugin/chalkboard/chalkboard.js'}
+        ],
+        
+        // Chalkboard Plugin Settings
+				chalkboard: {
+					src: "plugin/chalkboard/chalkboard.json",
+					toggleChalkboardButton: { left: "80px" },
+					toggleNotesButton: { left: "130px" },
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					theme: "whiteboard",
+//					background: [ 'rgba(127,127,127,.1)' , 'reveal.js-plugins/chalkboard/img/whiteboard.png' ],
+// 					pen:  [ 'crosshair', 'pointer' ]
+//					pen: [ url('reveal.js-plugins/chalkboard/img/boardmarker.png), auto' , 'url(reveal.js-plugins/chalkboard/img/boardmarker.png), auto' ],
+//				        color: [ 'rgba(0,0,255,1)', 'rgba(0,0,255,0.5)' ],
+//				        draw: [ (RevealChalkboard) ?  RevealChalkboard.drawWithPen : null , (RevealChalkboard) ? RevealChalkboard.drawWithPen : null ],
+				},
+				keyboard: {
+				    67: function() { RevealChalkboard.toggleNotesCanvas() },	// toggle chalkboard when 'c' is pressed
+				    66: function() { RevealChalkboard.toggleChalkboard() },	// toggle chalkboard when 'b' is pressed
+				    46: function() { RevealChalkboard.clear() },	// clear chalkboard when 'DEL' is pressed
+				     8: function() { RevealChalkboard.reset() },	// reset all chalkboard data when 'BACKSPACE' is pressed
+				    68: function() { RevealChalkboard.download() },	// downlad chalkboard drawing when 'd' is pressed
+					  90: function() { Recorder.downloadZip(); }, 	// press 'z' to download zip containing audio files
+					  84: function() { Recorder.fetchTTS(); } 	// press 't' to fetch TTS audio files
+				},
+      });
+
+    </script>
+  </body>
+</html>
