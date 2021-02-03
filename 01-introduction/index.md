@@ -22,11 +22,12 @@ Scott Doyle
 
 PAS, BME, BMI
 
-Downtown: 4205 JSMBS (M, W, F)<br/>
-North: 215-J Bonner Hall (Tu, Th)
+~~Downtown: 4205 JSMBS (M, W, F)~~<br/>
+~~North: 215-J Bonner Hall (Tu, Th)~~<br/>
+The Internet
 
 <i class="fa fa-envelope"></i> scottdoy@buffalo.edu<br/>
-<i class="fa fa-phone"></i> 716.829.2005<br/>
+<i class="fa fa-phone"></i> ~~716.829.2005~~<br/>
 <i class="fa fa-globe"></i> [***www.scottdoy.com***](http://www.scottdoy.com)
 </div>
 
@@ -373,7 +374,20 @@ How could quantitative techniques help test hypotheses and generate novel experi
 
 # 
 
-## Course Assessments
+## Course Details
+
+## Interactive Sessions
+
+Interactive sessions every Tuesday 1:00pm -- 3:00pm (Zoom)
+
+<p class="fragment">
+Two lectures per week, posted Tuesday and Thursday
+</p>
+
+<p class="fragment">
+Attendance is based on watching the recorded lectures OR attending the
+interactive session and participating (you are free to do both)
+</p>
 
 ## Course Resources: Textbooks
 
@@ -490,8 +504,8 @@ Here's a reasonable workflow when you get an error:
 You will be graded primarily on four components:
 
 <ul>
-<li class="fragment">**Participation**: Show up to class, ask questions, and answer them</li>
-<li class="fragment">**Assignments**: 4-5 assignments per semester</li>
+<li class="fragment">**Participation**: Watch videos, attend Tuesdays, ask questions</li>
+<li class="fragment">**Assignments**: 4 assignments per semester</li>
 <li class="fragment">**Paper Presentation**: 15-minute formal presentation to the class</li>
 <li class="fragment">**Final Project**: Due at the end of the semester</li>
 </ul>
@@ -518,6 +532,20 @@ Class presentations can be any of the following:
 <li class="fragment">**Research Discussion**: If you doing research outside of
 class, tell us about it!</li>
 </ul>
+
+## Course Evaluation: Presentations
+
+Presentations should be recorded and uploaded to the UBLearns site.
+
+<p class="fragment">
+I will ask questions based on your presentation, and your answers will be part
+of the evaluation.
+</p>
+
+<p class="fragment">
+Alternatively, you can give a presentation live during the Tuesday session
+(please e-mail me!)
+</p>
 
 ## Course Evaluation: Projects
 
@@ -598,7 +626,7 @@ If you are interested in something, e-mail me and we can cover it.
 
 ## Mathematical Background and Coding Intro
 
-On **Thursday** we will cover:
+In the next lecture we will cover:
 
 <ul>
 <li>Machine Learning design philosophy and project setup</li>
@@ -612,11 +640,12 @@ Scott Doyle
 
 PAS, BME, BMI
 
-Downtown: 4205 JSMBS (M, W, F)<br/>
-North: 215-J Bonner Hall (Tu, Th)
+~~Downtown: 4205 JSMBS (M, W, F)~~<br/>
+~~North: 215-J Bonner Hall (Tu, Th)~~<br/>
+The Internet
 
 <i class="fa fa-envelope"></i> scottdoy@buffalo.edu<br/>
-<i class="fa fa-phone"></i> 716.829.2005<br/>
+<i class="fa fa-phone"></i> ~~716.829.2005~~<br/>
 <i class="fa fa-globe"></i> [***www.scottdoy.com***](http://www.scottdoy.com)
 </div>
 
