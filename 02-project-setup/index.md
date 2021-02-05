@@ -19,7 +19,7 @@ How do we begin a machine learning project?
 
 <div class="txt-left">
 <ul>
-<li class="fragment">What are the concerns with **pathology** in particular?</li>
+<li class="fragment">What are the concerns with **biomedical data** in particular?</li>
 <li class="fragment">What kinds of questions will help **save time, effort, and money?**</li>
 <li class="fragment">How should we **interface** with collaborators?</li>
 </ul>
@@ -49,10 +49,19 @@ What is the problem statement, in **one sentence**?
 <p class="fragment">NOT the machine learning task, just the gap that needs to be
 addressed.</p>
 
-## Problem Statement
+## Problem Statement: Fine Needle Aspirates
 
-> Pathologists must review cytology slides to identify malignant versus benign
-> tumors. 
+<div class="l-double">
+<div>
+![Benign FNA Image](img/fna_92_5311_benign.png){ width=80% }
+</div>
+<div> 
+![Malignant FNA Image](img/fna_91_5691_malignant.png){ width=80% }
+</div>
+</div>
+
+Pathologists must review cytology slides to identify malignant versus benign
+tumors. 
 
 ## Current Solutions
 
@@ -509,18 +518,18 @@ of categories. Each of the new features is *binary*, meaning it's only 0 or 1.
 | 001 | A          |
 | 002 | B          |
 | 003 | B          |
-| 004 | A          |
-| 005 | B          |
+| 004 | AB         |
+| 005 | O          |
 
 ## One-Hot Encoding
 
-|  id | Blood Type A | Blood Type B |
-|-----|--------------|--------------|
-| 001 |            1 |            0 |
-| 002 |            0 |            1 |
-| 003 |            0 |            1 |
-| 004 |            1 |            0 |
-| 005 |            0 |            1 |
+|  id | Blood Type A | Blood Type B | Blood Type AB | Blood Type O |
+|-----|--------------|--------------|---------------|--------------|
+| 001 |            1 |            0 |             0 |            0 |
+| 002 |            0 |            1 |             0 |            0 |
+| 003 |            0 |            1 |             0 |            0 |
+| 004 |            0 |            0 |             1 |            0 |
+| 005 |            0 |            0 |             0 |            1 |
 
 ## One-Hot Encoding
 
@@ -559,6 +568,11 @@ transform applied to testing.
 
 **Min-Max Scaling / Normalization**: 
 $$ x = \frac{x - \min{(x)}}{\max{(x - \min{(x)})}} $$
+
+<span class="fragment">
+Bounded between 0 and 1, but if you have outliers, your data can be "squeezed"
+into the upper or lower portions of the range.
+</span>
 
 ## Feature Scaling: Standardization
 
