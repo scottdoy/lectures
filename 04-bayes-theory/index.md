@@ -8,27 +8,18 @@ author: Scott Doyle
 contact: scottdoy@buffalo.edu
 title: Bayes Theory
 subtitle: Machine Learning for Biomedical Data
-date: 2020-02-06
+date: 2021-02-16
 ---
 
 # 
 
 ## Announcements
 
-## Sign-In Sheets
-
-**Starting next week:** Randomly-distributed (Tue / Wed) sign-up sheets for attendance.
-
-<p class="fragment">
-Attendance and participation is 10% of your grade; this is how it will be
-tracked.
-</p>
-
 ## Looking for Group
 
 If you are looking for people to group up with, you can use the following sheet:
 
-[Spring 2020 - Looking for Group](https://docs.google.com/spreadsheets/d/1x3bJouo54h5hiNFMOzFxT7ldIs-c9Kb-_NqbZIZkicw/)
+[Spring 2021 - Looking for Group]()
 
 # 
 
@@ -364,10 +355,10 @@ What is the probability of this decision rule being wrong?
 
 <div class="fragment">
 \$P(\\textrm{error}|x)=
-\begin{cases}
+\\begin{cases}
 P(\\omega_{1}|x)&\\textrm{if we decide } \\omega_{2} \\\\
 P(\\omega_{2}|x)&\\textrm{if we decide } \\omega_{1}
-\end{cases} 
+\\end{cases} 
 \$
 </div>
 
