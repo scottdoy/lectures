@@ -17,7 +17,7 @@ date: 2020-02-04
 
 <ul>
 <li class="fragment">Online sign-up sheet for scheduling presentations</li>
-<li class="fragment">Up to **three** slots per class</li>
+<li class="fragment">Up to **six** slots per week, presentations due by **Friday**</li>
 <li class="fragment">Each presentation should be **10 minutes**, plus questions</li>
 </ul>
 
